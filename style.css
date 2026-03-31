@@ -1,0 +1,89 @@
+/* PALETA DE COLORES */
+:root {
+    --p1-dark: #957698;
+    --p2-mid: #b595b8;
+    --p3-light: #d9c2db;
+    --p4-bg: #f2ebf3;
+    --white: #ffffff;
+    --black: #333;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', sans-serif; }
+body { background-color: var(--p4-bg); color: var(--black); }
+
+/* HEADER */
+header {
+    background: var(--white);
+    padding: 1.5rem 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size: 1.5rem; font-weight: 800; color: var(--p1-dark); }
+.logo span { font-weight: 300; }
+nav ul { display: flex; gap: 2rem; list-style: none; }
+nav a { text-decoration: none; color: var(--p1-dark); font-weight: 500; transition: 0.3s; }
+nav a:hover { color: var(--p2-mid); }
+.cart-icon {
+    background: var(--p3-light);
+    padding: 8px 15px;
+    border-radius: 20px;
+    color: var(--p1-dark);
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* HERO */
+.hero {
+    height: 70vh;
+    background: linear-gradient(rgba(149, 118, 152, 0.7), rgba(149, 118, 152, 0.7)), url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1500');
+    background-size: cover; background-position: center;
+    color: var(--white); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+}
+.hero-badge { background: var(--p3-light); color: var(--p1-dark); padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; }
+.hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
+.hero p { max-width: 980px; margin-bottom: 0.6rem; padding: 0 1rem; }
+.btn-primary { background: var(--white); color: var(--p1-dark); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 1.4rem; }
+.btn-primary:hover { transform: scale(1.05); background: var(--p4-bg); }
+
+/* SECCIONES COMUNES */
+.main-container, .skincare-promo, .about { padding: 80px 10%; }
+.section-title { text-align: center; margin-bottom: 40px; color: var(--p1-dark); font-size: 2rem; }
+
+/* TABS */
+.tabs { display: flex; justify-content: center; gap: 1rem; margin-bottom: 40px; }
+.tab-btn { background: var(--white); border: 2px solid var(--p2-mid); color: var(--p2-mid); padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+.tab-btn.active { background: var(--p2-mid); color: var(--white); }
+
+/* PRODUCTOS */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+.product-card { background: var(--white); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: 0.3s; }
+.product-card:hover { transform: translateY(-10px); }
+.img-holder { height: 250px; background: #eee; }
+.img-holder img { width: 100%; height: 100%; object-fit: cover; }
+.card-info { padding: 20px; text-align: center; }
+.skin-info { text-align: center; padding: 20px 24px 24px; }
+.skin-info p { margin-top: 6px; }
+.price { display: block; font-size: 1.5rem; font-weight: bold; color: var(--p1-dark); margin: 15px 0; }
+.add-btn { background: var(--p1-dark); color: white; border: none; padding: 10px 20px; border-radius: 20px; width: 100%; cursor: pointer; }
+
+/* TONOS DE PIEL */
+.skin-tones { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+.tone { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ddd; cursor: pointer; }
+
+/* QUIÉNES SOMOS */
+.about { background: var(--white); border-radius: 50px 50px 0 0; }
+.about-content { max-width: 800px; margin: 0 auto; text-align: center; }
+.about h2 { margin-bottom: 20px; color: var(--p1-dark); }
+
+/* NEWSLETTER */
+.newsletter { background: var(--p1-dark); color: white; padding: 60px 10%; text-align: center; }
+.news-form { margin-top: 25px; display: flex; justify-content: center; gap: 10px; }
+.news-form input { padding: 12px 20px; border-radius: 25px; border: none; width: 300px; }
+.news-form button { padding: 12px 30px; border-radius: 25px; border: none; background: var(--p3-light); color: var(--p1-dark); font-weight: bold; cursor: pointer; }
+
+footer { padding: 30px; text-align: center; background: var(--p4-bg); font-size: 0.9rem; color: var(--p1-dark); }
