@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>amapola beauty</title>
+    <title>HAZE beauty</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <header>
-        <div class="logo">amapola beauty</div>
+        <div class="logo">
+            <img src="logo_progra.png" alt="Logo HAZE beauty" class="logo-img">
+            <span>HAZE beauty</span>
+        </div>
         <nav>
             <ul>
                 <li><a href="#hero">Inicio</a></li>
@@ -26,7 +29,7 @@
 
     <section class="hero" id="hero">
         <div class="hero-badge">¡NUEVA LÍNEA!</div>
-        <h1>Pure Skincare de amapola beauty</h1>
+        <h1>Pure Skincare de HAZE beauty</h1>
         <p>Nutrición profunda con extractos botánicos. La calma que tu piel necesitaba ya está aquí.</p>
         <button class="btn-primary" onclick="scrollToSection('skincare-section')">Comprar Nueva Colección</button>
     </section>
@@ -42,7 +45,7 @@
 
         <div class="product-grid" id="makeup-grid">
             <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1631214499558-b801f618bc31?auto=format&fit=crop&q=80&w=400" alt="Base"></div>
+                <div class="img-holder"><img src="base-maquillaje.png" alt="Base"></div>
                 <div class="card-info">
                     <h3>Base "Second Skin"</h3>
                     <div class="skin-tones">
@@ -215,15 +218,25 @@
     </section>
 
     <section class="about" id="about-us">
-        <div class="about-content">
-            <h2>Nuestra Misión</h2>
-            <p><strong>amapola beauty</strong> nació bajo la premisa de que el maquillaje no debe ocultar quién eres, sino celebrar tu esencia. En un mundo saturado de filtros, nuestra <strong>misión</strong> es democratizar la belleza de alta gama, creando fórmulas inclusivas que respeten cada tono de piel y promuevan una rutina de autocuidado consciente.</p>
-            <p>Creemos en el lujo ético: productos libres de crueldad animal, con ingredientes botánicos y empaques diseñados para ser amados.</p>
+        <div class="about-top">
+            <div class="about-col">
+                <h2>Quiénes Somos</h2>
+                <p><strong>HAZE beauty</strong> nació para celebrar tu esencia real, sin filtros ni reglas rígidas. Diseñamos maquillaje y skincare con estilo actual, texturas cómodas y tonos pensados para pieles diversas.</p>
+                <p>Buscamos que cada rutina se sienta simple, linda y poderosa: productos fáciles de usar, con resultados visibles y una experiencia que te invite a jugar con tu look todos los días.</p>
+            </div>
+            <div class="about-col">
+                <h2>Nuestra Misión</h2>
+                <p>Nuestra misión es acercar belleza de alta calidad con fórmulas inclusivas y acabados profesionales, respetando cada tono y tipo de piel.</p>
+                <p>Creemos en el lujo ético: productos libres de crueldad animal, con ingredientes botánicos y empaques diseñados para ser amados.</p>
+            </div>
+        </div>
+        <div class="about-photo">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1400" alt="Equipo de HAZE beauty">
         </div>
     </section>
 
     <section class="newsletter">
-        <h3>Únete a la Comunidad amapola beauty</h3>
+        <h3>Únete a la Comunidad HAZE beauty</h3>
         <p>Suscríbete para recibir noticias sobre lanzamientos y ofertas exclusivas.</p>
         <form class="news-form" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
             <input type="email" placeholder="Tu correo electrónico" required>
@@ -232,7 +245,7 @@
     </section>
 
     <footer>
-        <p>&copy; 2026 amapola beauty | Diseñado con amor lila.</p>
+        <p>&copy; 2026 HAZE beauty | Diseñado con amor lila.</p>
     </footer>
 
     <script>
