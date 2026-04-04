@@ -1,4 +1,6 @@
-/* Reset general */
+/* =========================================
+1. RESET & GENERAL
+   ========================================= */
 * {
     margin: 0;
     padding: 0;
@@ -6,46 +8,47 @@
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Configuración del Header */
+body {
+    background-color: #ffffff;
+    color: #333;
+    scroll-behavior: smooth;
+}
+
+/* =========================================
+2. HEADER & NAVEGACIÓN
+   ========================================= */
 .main-header {
     background-color: #ffffff;
     display: flex;
-    justify-content: space-between; /* Logo a la izquierda, menú a la derecha */
+    justify-content: space-between;
     align-items: center;
-    padding: 10px 60px; /* Espaciado lateral */
-    border-bottom: 1px solid #e6d6e7; /* El color lila más clarito de tu paleta */
-    box-shadow: 0 2px 10px rgba(149, 120, 155, 0.1); /* Sombra suave con tu color principal */
+    padding: 10px 60px;
+    border-bottom: 1px solid #e6d6e7;
+    box-shadow: 0 2px 10px rgba(149, 120, 155, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
 }
 
-/* Estilos del Logo */
-.logo-container {
-    display: flex;
-    align-items: center;
-}
-
 .haze-logo {
-    height: 70px; /* Altura ideal para que se lea el eslogan "Ultimate Modern Glow" */
-    width: auto;  /* Mantiene la proporción original */
+    height: 70px;
+    width: auto;
     transition: transform 0.3s ease;
 }
 
 .haze-logo:hover {
-    transform: scale(1.05); /* Efecto sutil al pasar el mouse */
+    transform: scale(1.05);
 }
 
-/* Menú de Navegación */
 .nav-menu ul {
     list-style: none;
     display: flex;
-    gap: 35px; /* Espacio entre botones */
+    gap: 35px;
 }
 
 .nav-menu a {
     text-decoration: none;
-    color: #95789b; /* El morado oscuro de tu paleta */
+    color: #95789b; /* Morado Haze */
     font-size: 14px;
     font-weight: 500;
     text-transform: uppercase;
@@ -54,120 +57,192 @@
 }
 
 .nav-menu a:hover {
-    color: #d4af37; /* Cambia al dorado de tu paleta */
+    color: #d4af37; /* Dorado Haze */
 }
 
-/* Responsive: para que en celulares no se amontone */
-@media (max-width: 768px) {
-    .main-header {
-        flex-direction: column;
-        padding: 20px;
-    }
-    .nav-menu ul {
-        margin-top: 15px;
-        gap: 15px;
-    }
-}
-
-/* --- SECCIÓN SLIDER --- */
-.slider-container {
-    width: 100%;
-    height: 80vh; /* Ocupa el 80% de la altura de la pantalla */
-    overflow: hidden;
-    position: relative;
-    background-color: #f9f6f9; /* Un lila casi blanco de fondo */
-}
-
-.slider {
+/* =========================================
+3. CATÁLOGO ESTRUCTURA (SIDEBAR + GRID)
+   ========================================= */
+.catalog-container {
     display: flex;
-    width: 300%; /* Porque son 3 diapositivas */
-    height: 100%;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 60px 40px;
+    min-height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.slide {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background-size: cover;
-    background-position: center;
-    position: relative;
+/* Menú Lateral */
+.sidebar {
+    width: 250px;
+    padding-right: 40px;
+    position: sticky;
+    top: 120px;
+    height: fit-content;
 }
 
-/* Oscurecemos un poco el fondo para que el texto se lea bien */
-.slide::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.1); 
+.sidebar h3 {
+    color: #95789b;
+    font-size: 18px;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
 }
 
-/* Estilo del contenido del texto */
-.slide-content {
-    position: relative;
-    z-index: 2;
-    color: #95789b; /* Tu color lila oscuro */
-    max-width: 600px;
-    padding: 20px;
+.sidebar ul {
+    list-style: none;
 }
 
-.slide-content h2 {
-    font-size: 3rem;
-    letter-spacing: 5px;
+.sidebar li {
     margin-bottom: 15px;
-    font-family: 'Playfair Display', serif; /* Si puedes agrégala, sino usa la default */
 }
 
-.slide-content p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
+.sidebar a {
+    text-decoration: none;
+    color: #555;
+    font-size: 14px;
+    transition: 0.3s;
 }
 
-/* Botón del Slider con tu color complementario */
-.btn-slider {
-    padding: 12px 35px;
+.sidebar a:hover {
+    color: #d4af37;
+    padding-left: 5px;
+}
+
+/* Grilla de Productos */
+.products-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 COLUMNAS FIJAS */
+    gap: 40px;
+}
+
+/* =========================================
+4. TARJETA DE PRODUCTO
+   ========================================= */
+.product-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    transition: transform 0.3s ease;
+    animation: fadeInProduct 0.5s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Imagen del producto */
+.product-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    margin-bottom: 15px;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Muestra la imagen completa */
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-img img {
+    transform: scale(1.08);
+}
+
+/* Información del producto */
+.product-info {
+    text-align: left; /* Alineación limpia estilo Fenty */
+}
+
+.product-info h4 {
+    font-size: 17px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.product-info p {
+    color: #777;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.product-info .price {
+    font-weight: 700;
+    color: #95789b;
+    font-size: 18px;
+    display: block;
+    margin: 10px 0;
+}
+
+/* =========================================
+5. SELECTOR DE TONOS Y BOTÓN
+   ========================================= */
+.tone-selector {
+    display: flex;
+    gap: 12px;
+    margin: 15px 0;
+}
+
+.tone-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+
+/* Colores de las bases */
+.tone-circle.light  { background-color: #f3d9c1; }
+.tone-circle.medium { background-color: #e5b38a; }
+.tone-circle.warm   { background-color: #c3834c; }
+.tone-circle.deep   { background-color: #633b26; }
+
+.tone-circle:hover, .tone-circle.active {
+    border-color: #95789b;
+    transform: scale(1.2);
+}
+
+/* Botón Añadir al Carrito */
+.add-to-cart {
+    width: 100%;
+    padding: 12px;
     background-color: #95789b;
     color: white;
-    text-decoration: none;
-    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
     font-weight: 600;
-    letter-spacing: 2px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: 0.3s;
 }
 
-.btn-slider:hover {
-    background-color: transparent;
-    color: #d4af37; /* Dorado complementario */
-    border-color: #d4af37;
-}
-
-/* Navegación (Puntos) */
-.slider-nav {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 15px;
-}
-
-.slider-nav a {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #e6d6e7;
-    border: 1px solid #95789b;
-}
-
-.slider-nav a:hover {
+.add-to-cart:hover {
     background-color: #d4af37;
 }
 
-/* Funcionalidad básica para que se mueva al clickear los puntos */
-#slide-1:target ~ .slider { transform: translateX(0); }
-#slide-2:target ~ .slider { transform: translateX(-33.33%); }
-#slide-3:target ~ .slider { transform: translateX(-66.66%); }
+/* =========================================
+6. ANIMACIONES Y RESPONSIVE
+   ========================================= */
+@keyframes fadeInProduct {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .main-header { padding: 10px 20px; flex-direction: column; }
+    .catalog-container { flex-direction: column; padding: 20px; }
+    .sidebar { width: 100%; position: relative; top: 0; padding: 0; margin-bottom: 30px; }
+    .products-grid { grid-template-columns: 1fr; }
+}

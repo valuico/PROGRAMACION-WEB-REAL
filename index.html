@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HAZE beauty | Official Site</title>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
 </head>
 <body>
 
@@ -19,50 +20,67 @@
             <ul>
                 <li><a href="#">Inicio</a></li>
                 <li><a href="#">Skincare</a></li>
-                <li><a href="#">Makeup</a></li>
+                <li><a href="#seccion-makeup">Makeup</a></li>
                 <li><a href="#">Nosotros</a></li>
                 <li><a href="#">Unite a la comunidad!</a></li>
             </ul>
         </nav>
     </header>
     <main>
-        <section class="slider-wrapper">
-            <div class="slider">
-                <div class="slide" id="slide1">
-                    <div class="slide-content">
-                        <span>BIENVENIDA A HAZE</span>
-                        <h2>ENVÍO GRATIS</h2>
-                        <p>En tu primera compra usando el código <strong>HAZEGLOW</strong></p>
-                        <a href="#" class="btn-slider">Comprar ahora</a>
+        <section id="seccion-makeup" class="catalog-container">
+            
+            <aside class="sidebar">
+                <h3>MAKEUP</h3>
+                <ul>
+                    <li><a href="javascript:void(0)" class="filter-btn" data-filter="all">Explorar Todo</a></li>
+                    <li><a href="javascript:void(0)" class="filter-btn" data-filter="cara">Cara</a></li>
+                    <li><a href="javascript:void(0)" class="filter-btn" data-filter="ojos">Ojos</a></li>
+                    <li><a href="javascript:void(0)" class="filter-btn" data-filter="labios">Labios</a></li>
+                </ul>
+            </aside>
+
+            <div class="products-grid">
+                
+                <div class="product-card cara">
+                    <div class="product-img"><img src="base-maquillaje.png" alt="Haze Beauty Foundation"></div>
+                    <div class="product-info">
+                        <h4>Pro Filt'r Foundation</h4>
+                        <p>Cara - Soft Matte Longwear</p>
+                        
+                        <div class="tone-selector">
+                            <span class="tone-circle light" title="Light Porcelain"></span>
+                            <span class="tone-circle medium" title="Medium Peach"></span>
+                            <span class="tone-circle warm" title="Warm Amber"></span>
+                            <span class="tone-circle deep" title="Deep Espresso"></span>
+                        </div>
+
+                        <span class="price">$40.000</span>
+                        <button class="add-to-cart">Añadir al Carrito</button>
                     </div>
                 </div>
 
-                <div class="slide" id="slide2">
-                    <div class="slide-content">
-                        <span>LANZAMIENTO</span>
-                        <h2>NUEVA LÍNEA SKINCARE</h2>
-                        <p>Descubrí el poder de la hidratación profunda con nuestra colección premium.</p>
-                        <a href="#" class="btn-slider">Ver colección</a>
+                <div class="product-card labios">
+                    <div class="product-img"><img src="gloss.jpg" alt="Gloss"></div>
+                    <div class="product-info">
+                        <h4>Gloss Bomb Stix</h4>
+                        <p>Labios - High Shine</p>
+                        <span>$44.911</span>
                     </div>
                 </div>
 
-                <div class="slide" id="slide3">
-                    <div class="slide-content">
-                        <span>BEAUTY CLUB</span>
-                        <h2>UNITE A LA COMUNIDAD</h2>
-                        <p>Recibí tips exclusivos, acceso anticipado y regalos en cada compra.</p>
-                        <a href="#" class="btn-slider">Saber más</a>
+                <div class="product-card ojos">
+                    <div class="product-img"><img src="rimel.jpg" alt="Rimel"></div>
+                    <div class="product-info">
+                        <h4>Hella Thicc</h4>
+                        <p>Ojos - Volumizing Mascara</p>
+                        <span>$38.500</span>
                     </div>
                 </div>
+
             </div>
 
-            <div class="slider-nav">
-                <a href="#slide1"></a>
-                <a href="#slide2"></a>
-                <a href="#slide3"></a>
-            </div>
         </section>
     </main>
-
+    
 </body>
 </html>
