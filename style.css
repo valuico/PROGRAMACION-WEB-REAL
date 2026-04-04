@@ -68,3 +68,106 @@
         gap: 15px;
     }
 }
+
+/* --- SECCIÓN SLIDER --- */
+.slider-container {
+    width: 100%;
+    height: 80vh; /* Ocupa el 80% de la altura de la pantalla */
+    overflow: hidden;
+    position: relative;
+    background-color: #f9f6f9; /* Un lila casi blanco de fondo */
+}
+
+.slider {
+    display: flex;
+    width: 300%; /* Porque son 3 diapositivas */
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Oscurecemos un poco el fondo para que el texto se lea bien */
+.slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.1); 
+}
+
+/* Estilo del contenido del texto */
+.slide-content {
+    position: relative;
+    z-index: 2;
+    color: #95789b; /* Tu color lila oscuro */
+    max-width: 600px;
+    padding: 20px;
+}
+
+.slide-content h2 {
+    font-size: 3rem;
+    letter-spacing: 5px;
+    margin-bottom: 15px;
+    font-family: 'Playfair Display', serif; /* Si puedes agrégala, sino usa la default */
+}
+
+.slide-content p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+/* Botón del Slider con tu color complementario */
+.btn-slider {
+    padding: 12px 35px;
+    background-color: #95789b;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 2px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-slider:hover {
+    background-color: transparent;
+    color: #d4af37; /* Dorado complementario */
+    border-color: #d4af37;
+}
+
+/* Navegación (Puntos) */
+.slider-nav {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+}
+
+.slider-nav a {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #e6d6e7;
+    border: 1px solid #95789b;
+}
+
+.slider-nav a:hover {
+    background-color: #d4af37;
+}
+
+/* Funcionalidad básica para que se mueva al clickear los puntos */
+#slide-1:target ~ .slider { transform: translateX(0); }
+#slide-2:target ~ .slider { transform: translateX(-33.33%); }
+#slide-3:target ~ .slider { transform: translateX(-66.66%); }
