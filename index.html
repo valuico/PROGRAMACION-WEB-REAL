@@ -3,273 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HAZE beauty</title>
+    <title>HAZE beauty | Official Site</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <header>
-        <div class="logo">
-            <img src="logo_progra.png" alt="Logo HAZE beauty" class="logo-img">
-            <span>HAZE beauty</span>
+    <header class="main-header">
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="LOGO-removebg-preview.png" alt="HAZE Beauty Logo" class="haze-logo">
+            </a>
         </div>
-        <nav>
+
+        <nav class="nav-menu">
             <ul>
-                <li><a href="#hero">Inicio</a></li>
-                <li><a href="#makeup-section">Maquillaje</a></li>
-                <li><a href="#skincare-section">Skincare</a></li>
-                <li><a href="#about-us">Nosotros</a></li>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#">Skincare</a></li>
+                <li><a href="#">Makeup</a></li>
+                <li><a href="#">Nosotros</a></li>
+                <li><a href="#">Unite a la comunidad!</a></li>
             </ul>
         </nav>
-        <div class="header-icons">
-            <div class="cart-icon"><i class="fas fa-shopping-bag"></i><span id="cart-count">0</span></div>
-        </div>
     </header>
 
-    <section class="hero" id="hero">
-        <div class="hero-badge">¡NUEVA LÍNEA!</div>
-        <h1>Pure Skincare de HAZE beauty</h1>
-        <p>Nutrición profunda con extractos botánicos. La calma que tu piel necesitaba ya está aquí.</p>
-        <button class="btn-primary" onclick="scrollToSection('skincare-section')">Comprar Nueva Colección</button>
-    </section>
-
-    <section class="main-container" id="makeup-section">
-        <h2 class="section-title">Colección de Maquillaje</h2>
-        
-        <div class="tabs">
-            <button class="tab-btn active" onclick="filterMakeup('cara')">Cara</button>
-            <button class="tab-btn" onclick="filterMakeup('ojos')">Ojos</button>
-            <button class="tab-btn" onclick="filterMakeup('labios')">Labios</button>
-        </div>
-
-        <div class="product-grid" id="makeup-grid">
-            <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="base-maquillaje.png" alt="Base"></div>
-                <div class="card-info">
-                    <h3>Base "Second Skin"</h3>
-                    <div class="skin-tones">
-                        <span class="tone" style="background: #f3d4b7;"></span>
-                        <span class="tone" style="background: #e4b38d;"></span>
-                        <span class="tone" style="background: #a6734a;"></span>
-                        <span class="tone" style="background: #6b4328;"></span>
-                    </div>
-                    <p>Disponible en 12 tonos para cada tipo de piel.</p>
-                    <span class="price">$ 29.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1526758097130-bab247274f58?auto=format&fit=crop&q=80&w=400" alt="Iluminador"></div>
-                <div class="card-info">
-                    <h3>Iluminador "Glow Veil"</h3>
-                    <p>Acabado satinado para un brillo natural.</p>
-                    <span class="price">$ 21.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1614715838608-dd527c46231d?auto=format&fit=crop&q=80&w=400" alt="Rubor"></div>
-                <div class="card-info">
-                    <h3>Rubor "Soft Petal"</h3>
-                    <p>Color modulable con efecto buena cara.</p>
-                    <span class="price">$ 19.400</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1631730359585-38a4935cbec4?auto=format&fit=crop&q=80&w=400" alt="Corrector"></div>
-                <div class="card-info">
-                    <h3>Corrector de Ojeras "Blur Fit"</h3>
-                    <p>Cobertura media-alta sin cuartearse.</p>
-                    <span class="price">$ 18.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1590156524389-1c0f61a8f67a?auto=format&fit=crop&q=80&w=400" alt="Polvo fijador"></div>
-                <div class="card-info">
-                    <h3>Polvo Fijador "Air Matte"</h3>
-                    <p>Controla brillo y difumina poros al instante.</p>
-                    <span class="price">$ 23.500</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="cara">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=400" alt="Fijador en spray"></div>
-                <div class="card-info">
-                    <h3>Fijador en Spray "Stay Bloom"</h3>
-                    <p>Prolonga el maquillaje hasta por 16 horas.</p>
-                    <span class="price">$ 26.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="labios" style="display:none;">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1586776977607-310e9c725c37?auto=format&fit=crop&q=80&w=400" alt="Labial"></div>
-                <div class="card-info">
-                    <h3>Labial "Velvet Rose"</h3>
-                    <p>Color intenso con acabado aterciopelado.</p>
-                    <span class="price">$ 17.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="labios" style="display:none;">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1631214524020-ff0f2f6f06c8?auto=format&fit=crop&q=80&w=400" alt="Lip Gloss"></div>
-                <div class="card-info">
-                    <h3>Lip Gloss "Lilac Shine"</h3>
-                    <div class="skin-tones">
-                        <span class="tone" style="background: #eac4d5;"></span>
-                        <span class="tone" style="background: #c0a0c3;"></span>
-                        <span class="tone" style="background: #957698;"></span>
-                    </div>
-                    <p>Brillo espejo con hidratación de 8 horas.</p>
-                    <span class="price">$ 16.500</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="labios" style="display:none;">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1643247342698-44b7f9fdb019?auto=format&fit=crop&q=80&w=400" alt="Delineador de labios"></div>
-                <div class="card-info">
-                    <h3>Delineador de Labios "Contour Kiss"</h3>
-                    <p>Define y prolonga la duración del labial.</p>
-                    <span class="price">$ 12.800</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="ojos" style="display:none;">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&q=80&w=400" alt="Sombras"></div>
-                <div class="card-info">
-                    <h3>Paleta "Twilight"</h3>
-                    <p>Pigmentos ultra-difuminables en 8 tonos tierra y lila.</p>
-                    <span class="price">$ 34.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="ojos" style="display:none;">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?auto=format&fit=crop&q=80&w=400" alt="Máscara de pestañas"></div>
-                <div class="card-info">
-                    <h3>Máscara de Pestañas "Lash Lift"</h3>
-                    <p>Volumen y definición sin grumos.</p>
-                    <span class="price">$ 15.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card makeup-item" data-cat="ojos" style="display:none;">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1625772452859-1c03d5bf1137?auto=format&fit=crop&q=80&w=400" alt="Delineador de ojos"></div>
-                <div class="card-info">
-                    <h3>Delineador de Ojos "Ink Line"</h3>
-                    <p>Trazo preciso de larga duración.</p>
-                    <span class="price">$ 13.700</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="skincare-promo" id="skincare-section">
-        <h2 class="section-title">Nuestra Nueva Línea: Skincare</h2>
-        <div class="product-grid">
-            <div class="product-card skin-card">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=400" alt="Limpiador"></div>
-                <div class="card-info skin-info">
-                    <h3>Limpiador Micelar</h3>
-                    <p>Remueve impurezas sin resecar.</p>
-                    <span class="price">$ 20.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card skin-card">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=400" alt="Serum"></div>
-                <div class="card-info skin-info">
-                    <h3>Serum Vitamina C+</h3>
-                    <p>Luminosidad instantánea.</p>
-                    <span class="price">$ 36.400</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card skin-card">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1571781565036-d3f759be73e4?auto=format&fit=crop&q=80&w=400" alt="Crema"></div>
-                <div class="card-info skin-info">
-                    <h3>Hidratante 24h</h3>
-                    <p>Barrera protectora reforzada.</p>
-                    <span class="price">$ 28.900</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card skin-card">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&q=80&w=400" alt="Tónico"></div>
-                <div class="card-info skin-info">
-                    <h3>Tónico Lavanda</h3>
-                    <p>Equilibra el pH de tu piel.</p>
-                    <span class="price">$ 17.200</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-            <div class="product-card skin-card">
-                <div class="img-holder"><img src="https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&q=80&w=400" alt="Contorno"></div>
-                <div class="card-info skin-info">
-                    <h3>Contorno de Ojos</h3>
-                    <p>Adiós a las ojeras y bolsas.</p>
-                    <span class="price">$ 24.700</span>
-                    <button class="add-btn" onclick="add()">Añadir</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="about" id="about-us">
-        <div class="about-top">
-            <div class="about-col">
-                <h2>Quiénes Somos</h2>
-                <p><strong>HAZE beauty</strong> nació para celebrar tu esencia real, sin filtros ni reglas rígidas. Diseñamos maquillaje y skincare con estilo actual, texturas cómodas y tonos pensados para pieles diversas.</p>
-                <p>Buscamos que cada rutina se sienta simple, linda y poderosa: productos fáciles de usar, con resultados visibles y una experiencia que te invite a jugar con tu look todos los días.</p>
-            </div>
-            <div class="about-col">
-                <h2>Nuestra Misión</h2>
-                <p>Nuestra misión es acercar belleza de alta calidad con fórmulas inclusivas y acabados profesionales, respetando cada tono y tipo de piel.</p>
-                <p>Creemos en el lujo ético: productos libres de crueldad animal, con ingredientes botánicos y empaques diseñados para ser amados.</p>
-            </div>
-        </div>
-        <div class="about-photo">
-            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1400" alt="Equipo de HAZE beauty">
-        </div>
-    </section>
-
-    <section class="newsletter">
-        <h3>Únete a la Comunidad HAZE beauty</h3>
-        <p>Suscríbete para recibir noticias sobre lanzamientos y ofertas exclusivas.</p>
-        <form class="news-form" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
-            <input type="email" placeholder="Tu correo electrónico" required>
-            <button type="submit">Suscribirme</button>
-        </form>
-    </section>
-
-    <footer>
-        <p>&copy; 2026 HAZE beauty | Diseñado con amor lila.</p>
-    </footer>
-
-    <script>
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function filterMakeup(category) {
-            const items = document.querySelectorAll('.makeup-item');
-            const btns = document.querySelectorAll('.tab-btn');
-            
-            btns.forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-
-            items.forEach(item => {
-                item.style.display = (item.getAttribute('data-cat') === category) ? 'flex' : 'none';
-            });
-        }
-
-        let cart = 0;
-        function add() {
-            cart++;
-            document.getElementById('cart-count').innerText = cart;
-        }
-    </script>
 </body>
 </html>

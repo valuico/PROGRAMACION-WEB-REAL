@@ -1,137 +1,70 @@
-/* PALETA DE COLORES */
-:root {
-    --p1-dark: #5e3a73;
-    --p2-mid: #7d5a92;
-    --p3-light: #c6b3d4;
-    --p4-bg: #eee6f3;
-    --white: #ffffff;
-    --black: #333;
+/* Reset general */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', sans-serif; }
-body { background-color: var(--p4-bg); color: var(--black); }
-
-/* HEADER */
-header {
-    background: var(--white);
-    padding: 1.5rem 10%;
+/* Configuración del Header */
+.main-header {
+    background-color: #ffffff;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Logo a la izquierda, menú a la derecha */
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    position: sticky; top: 0; z-index: 100;
+    padding: 10px 60px; /* Espaciado lateral */
+    border-bottom: 1px solid #e6d6e7; /* El color lila más clarito de tu paleta */
+    box-shadow: 0 2px 10px rgba(149, 120, 155, 0.1); /* Sombra suave con tu color principal */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
-.logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--p1-dark);
+
+/* Estilos del Logo */
+.logo-container {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-.logo-img {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-}
-.logo span { font-weight: 700; }
-nav ul { display: flex; gap: 2rem; list-style: none; }
-nav a { text-decoration: none; color: var(--p1-dark); font-weight: 500; transition: 0.3s; }
-nav a:hover { color: var(--p2-mid); }
-.cart-icon {
-    background: var(--p3-light);
-    padding: 8px 15px;
-    border-radius: 20px;
-    color: var(--p1-dark);
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
 }
 
-/* HERO */
-.hero {
-    height: 70vh;
-    background: linear-gradient(rgba(94, 58, 115, 0.72), rgba(94, 58, 115, 0.72)), url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=1500');
-    background-size: cover; background-position: center;
-    color: var(--white); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-}
-.hero-badge { background: var(--p3-light); color: var(--p1-dark); padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-bottom: 20px; }
-.hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-.hero p { max-width: 980px; margin-bottom: 0.6rem; padding: 0 1rem; }
-.btn-primary { background: var(--white); color: var(--p1-dark); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 1.4rem; }
-.btn-primary:hover { transform: scale(1.05); background: var(--p4-bg); }
-
-/* SECCIONES COMUNES */
-.main-container, .skincare-promo, .about { padding: 80px 10%; }
-.section-title { text-align: center; margin-bottom: 40px; color: var(--p1-dark); font-size: 2rem; }
-
-/* TABS */
-.tabs { display: flex; justify-content: center; gap: 1rem; margin-bottom: 40px; }
-.tab-btn { background: var(--white); border: 2px solid var(--p2-mid); color: var(--p2-mid); padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
-.tab-btn.active { background: var(--p2-mid); color: var(--white); }
-
-/* PRODUCTOS */
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-.product-card { background: var(--white); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: 0.3s; }
-.product-card:hover { transform: translateY(-10px); }
-.img-holder { height: 250px; background: #eee; }
-.img-holder img { width: 100%; height: 100%; object-fit: cover; }
-.card-info { padding: 20px; text-align: center; }
-.skin-info { text-align: center; padding: 20px 24px 24px; }
-.skin-info p { margin-top: 6px; }
-.price { display: block; font-size: 1.5rem; font-weight: bold; color: var(--p1-dark); margin: 15px 0; }
-.add-btn { background: var(--p1-dark); color: white; border: none; padding: 10px 20px; border-radius: 20px; width: 100%; cursor: pointer; }
-
-/* TONOS DE PIEL */
-.skin-tones { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
-.tone { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ddd; cursor: pointer; }
-
-/* QUIÉNES SOMOS */
-.about { background: var(--white); border-radius: 50px 50px 0 0; }
-.about-top {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(280px, 1fr));
-    gap: 28px;
-    margin-bottom: 28px;
-}
-.about-col {
-    background: var(--p4-bg);
-    border: 1px solid #e4d8ec;
-    border-radius: 24px;
-    padding: 30px;
-}
-.about-col h2 {
-    margin-bottom: 14px;
-    color: var(--p1-dark);
-    text-align: left;
-}
-.about-col p {
-    text-align: left;
-    line-height: 1.6;
-}
-.about-photo {
-    border-radius: 24px;
-    overflow: hidden;
-    min-height: 300px;
-    box-shadow: 0 10px 25px rgba(94, 58, 115, 0.15);
-}
-.about-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.haze-logo {
+    height: 70px; /* Altura ideal para que se lea el eslogan "Ultimate Modern Glow" */
+    width: auto;  /* Mantiene la proporción original */
+    transition: transform 0.3s ease;
 }
 
-/* NEWSLETTER */
-.newsletter { background: var(--p1-dark); color: white; padding: 60px 10%; text-align: center; }
-.news-form { margin-top: 25px; display: flex; justify-content: center; gap: 10px; }
-.news-form input { padding: 12px 20px; border-radius: 25px; border: none; width: 300px; }
-.news-form button { padding: 12px 30px; border-radius: 25px; border: none; background: var(--p3-light); color: var(--p1-dark); font-weight: bold; cursor: pointer; }
+.haze-logo:hover {
+    transform: scale(1.05); /* Efecto sutil al pasar el mouse */
+}
 
-footer { padding: 30px; text-align: center; background: var(--p4-bg); font-size: 0.9rem; color: var(--p1-dark); }
+/* Menú de Navegación */
+.nav-menu ul {
+    list-style: none;
+    display: flex;
+    gap: 35px; /* Espacio entre botones */
+}
 
-@media (max-width: 900px) {
-    .about-top {
-        grid-template-columns: 1fr;
+.nav-menu a {
+    text-decoration: none;
+    color: #95789b; /* El morado oscuro de tu paleta */
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+    color: #d4af37; /* Cambia al dorado de tu paleta */
+}
+
+/* Responsive: para que en celulares no se amontone */
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .nav-menu ul {
+        margin-top: 15px;
+        gap: 15px;
     }
 }
