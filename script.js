@@ -41,3 +41,27 @@ document.querySelectorAll('.add-to-cart').forEach(button => {
         alert(`¡${productName} ha sido añadido a tu carrito de HAZE Beauty!`);
     });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const products = document.querySelectorAll('.product-card');
+
+    // Mostramos todos al iniciar
+    products.forEach(p => p.classList.add('show'));
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const filter = button.getAttribute('data-filter');
+
+            products.forEach(product => {
+                // Si el filtro es "all" o el producto tiene la clase del filtro
+                if (filter === 'all' || product.classList.contains(filter)) {
+                    product.classList.add('show');
+                } else {
+                    product.classList.remove('show');
+                }
+            });
+        });
+    });
+});

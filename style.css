@@ -118,28 +118,30 @@ body {
 /* =========================================
 4. TARJETA DE PRODUCTO
    ========================================= */
-.product-card {
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    transition: transform 0.3s ease;
-    animation: fadeInProduct 0.5s ease;
-}
-
 .product-card:hover {
     transform: translateY(-5px);
 }
 
-/* Imagen del producto */
-.product-img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
+.product-card {
+    display: none; /* Por defecto los manejaremos con JS */
+    flex-direction: column;
+    background: #fff;
+    transition: transform 0.3s ease;
+    /* Quitamos la animación de aquí para manejarla mejor */
+}
+
+/* Esta clase la usaremos para mostrar los productos */
+.product-card.show {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: transparent;
-    margin-bottom: 15px;
+    animation: fadeInProduct 0.5s ease forwards;
+}
+
+/* Imagen del producto */
+
+.product-img {
+    background-color: #fcfaff; /* Un gris/lila muy suave de fondo */
+    border-radius: 8px;
+    height: 300px; /* Forzamos a que todos los contenedores de imagen midan igual */
 }
 
 .product-img img {
