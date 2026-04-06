@@ -24,7 +24,7 @@
                 <li><a href="#seccion-nosotros" id="link-nosotros">Nosotros</a></li>
                 <li>
                     <div class="cart-container">
-                        <div class="cart-wrapper">
+                        <div class="cart-wrapper" onclick="toggleCart()">
                             <span class="cart-icon">🛒</span>
                             <span id="cart-count">0</span>
                         </div>
@@ -376,6 +376,27 @@
             </div>
         </div>
     </footer>
+    <div id="notification-container"></div>
+    <div id="cart-overlay" onclick="toggleCart()"></div>
+    <div id="side-cart" class="side-cart">
+        <div class="cart-header">
+            <h3>Tu Carrito</h3>
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+        </div>
+
+        <div id="cart-items-container" class="cart-body">
+            <p class="empty-msg">Tu carrito está vacío.</p>
+        </div>
+
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-amount">$0</span>
+            </div>
+            <button class="btn-checkout" onclick="goToPayment()">Finalizar Compra</button>
+            <p class="payment-methods">Aceptamos tarjetas de crédito, débito y transferencia.</p>
+        </div>
+    </div>
     
 </body>
 <script src="script.js"></script>
