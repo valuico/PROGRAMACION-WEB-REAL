@@ -624,3 +624,62 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 #seccion-makeup, #seccion-skincare {
     display: none; /* Se activarán solo con el clic */
 }
+/* =========================================
+8. NOSOTROS
+   ========================================= */
+
+.nosotros-container {
+    padding: 80px 60px; /* Alineado con el logo */
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 80vh;
+}
+
+.nosotros-content {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+}
+
+.nosotros-texto {
+    flex: 1;
+}
+
+.nosotros-texto h2 {
+    font-size: 40px;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.mision-vision {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 40px 0;
+}
+
+.mv-item h4 {
+    color: #95789b;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.unite-box {
+    background-color: #fcfaff;
+    padding: 40px;
+    border-radius: 15px;
+    border-left: 4px solid #d4af37;
+    margin-top: 50px;
+}
+
+.nosotros-imagen {
+    flex: 1;
+    text-align: center;
+}
+
+.nosotros-imagen img {
+    max-width: 80%;
+    opacity: 0.8;
+}

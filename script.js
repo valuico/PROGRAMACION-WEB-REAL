@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const products = document.querySelectorAll('#seccion-makeup .product-card');
     const cartDisplay = document.getElementById('cart-count');
     let cartCounter = 0;
+    const links = {
+    inicio: document.getElementById('link-inicio'),
+    skincare: document.getElementById('link-skincare'),
+    makeup: document.getElementById('link-makeup'),
+    nosotros: document.getElementById('link-nosotros') // <--- NUEVO
+    };
 
     // --- FUNCIÓN NAVEGACIÓN PRINCIPAL ---
     function mostrarSeccion(seccionAMostrar) {
@@ -27,11 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (seccionAMostrar === sectionMakeup) {
             applyFilter('cara');
         }
+        const sections = {
+        hero: document.getElementById('inicio'),
+        makeup: document.getElementById('seccion-makeup'),
+        skincare: document.getElementById('seccion-skincare'),
+        nosotros: document.getElementById('seccion-nosotros') // <--- NUEVO
+        };
     }
 
     linkInicio.onclick = (e) => { e.preventDefault(); mostrarSeccion(sectionHero); };
     linkSkincare.onclick = (e) => { e.preventDefault(); mostrarSeccion(sectionSkincare); };
     linkMakeup.onclick = (e) => { e.preventDefault(); mostrarSeccion(sectionMakeup); };
+    links.nosotros.onclick = (e) => { e.preventDefault(); mostrarSeccion(sections.nosotros); }; // <--- NUEVO
 
     // --- LÓGICA DE FILTROS (Solo para Makeup) ---
     function applyFilter(filter) {
