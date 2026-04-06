@@ -78,12 +78,12 @@ body {
     font-size: 22px;
     cursor: pointer;
 }
-
 #cart-count {
     position: absolute;
     top: -8px;
     right: -12px;
     background-color: #d4af37;
+    font-family: sans-serif;
     color: white;
     font-size: 11px;
     font-weight: bold;
@@ -94,6 +94,105 @@ body {
     justify-content: center;
     border-radius: 50%;
     border: 2px solid white;
+}
+/* =========================================
+HERO SECTION (Inicio de la página)
+   ========================================= */
+/* =========================================
+   HERO SECTION - SKINCARE
+   ========================================= */
+.hero-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.skincare-bg {
+    background-image: linear-gradient(
+        rgba(63, 44, 70, 0.65), 
+        rgba(63, 44, 70, 0.65)
+    ), 
+    url('https://cmedraubillos.com/wp-content/uploads/2023/09/Rutina-skincare-basico-portada.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: scroll; 
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Textos: Forzamos blanco para que no se pisen con los estilos oscuros */
+.skincare-news h2 {
+    color: #ffffff !important;
+    font-size: 50px;
+    letter-spacing: 6px;
+    text-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+    margin-bottom: 25px;
+}
+
+.gold-text {
+    color: #d4af37;
+    font-weight: 700;
+}
+
+.skincare-news p {
+    color: #ffffff !important;
+    max-width: 650px;
+    margin: 0 auto 30px auto;
+    font-weight: 300;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+/* Tag Blanco con letras Moradas */
+.news-tag {
+    display: inline-block;
+    background-color: #ffffff;
+    color: #95789b;
+    padding: 8px 25px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+}
+
+/* =========================================
+   BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
+   ========================================= */
+.skincare-link {
+    display: inline-block;
+    color: #ffffff !important;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 5px;
+    transition: 0.3s ease;
+}
+
+/* La línea dorada que empieza con ancho 0 */
+.skincare-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #d4af37;
+    transition: width 0.3s ease; /* Aquí ocurre la magia del deslizamiento */
+}
+
+/* Al hacer hover: cambia color y la línea se expande */
+.skincare-link:hover {
+    color: #d4af37 !important;
+}
+
+.skincare-link:hover::after {
+    width: 100%;
 }
 
 /* =========================================
