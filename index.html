@@ -18,16 +18,18 @@
 
         <nav class="nav-menu">
             <ul>
-                <li><a href="#">Inicio</a></li>
-                <li><a href="#">Skincare</a></li>
-                <li><a href="#seccion-makeup">Makeup</a></li>
+                <li><a href="#" id="link-inicio">Inicio</a></li>
+                <li><a href="#seccion-skincare" id="link-skincare">Skincare</a></li>
+                <li><a href="#seccion-makeup" id="link-makeup">Makeup</a></li>
                 <li><a href="#">Nosotros</a></li>
-                <li><div class="cart-container">
+                <li>
+                    <div class="cart-container">
                         <div class="cart-wrapper">
                             <span class="cart-icon">🛒</span>
                             <span id="cart-count">0</span>
                         </div>
-                    </div></li>
+                    </div>
+                </li>
             </ul>
         </nav>
     </header>
@@ -39,7 +41,7 @@
                     <span class="news-tag">NUEVO LANZAMIENTO</span>
                     <h2>HAZE <span class="gold-text">SKINCARE</span> LINE</h2>
                     <p>La espera terminó. Presentamos nuestra primera línea de cuidado facial: fórmulas puras, minimalistas y altamente efectivas para lograr ese "glow" natural.</p>
-                    <a href="#" class="skincare-link">Próximamente disponible →</a>
+                    <a href="#seccion-skincare" class="skincare-link" id="hero-link-skincare">Explorar Skincare →</a>
                 </div>
             </div>
         </section>
@@ -245,6 +247,70 @@
 
             </div>
 
+        </section>
+        <section id="seccion-skincare" class="catalog-container skincare-catalog" style="display: none;">
+            <aside class="sidebar skincare-sidebar">
+                <h3>THE GLOW EDIT</h3>
+                <p class="sidebar-desc">Fórmulas minimalistas diseñadas para resaltar tu luz propia. El dorado de la ciencia y la pureza de la naturaleza.</p>
+                <div class="gold-line"></div>
+            </aside>
+
+            <div class="products-grid">
+
+                <div class="product-card show">
+                    <div class="product-img">
+                        <img src="toner-haze.png" alt="Haze Hydrating Toner">
+                    </div>
+                    <div class="product-info">
+                        <span class="gold-badge">Novedad</span>
+                        <h4>Hydrating Toner</h4>
+                        <p>Ácido Hialurónico + Lavanda</p>
+                        <span class="price">$35.000</span>
+                        <button class="add-to-cart btn-gold">Añadir al Carrito</button>
+                    </div>
+                </div>
+
+                <div class="product-card show upcoming">
+                    <div class="product-img placeholder-gold">✨</div>
+                    <div class="product-info">
+                        <h4>Coming Soon</h4>
+                        <p>Limpiador Facial Suave</p>
+                        <span class="price">--</span>
+                        <button class="add-to-cart" disabled>Próximamente</button>
+                    </div>
+                </div>
+
+                <div class="product-card show upcoming">
+                    <div class="product-img placeholder-gold">✨</div>
+                    <div class="product-info">
+                        <h4>Coming Soon</h4>
+                        <p>Crema Hidratante Iluminadora</p>
+                        <span class="price">--</span>
+                        <button class="add-to-cart" disabled>Próximamente</button>
+                    </div>
+                </div>
+
+                <div class="product-card show upcoming">
+                    <div class="product-img placeholder-gold">✨</div>
+                    <div class="product-info">
+                        <h4>Coming Soon</h4>
+                        <p>Serum Reparador Nocturno</p>
+                        <span class="price">--</span>
+                        <button class="add-to-cart" disabled>Próximamente</button>
+                    </div>
+                </div>
+
+                <div class="product-card show upcoming">
+                    <div class="product-img placeholder-gold">✨</div>
+                    <div class="product-info">
+                        <h4>Coming Soon</h4>
+                        <p>Protector Solar Glow</p>
+                        <span class="price">--</span>
+                        <button class="add-to-cart" disabled>Próximamente</button>
+                    </div>
+                </div>
+
+            </div>
         </section>
     </main>
     <footer class="main-footer">

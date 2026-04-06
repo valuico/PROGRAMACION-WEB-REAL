@@ -98,9 +98,6 @@ body {
 /* =========================================
 HERO SECTION (Inicio de la página)
    ========================================= */
-/* =========================================
-   HERO SECTION - SKINCARE
-   ========================================= */
 .hero-section {
     width: 100%;
     display: flex;
@@ -200,23 +197,25 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
    ========================================= */
 .catalog-container {
     display: flex;
-    padding: 40px 40px;
-    min-height: 100vh;
-    max-width: 1400px;
-    margin: 0 auto;
+    padding: 40px 60px; /* Cambiado a 60px para coincidir con el Header */
+    max-width: 100%;    /* Usamos el 100% para que el padding mande la alineación */
+    margin: 0; 
+    gap: 40px;          /* Espacio entre el cuadro de texto y los productos */
 }
 
 /* Menú Lateral */
 .sidebar {
-    width: 250px;
+    width: 280px;       /* Ancho fijo para el cuadro */
+    min-width: 280px;
+    margin: 0;          /* Eliminamos el margen para que pegue al borde del padding */
     position: sticky;
     top: 120px;
     height: fit-content;
-    border: #95789b 2px solid;
-    border-top-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    padding: 25px;
-    margin: 20px;
+    padding: 30px;      /* Espacio interno del cuadro */
+    border: 2px solid #d4af37;
+    border-top-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    background-color: #fffdf9;
 }
 
 .sidebar h3 {
@@ -552,4 +551,76 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .footer-form {
         flex-direction: column;
     }
+}
+/* =========================================
+8. SKINCARE
+   ========================================= */
+/* Sidebar de Skincare sin botones de filtro */
+.skincare-sidebar {
+    border: 2px solid #d4af37 !important; /* Borde dorado */
+    background-color: #fffdf9;
+}
+
+.sidebar-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+.gold-line {
+    width: 40px;
+    height: 2px;
+    background: #d4af37;
+    margin-top: 15px;
+}
+
+/* Badge y Botón Skincare */
+.gold-badge {
+    background: #d4af37;
+    color: white;
+    padding: 6px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    width: fit-content;
+    position: relative; /* Asegura que respete el z-index de su padre */
+    z-index: 20;
+}
+
+.btn-gold {
+    background-color: #d4af37 !important;
+}
+
+.btn-gold:hover {
+    background-color: #c4a030 !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+/* Estilo para los productos que vendrán */
+.placeholder-gold {
+    background: linear-gradient(135deg, #fdfaf5 0%, #f7f1e3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: #d4af37;
+}
+
+.upcoming {
+    opacity: 0.8;
+}
+/* Ocultamos los catálogos al cargar la página por primera vez */
+#seccion-makeup, 
+#seccion-skincare {
+    display: none; 
+}
+
+/* Aseguramos que el Hero se vea al principio */
+#inicio {
+    display: flex;
+}
+#seccion-makeup, #seccion-skincare {
+    display: none; /* Se activarán solo con el clic */
 }
