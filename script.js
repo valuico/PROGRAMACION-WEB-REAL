@@ -1,7 +1,10 @@
 // VARIABLES GLOBALES (Para que todas las funciones puedan acceder a ellas)
-let cart = []; 
+let cart = cargarCarrito();
 
 document.addEventListener('DOMContentLoaded', () => {
+    actualizarInterfazCarrito();
+    inicializarPaginaDePago();
+
     // 1. ELEMENTOS DE NAVEGACIÓN
     const links = {
         inicio: document.getElementById('link-inicio'),
@@ -104,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Agregar al array global
             cart.push(productoInfo);
+            guardarCarrito();
             
             // Actualizar visualmente el carrito lateral y el contador del header
             actualizarInterfazCarrito();
@@ -128,8 +132,12 @@ function actualizarInterfazCarrito() {
     const container = document.getElementById('cart-items-container');
     const totalDisplay = document.getElementById('cart-total-amount');
     const cartCountDisplay = document.getElementById('cart-count');
-    
-    if (!container || !totalDisplay || !cartCountDisplay) return;
+
+    if (cartCountDisplay) {
+        cartCountDisplay.innerText = cart.length;
+    }
+
+    if (!container || !totalDisplay) return;
 
     container.innerHTML = "";
     let total = 0;
@@ -137,7 +145,6 @@ function actualizarInterfazCarrito() {
     if (cart.length === 0) {
         container.innerHTML = '<p class="empty-msg">Tu carrito está vacío.</p>';
         totalDisplay.innerText = "$0";
-        cartCountDisplay.innerText = "0";
         return;
     }
 
@@ -160,11 +167,11 @@ function actualizarInterfazCarrito() {
     });
 
     totalDisplay.innerText = `$${total.toLocaleString()}`;
-    cartCountDisplay.innerText = cart.length;
 }
 
 function eliminarDelCarrito(index) {
     cart.splice(index, 1);
+    guardarCarrito();
     actualizarInterfazCarrito();
 }
 
@@ -190,10 +197,125 @@ function goToPayment() {
         alert("El carrito está vacío");
         return;
     }
-    alert("Redirigiendo a la plataforma de pago segura de HAZE Beauty...");
+    guardarCarrito();
+    window.location.href = "payment.html";
 }
+
+function cargarCarrito() {
+    try {
+        const cartGuardado = localStorage.getItem('hazeCart');
+        return cartGuardado ? JSON.parse(cartGuardado) : [];
+    } catch (error) {
+        console.error("No se pudo cargar el carrito:", error);
+        return [];
+    }
+}
+
+function guardarCarrito() {
+    localStorage.setItem('hazeCart', JSON.stringify(cart));
+}
+
+function calcularTotal() {
+    return cart.reduce((acc, item) => acc + item.precio, 0);
+}
+
+function inicializarPaginaDePago() {
+    const checkoutPage = document.getElementById('checkout-page');
+    if (!checkoutPage) return;
+
+    const resumenContainer = document.getElementById('checkout-items');
+    const subtotal = document.getElementById('checkout-subtotal');
+    const total = document.getElementById('checkout-total');
+    const form = document.getElementById('checkout-form');
+    const feedback = document.getElementById('checkout-feedback');
+    const volverBtn = document.getElementById('back-to-store');
+
+    if (volverBtn) {
+        volverBtn.addEventListener('click', () => {
+            window.location.href = "index.html";
+        });
+    }
+
+    if (cart.length === 0) {
+        if (resumenContainer) {
+            resumenContainer.innerHTML = `
+                <div class="checkout-empty">
+                    <h3>No hay productos para pagar</h3>
+                    <p>Agregá artículos al carrito para simular una compra.</p>
+                </div>
+            `;
+        }
+
+        if (subtotal) subtotal.innerText = "$0";
+        if (total) total.innerText = "$0";
+        if (form) form.style.display = 'none';
+        return;
+    }
+
+    const totalCompra = calcularTotal();
+
+    if (resumenContainer) {
+        resumenContainer.innerHTML = "";
+
+        cart.forEach(item => {
+            const itemElement = document.createElement('article');
+            itemElement.className = 'checkout-item';
+            itemElement.innerHTML = `
+                <img src="${item.imagen}" alt="${item.nombre}">
+                <div>
+                    <h4>${item.nombre}</h4>
+                    <p>Tono: ${item.tono}</p>
+                    <span>$${item.precio.toLocaleString()}</span>
+                </div>
+            `;
+            resumenContainer.appendChild(itemElement);
+        });
+    }
+
+    if (subtotal) subtotal.innerText = `$${totalCompra.toLocaleString()}`;
+    if (total) total.innerText = `$${totalCompra.toLocaleString()}`;
+
+    if (form) {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const nombre = document.getElementById('checkout-name').value.trim();
+            const email = document.getElementById('checkout-email').value.trim();
+
+            cart = [];
+            guardarCarrito();
+
+            if (feedback) {
+                feedback.innerHTML = `
+                    <div class="checkout-success">
+                        <h3>Compra simulada con éxito</h3>
+                        <p>Gracias, ${nombre}. Enviamos la confirmación de prueba a ${email}.</p>
+                        <p>Tu pedido fue registrado como una demo y no se realizó ningún cobro real.</p>
+                    </div>
+                `;
+            }
+
+            if (resumenContainer) {
+                resumenContainer.innerHTML = `
+                    <div class="checkout-empty">
+                        <h3>Pedido finalizado</h3>
+                        <p>Ya podés volver a la tienda y empezar una nueva compra.</p>
+                    </div>
+                `;
+            }
+
+            if (subtotal) subtotal.innerText = "$0";
+            if (total) total.innerText = "$0";
+            form.reset();
+            form.style.display = 'none';
+        });
+    }
+}
+
 function mostrarNotificacion(nombreProducto) {
     const container = document.getElementById('notification-container');
+    if (!container) return;
+
     const toast = document.createElement('div');
     toast.classList.add('toast-notification');
     

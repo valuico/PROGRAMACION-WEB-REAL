@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAZE beauty | Checkout Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="checkout-page" class="checkout-page">
+    <main class="checkout-layout">
+        <section class="checkout-panel checkout-summary-panel">
+            <span class="checkout-eyebrow">Simulación de compra</span>
+            <h1>Finalizá tu pedido de prueba</h1>
+            <p class="checkout-intro">Esta pantalla simula una plataforma externa de pago. Podés completar el formulario para probar el flujo sin realizar un cobro real.</p>
+
+            <div id="checkout-items" class="checkout-items"></div>
+
+            <div class="checkout-totals">
+                <div>
+                    <span>Subtotal</span>
+                    <strong id="checkout-subtotal">$0</strong>
+                </div>
+                <div>
+                    <span>Total</span>
+                    <strong id="checkout-total">$0</strong>
+                </div>
+            </div>
+
+            <button id="back-to-store" class="checkout-secondary-btn" type="button">Volver a la tienda</button>
+        </section>
+
+        <section class="checkout-panel">
+            <h2>Datos de pago</h2>
+            <form id="checkout-form" class="checkout-form">
+                <label for="checkout-name">Nombre completo</label>
+                <input id="checkout-name" type="text" placeholder="Ej: Valentina Iconomopulos" required>
+
+                <label for="checkout-email">Email</label>
+                <input id="checkout-email" type="email" placeholder="Ej: valentina@email.com" required>
+
+                <label for="checkout-card">Tarjeta</label>
+                <input id="checkout-card" type="text" inputmode="numeric" placeholder="4111 1111 1111 1111" required>
+
+                <div class="checkout-grid">
+                    <div>
+                        <label for="checkout-expiry">Vencimiento</label>
+                        <input id="checkout-expiry" type="text" placeholder="12/28" required>
+                    </div>
+                    <div>
+                        <label for="checkout-cvv">CVV</label>
+                        <input id="checkout-cvv" type="text" inputmode="numeric" placeholder="123" required>
+                    </div>
+                </div>
+
+                <label for="checkout-method">Método</label>
+                <select id="checkout-method" required>
+                    <option value="credito">Tarjeta de crédito</option>
+                    <option value="debito">Tarjeta de débito</option>
+                    <option value="transferencia">Transferencia bancaria</option>
+                </select>
+
+                <button class="checkout-primary-btn" type="submit">Confirmar compra simulada</button>
+            </form>
+
+            <div id="checkout-feedback"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
