@@ -22,7 +22,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 60px;
+    padding: 0px 60px;
+    height: 90px; 
     border-bottom: 1px solid #e6d6e7;
     box-shadow: 0 2px 10px rgba(149, 120, 155, 0.1);
     position: sticky;
@@ -59,6 +60,41 @@ body {
 .nav-menu a:hover {
     color: #d4af37; /* Dorado Haze */
 }
+/* Contenedor del carrito alineado a la derecha */
+.cart-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 20px; /* Espacio reservado para que no se mueva el menú */
+}
+
+.cart-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cart-icon {
+    font-size: 22px;
+    cursor: pointer;
+}
+
+#cart-count {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background-color: #d4af37;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid white;
+}
 
 /* =========================================
 3. CATÁLOGO ESTRUCTURA (SIDEBAR + GRID)
@@ -69,7 +105,6 @@ body {
     min-height: 100vh;
     max-width: 1400px;
     margin: 0 auto;
-    border: black 2px solid;
 }
 
 /* Menú Lateral */
@@ -114,18 +149,17 @@ body {
 
 /* Grilla de Productos */
 .products-grid {
-    flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 COLUMNAS FIJAS */
     gap: 40px;
+    align-items: start;
 }
 
 /* =========================================
 4. TARJETA DE PRODUCTO
    ========================================= */
 .product-card:hover {
-    transform: translateY(-5px);
-    transform: scale(1.08);
+    transform: translateY(-5px) scale(1.05); /* Ambos en la misma línea */
 }
 
 .product-card {
@@ -133,15 +167,16 @@ body {
     flex-direction: column;
     background: #fff;
     transition: transform 0.3s ease;
+    opacity: 0;
     /* Quitamos la animación de aquí para manejarla mejor */
 }
 
 /* Esta clase la usaremos para mostrar los productos */
 .product-card.show {
     display: flex;
+    flex-direction: column;
     animation: fadeInProduct 0.5s ease forwards;
 }
-
 /* Imagen del producto */
 
 .product-img {
@@ -160,7 +195,10 @@ body {
 
 /* Información del producto */
 .product-info {
-    text-align: left; /* Alineación limpia estilo Fenty */
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Esto empuja el contenido hacia abajo */
 }
 
 .product-card:hover .product-img img {
@@ -179,14 +217,16 @@ body {
     color: #777;
     font-size: 13px;
     margin-bottom: 8px;
+    margin-top: 10px;
 }
-
+/* El precio y el botón se quedarán siempre al fondo */
 .product-info .price {
+    margin-top: auto; /* Empuja el precio al final de la info */
     font-weight: 700;
     color: #95789b;
     font-size: 18px;
-    display: block;
-    margin: 10px 0;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 /* =========================================
@@ -238,6 +278,15 @@ body {
     background-color: #d4af37;
 }
 
+/* Efecto cuando falta seleccionar tono */
+.tone-selector.error {
+    background-color: rgba(255, 0, 0, 0.05);
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px solid red;
+    animation: shake 0.4s;
+}
+
 /* =========================================
 6. ANIMACIONES Y RESPONSIVE
    ========================================= */
@@ -255,4 +304,11 @@ body {
     .catalog-container { flex-direction: column; padding: 20px; }
     .sidebar { width: 100%; position: relative; top: 0; padding: 0; margin-bottom: 30px; }
     .products-grid { grid-template-columns: 1fr; }
+}
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
 }
