@@ -312,3 +312,122 @@ body {
     75% { transform: translateX(-5px); }
     100% { transform: translateX(0); }
 }
+
+/* =========================================
+7. FOOTER
+   ========================================= */
+.main-footer {
+    background-color: #ffffff;
+    border-top: 1px solid #e6d6e7;
+    padding: 60px 0 20px 0;
+    margin-top: 80px; /* Espacio después de los productos */
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+    gap: 50px;
+}
+
+.footer-section {
+    flex: 1;
+}
+
+.footer-logo {
+    height: 60px;
+    margin-bottom: 20px;
+}
+
+.footer-section h4 {
+    color: #95789b;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.footer-section p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 10px;
+}
+
+.footer-section a {
+    text-decoration: none;
+    color: #555;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.footer-section a:hover {
+    color: #d4af37;
+}
+
+/* Formulario del Newsletter */
+.footer-form {
+    display: flex;
+    margin-top: 15px;
+    gap: 10px;
+}
+
+.footer-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e6d6e7;
+    border-radius: 4px;
+    outline: none;
+}
+
+.footer-form button {
+    background-color: #95789b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.footer-form button:hover {
+    background-color: #d4af37;
+}
+
+/* Parte Inferior */
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid #f8f8f8;
+    margin-top: 40px;
+    padding-top: 20px;
+    color: #bbb;
+    font-size: 12px;
+}
+
+.social-icons {
+    margin-top: 10px;
+    color: #95789b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .footer-form {
+        flex-direction: column;
+    }
+}
