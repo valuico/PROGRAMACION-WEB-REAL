@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HAZE beauty | Official Site</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+
 </head>
 <body>
 
@@ -21,10 +21,10 @@
                 <li><a href="#" id="link-inicio">Inicio</a></li>
                 <li><a href="#seccion-skincare" id="link-skincare">Skincare</a></li>
                 <li><a href="#seccion-makeup" id="link-makeup">Makeup</a></li>
-                <li><a href="#">Nosotros</a></li>
+                <li><a href="#seccion-nosotros" id="link-nosotros">Nosotros</a></li>
                 <li>
                     <div class="cart-container">
-                        <div class="cart-wrapper">
+                        <div class="cart-wrapper" onclick="toggleCart()">
                             <span class="cart-icon">🛒</span>
                             <span id="cart-count">0</span>
                         </div>
@@ -262,7 +262,7 @@
                         <img src="toner-haze.png" alt="Haze Hydrating Toner">
                     </div>
                     <div class="product-info">
-                        <span class="gold-badge">Novedad</span>
+                        <span class="gold-badge">Nuevo</span>
                         <h4>Hydrating Toner</h4>
                         <p>Ácido Hialurónico + Lavanda</p>
                         <span class="price">$35.000</span>
@@ -270,23 +270,29 @@
                     </div>
                 </div>
 
-                <div class="product-card show upcoming">
-                    <div class="product-img placeholder-gold">✨</div>
+                <div class="product-card show">
+                    <div class="product-img">
+                        <img src="cleanser-haze.png" alt="Haze Gentle Cleanser">
+                    </div>
                     <div class="product-info">
-                        <h4>Coming Soon</h4>
-                        <p>Limpiador Facial Suave</p>
-                        <span class="price">--</span>
-                        <button class="add-to-cart" disabled>Próximamente</button>
+                        <span class="gold-badge">Nuevo</span>
+                        <h4>Gentle Cleanser</h4>
+                        <p>Té Verde + Ceramidas</p>
+                        <span class="price">$38.500</span>
+                        <button class="add-to-cart btn-gold">Añadir al Carrito</button>
                     </div>
                 </div>
 
-                <div class="product-card show upcoming">
-                    <div class="product-img placeholder-gold">✨</div>
+                <div class="product-card show">
+                    <div class="product-img">
+                        <img src="moisturizer-haze.png" alt="Haze Daily Moisturizer">
+                    </div>
                     <div class="product-info">
-                        <h4>Coming Soon</h4>
-                        <p>Crema Hidratante Iluminadora</p>
-                        <span class="price">--</span>
-                        <button class="add-to-cart" disabled>Próximamente</button>
+                        <span class="gold-badge">Nuevo</span>
+                        <h4>Daily Moisturizer</h4>
+                        <p>Péptidos + Squalane</p>
+                        <span class="price">$44.900</span>
+                        <button class="add-to-cart btn-gold">Añadir al Carrito</button>
                     </div>
                 </div>
 
@@ -310,6 +316,35 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+        <section id="seccion-nosotros" class="nosotros-container" style="display: none;">
+            <div class="nosotros-content">
+                <div class="nosotros-texto">
+                    <span class="news-tag">NUESTRA ESENCIA</span>
+                    <h2>EL ORIGEN DE <span class="gold-text">HAZE</span></h2>
+                    <p>HAZE Beauty no empezó en una oficina, sino frente a un espejo. Empezamos con la misión de eliminar la "niebla" de la industria cosmética para dejar pasar la luz natural de cada persona.</p>
+                    
+                    <div class="mision-vision">
+                        <div class="mv-item">
+                            <h4>Misión</h4>
+                            <p>Fórmulas minimalistas y altamente efectivas que respetan tu piel y el planeta.</p>
+                        </div>
+                        <div class="mv-item">
+                            <h4>Valores</h4>
+                            <p>Crueldad cero, transparencia total y lujo accesible.</p>
+                        </div>
+                    </div>
+
+                    <div class="unite-box">
+                        <h3>¿Querés brillar con nosotros?</h3>
+                        <p>Estamos buscando talentos creativos que compartan nuestra pasión por la belleza consciente.</p>
+                        <a href="mailto:talento@hazebeauty.com" class="add-to-cart btn-gold" style="text-decoration: none; display: inline-block; width: auto; padding: 12px 30px;">TRABAJÁ EN HAZE</a>
+                    </div>
+                </div>
+                <div class="nosotros-imagen">
+                    <img src="LOGO-removebg-preview.png" alt="Nosotros HAZE">
+                </div>
             </div>
         </section>
     </main>
@@ -347,6 +382,28 @@
             </div>
         </div>
     </footer>
+    <div id="notification-container"></div>
+    <div id="cart-overlay" onclick="toggleCart()"></div>
+    <div id="side-cart" class="side-cart">
+        <div class="cart-header">
+            <h3>Tu Carrito</h3>
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+        </div>
+
+        <div id="cart-items-container" class="cart-body">
+            <p class="empty-msg">Tu carrito está vacío.</p>
+        </div>
+
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-amount">$0</span>
+            </div>
+            <button class="btn-checkout" onclick="goToPayment()">Finalizar Compra</button>
+            <p class="payment-methods">Aceptamos tarjetas de crédito, débito y transferencia.</p>
+        </div>
+    </div>
     
 </body>
+<script src="script.js"></script>
 </html>
