@@ -394,13 +394,109 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 
 @media (max-width: 1024px) {
     .products-grid { grid-template-columns: repeat(2, 1fr); }
+    .skincare-news h2 { font-size: 42px; }
+    .skincare-news p { font-size: 16px; }
 }
 
 @media (max-width: 768px) {
-    .main-header { padding: 10px 20px; flex-direction: column; }
-    .catalog-container { flex-direction: column; padding: 20px; }
-    .sidebar { width: 100%; position: relative; top: 0; padding: 0; margin-bottom: 30px; }
-    .products-grid { grid-template-columns: 1fr; }
+    .main-header {
+        padding: 12px 20px;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nav-menu ul {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 18px;
+    }
+
+    .cart-container {
+        width: auto;
+    }
+
+    .hero-section {
+        min-height: 70vh;
+        padding: 20px 0;
+    }
+
+    .skincare-news h2 {
+        font-size: 34px;
+        letter-spacing: 3px;
+    }
+
+    .skincare-news p {
+        max-width: 100%;
+        font-size: 15px;
+        padding: 0 15px;
+    }
+
+    .catalog-container {
+        flex-direction: column;
+        padding: 20px 15px;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 15px;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .product-img {
+        height: 260px;
+    }
+
+    .product-info h4 {
+        font-size: 16px;
+    }
+
+    .product-info p,
+    .product-info .price {
+        font-size: 14px;
+    }
+
+    .add-to-cart {
+        font-size: 13px;
+        padding: 14px;
+    }
+
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 30px;
+        padding: 0 20px;
+    }
+
+    .footer-section {
+        width: 100%;
+    }
+
+    .footer-form {
+        flex-direction: column;
+    }
+
+    .footer-form input,
+    .footer-form button {
+        width: 100%;
+    }
+
+    .footer-form button {
+        margin-top: 10px;
+    }
+
+    .footer-bottom {
+        font-size: 12px;
+    }
 }
 
 /* =========================================
