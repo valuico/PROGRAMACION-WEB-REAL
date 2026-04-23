@@ -163,7 +163,6 @@ export default function Home() {
             <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
             <li><a onClick={() => setCurrentSection('skincare')}>Skincare</a></li>
             <li><a onClick={() => setCurrentSection('makeup')}>Makeup</a></li>
-            <li><a onClick={() => setCurrentSection('nosotros')}>Nosotros</a></li>
             <li>
               <div className="cart-container">
                 <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
@@ -261,38 +260,6 @@ export default function Home() {
           </section>
         )}
 
-        {/* Nosotros Section */}
-        {currentSection === 'nosotros' && (
-          <div className="nosotros-container">
-            <div className="nosotros-content">
-              <div className="nosotros-texto">
-                <span className="news-tag">NUESTRA ESENCIA</span>
-                <h2>EL ORIGEN DE <span className="gold-text">HAZE</span></h2>
-                <p>HAZE Beauty no empezó en una oficina, sino frente a un espejo. Empezamos con la misión de eliminar la "niebla" de la industria cosmética para dejar pasar la luz natural de cada persona.</p>
-                
-                <div className="mision-vision">
-                  <div className="mv-item">
-                    <h4>Misión</h4>
-                    <p>Fórmulas minimalistas y altamente efectivas que respetan tu piel y el planeta.</p>
-                  </div>
-                  <div className="mv-item">
-                    <h4>Valores</h4>
-                    <p>Crueldad cero, transparencia total y lujo accesible.</p>
-                  </div>
-                </div>
-
-                <div className="unite-box">
-                  <h3>¿Querés brillar con nosotros?</h3>
-                  <p>Estamos buscando talentos creativos que compartan nuestra pasión por la belleza consciente.</p>
-                  <a href="mailto:talento@hazebeauty.com" className="add-to-cart btn-gold" style={{ textDecoration: 'none', display: 'inline-block', width: 'auto', padding: '12px 30px' }}>TRABAJÁ EN HAZE</a>
-                </div>
-              </div>
-              <div className="nosotros-imagen">
-                <Image src="/LOGO-removebg-preview.png" alt="HAZE" width={300} height={300} />
-              </div>
-            </div>
-          </div>
-        )}
       </main>
 
       {/* Footer */}
