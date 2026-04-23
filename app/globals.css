@@ -12,6 +12,11 @@ body {
     background-color: #ffffff;
     color: #333;
     scroll-behavior: smooth;
+    padding-top: 100px;
+}
+
+main {
+    padding-top: 10px;
 }
 
 /* =========================================
@@ -220,7 +225,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     min-width: 280px;
     margin: 0;
     position: sticky;
-    top: 120px;
+    top: 130px;
     height: fit-content;
     padding: 30px;
     border: 2px solid #d4af37;
