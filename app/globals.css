@@ -427,7 +427,8 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 }
 
 .footer-logo {
-    height: 60px;
+    height: 80px;
+    width: auto;
     margin-bottom: 20px;
 }
 
