@@ -21,8 +21,8 @@ const PRODUCTS = {
   ],
   skincare: [
     { id: 13, nombre: 'Hydrating Toner', p: 'Ácido Hialurónico + Lavanda', precio: 35000, img: '/toner-haze.png', tones: [], isNew: true },
-    { id: 14, nombre: 'Gentle Cleanser', p: 'Té Verde + Ceramidas', precio: 38500, img: '/cleanser-haze.png', tones: [], isNew: true },
-    { id: 15, nombre: 'Daily Moisturizer', p: 'Péptidos + Squalane', precio: 44900, img: '/moisturizer-haze.png', tones: [], isNew: true }
+    { id: 14, nombre: 'Gentle Cleanser', p: 'Té Verde + Ceramidas', precio: 38500, img: '/cleanser-real.png', tones: [], isNew: true },
+    { id: 15, nombre: 'Daily Moisturizer', p: 'Péptidos + Squalane', precio: 44900, img: '/cream-real.png', tones: [], isNew: true }
   ]
 };
 
