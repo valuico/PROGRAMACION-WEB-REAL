@@ -252,7 +252,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 /* Grilla de Productos */
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 40px;
     align-items: start;
     width: 100%;
