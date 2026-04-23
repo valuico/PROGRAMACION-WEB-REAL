@@ -40,7 +40,6 @@ const Header = ({ onCartToggle }) => {
           <li><a href="#" onClick={() => handleSectionChange('hero')}>Inicio</a></li>
           <li><a href="#" onClick={() => handleSectionChange('skincare')}>Skincare</a></li>
           <li><a href="#" onClick={() => handleSectionChange('makeup')}>Makeup</a></li>
-          <li><Link href="/faq">FAQ</Link></li>
           <li>
             <div className="cart-container">
               <div className="cart-wrapper" onClick={toggleCart}>
