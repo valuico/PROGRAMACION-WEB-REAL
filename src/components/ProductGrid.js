@@ -20,8 +20,8 @@ const ProductGrid = ({ category }) => {
 
   const skincareProducts = [
     { id: 12, name: 'Hydrating Toner', description: 'Ácido Hialurónico + Lavanda', image: '/toner-haze.png', price: 35000, badge: 'Nuevo' },
-    { id: 13, name: 'Gentle Cleanser', description: 'Té Verde + Ceramidas', image: '/clenser-haze.jpg', price: 38500, badge: 'Nuevo' },
-    { id: 14, name: 'Daily Moisturizer', description: 'Péptidos + Squalane', image: '/face-cream.jpg', price: 44900, badge: 'Nuevo' },
+    { id: 13, name: 'Gentle Cleanser', description: 'Té Verde + Ceramidas', image: '/clenser-real.png', price: 38500, badge: 'Nuevo' },
+    { id: 14, name: 'Daily Moisturizer', description: 'Péptidos + Squalane', image: '/cream-real.jpg', price: 44900, badge: 'Nuevo' },
     { id: 15, name: 'Coming Soon', description: 'Serum Reparador Nocturno', image: 'placeholder', price: 0, upcoming: true },
     { id: 16, name: 'Coming Soon', description: 'Protector Solar Glow', image: 'placeholder', price: 0, upcoming: true },
     { id: 17, name: 'Coming Soon', description: 'Mascarilla Facial Revitalizante', image: 'placeholder', price: 0, upcoming: true },
