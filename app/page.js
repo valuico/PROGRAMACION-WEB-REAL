@@ -256,6 +256,15 @@ export default function Home() {
                   <button className="add-to-cart" disabled>Próximamente</button>
                 </div>
               </div>
+              <div className="product-card show">
+                <div className="product-img placeholder-gold">✨</div>
+                <div className="product-info">
+                  <h4>Coming Soon</h4>
+                  <p>Mascarilla Calmante de Noche</p>
+                  <span className="price">--</span>
+                  <button className="add-to-cart" disabled>Próximamente</button>
+                </div>
+              </div>
             </div>
           </section>
         )}
