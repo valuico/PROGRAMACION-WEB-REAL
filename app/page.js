@@ -275,7 +275,7 @@ export default function Home() {
       <footer className="main-footer">
         <div className="footer-container">
           <div className="footer-section brand">
-            <Image src="/LOGO-removebg-preview.png" alt="HAZE" width={60} height={60} className="footer-logo" />
+            <Image src="/LOGO-removebg-preview.png" alt="HAZE" width={320} height={80} className="footer-logo" />
             <p>Realzando tu brillo natural con productos de alta gama y crueldad cero.</p>
           </div>
 
