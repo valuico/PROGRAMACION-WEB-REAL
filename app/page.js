@@ -357,10 +357,11 @@ export default function Home() {
       <div id="notification-container">
         {notifications.map((toast) => (
           <div key={toast.id} className="toast-notification">
-            <span>✅</span>
-            <div>
-              <strong>{toast.message}</strong>
+            <div className="toast-top">
+              <span className="toast-icon">✨</span>
+              <span className="toast-title">HAZE BEAUTY</span>
             </div>
+            <p className="toast-message">{toast.message}</p>
           </div>
         ))}
       </div>
