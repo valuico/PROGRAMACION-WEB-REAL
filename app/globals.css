@@ -457,7 +457,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 
     .catalog-container {
         flex-direction: column;
-        padding: 20px 15px;
+        padding: 30px 15px 20px;
         margin-top: 20px;
     }
 
@@ -465,9 +465,9 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
         width: 100%;
         position: relative;
         top: 0;
-        padding: 20px;
+        padding: 26px 20px;
         margin-bottom: 25px;
-        border-radius: 15px;
+        border-radius: 18px;
         z-index: 1;
     }
 
