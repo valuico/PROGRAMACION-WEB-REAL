@@ -458,15 +458,15 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .catalog-container {
         flex-direction: column;
         padding: 30px 15px 20px;
-        margin-top: 20px;
+        margin-top: 80px;
     }
 
     .sidebar {
         width: 100%;
         position: relative;
         top: 0;
-        padding: 26px 20px;
-        margin-bottom: 25px;
+        padding: 28px 24px;
+        margin: 0 0 25px;
         border-radius: 18px;
         z-index: 1;
     }
