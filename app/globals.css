@@ -12,7 +12,7 @@ body {
     background-color: #ffffff;
     color: #333;
     scroll-behavior: smooth;
-    padding-top: 100px;
+    padding-top: 0;
 }
 
 main {
@@ -458,6 +458,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .catalog-container {
         flex-direction: column;
         padding: 20px 15px;
+        margin-top: 20px;
     }
 
     .sidebar {
@@ -467,6 +468,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
         padding: 20px;
         margin-bottom: 25px;
         border-radius: 15px;
+        z-index: 1;
     }
 
     .products-grid {
@@ -933,6 +935,8 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     display: flex;
     flex-direction: column;
     gap: 10px;
+    pointer-events: none;
+    max-width: calc(100vw - 40px);
 }
 
 .toast-notification {

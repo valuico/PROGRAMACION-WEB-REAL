@@ -115,6 +115,7 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedTones, setSelectedTones] = useState({});
   const [filter, setFilter] = useState('all');
+  const [notifications, setNotifications] = useState([]);
 
   // Cargar carrito del localStorage
   useEffect(() => {
@@ -127,6 +128,14 @@ export default function Home() {
     localStorage.setItem('hazeCart', JSON.stringify(cart));
   }, [cart]);
 
+  const addNotification = (message) => {
+    const id = Date.now();
+    setNotifications((prev) => [...prev, { id, message }]);
+    setTimeout(() => {
+      setNotifications((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3200);
+  };
+
   const addToCart = (product) => {
     const toneTone = selectedTones[product.id];
     if (product.tones && product.tones.length > 0 && !toneTone) {
@@ -136,6 +145,7 @@ export default function Home() {
     
     setCart([...cart, { ...product, selectedTone: toneTone || 'Único' }]);
     setSelectedTones({ ...selectedTones, [product.id]: null });
+    addNotification(`${product.nombre} agregado al carrito`);
   };
 
   const removeFromCart = (index) => {
@@ -344,7 +354,16 @@ export default function Home() {
         </div>
       </div>
 
-      <div id="notification-container"></div>
+      <div id="notification-container">
+        {notifications.map((toast) => (
+          <div key={toast.id} className="toast-notification">
+            <span>✅</span>
+            <div>
+              <strong>{toast.message}</strong>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
