@@ -466,7 +466,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
         position: relative;
         top: 0;
         padding: 28px 24px;
-        margin: 0 0 25px;
+
         border-radius: 18px;
         z-index: 1;
     }
