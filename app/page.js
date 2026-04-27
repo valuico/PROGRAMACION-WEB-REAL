@@ -173,6 +173,7 @@ export default function Home() {
             <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
             <li><a onClick={() => setCurrentSection('skincare')}>Skincare</a></li>
             <li><a onClick={() => setCurrentSection('makeup')}>Makeup</a></li>
+            <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
             <li>
               <div className="cart-container">
                 <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
@@ -273,6 +274,80 @@ export default function Home() {
                   <p>Mascarilla Calmante de Noche</p>
                   <span className="price">--</span>
                   <button className="add-to-cart" disabled>Próximamente</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {currentSection === 'faq' && (
+          <section className="faq-section">
+            <div className="faq-top">
+              <span className="news-tag">Preguntas frecuentes</span>
+              <h2>Respuestas y reseñas para comprar con confianza</h2>
+              <p>Un espacio con las dudas más comunes, tips de cuidado y opiniones reales de la comunidad HAZE.</p>
+            </div>
+
+            <div className="faq-grid">
+              <div className="faq-questions">
+                <h3>Preguntas frecuentes</h3>
+                <details className="faq-item" open>
+                  <summary>¿Cuánto tarda el envío?</summary>
+                  <p>Los envíos demoran entre 2 y 6 días hábiles según la zona. Te llega un mail con el seguimiento cuando tu pedido sale de nuestro taller.</p>
+                </details>
+                <details className="faq-item">
+                  <summary>¿Puedo combinar makeup y skincare en un mismo carrito?</summary>
+                  <p>Sí, podés agregar productos de ambas categorías y finalizar una sola vez. El carrito guarda todo junto.</p>
+                </details>
+                <details className="faq-item">
+                  <summary>¿Cómo elijo el tono correcto?</summary>
+                  <p>Elegí el tono con el selector del producto. Si dudas, probá el que más se acerque a tu piel y buscá textura natural.</p>
+                </details>
+                <details className="faq-item">
+                  <summary>¿El pago es real?</summary>
+                  <p>El checkout actual es una demo funcional para mostrar el flujo de compra. No procesa cobros reales.</p>
+                </details>
+                <details className="faq-item">
+                  <summary>¿Qué hago si mi producto llega dañado?</summary>
+                  <p>Escribinos en las primeras 48 horas para gestionar cambio o devolución. Queremos que tu experiencia sea premium.</p>
+                </details>
+              </div>
+
+              <div className="faq-reviews">
+                <div className="faq-card">
+                  <div className="faq-review-product">
+                    <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation" width={72} height={72} />
+                    <div>
+                      <h4>Pro Filt'r Foundation</h4>
+                      <span>★★★★★</span>
+                    </div>
+                  </div>
+                  <p>"La base queda suave, pareja y duradera. Perfecta para un maquillaje natural pero elegante."</p>
+                  <strong>Martina, Córdoba</strong>
+                </div>
+
+                <div className="faq-card">
+                  <div className="faq-review-product">
+                    <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={72} height={72} />
+                    <div>
+                      <h4>Ultimate Glow Palette</h4>
+                      <span>★★★★★</span>
+                    </div>
+                  </div>
+                  <p>"Los tonos se difuminan increíble. Ideal para looks de día y noche sin esfuerzo."</p>
+                  <strong>Julieta, Rosario</strong>
+                </div>
+
+                <div className="faq-card">
+                  <div className="faq-review-product">
+                    <Image src="/toner-haze.png" alt="Hydrating Toner" width={72} height={72} />
+                    <div>
+                      <h4>Hydrating Toner</h4>
+                      <span>★★★★★</span>
+                    </div>
+                  </div>
+                  <p>"Deja la piel fresca y lista para el resto de mi rutina. Se siente muy liviano y calmante."</p>
+                  <strong>Camila, Buenos Aires</strong>
                 </div>
               </div>
             </div>
