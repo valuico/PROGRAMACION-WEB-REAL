@@ -6,27 +6,49 @@ import Link from 'next/link';
 
 const PRODUCTS = {
   makeup: [
-    { id: 1, nombre: 'Pro Filt\'r Foundation', p: 'Soft Matte Longwear', precio: 50000, img: '/foundation-haze.png', tones: ['Light', 'Medium', 'Warm', 'Deep'], categoria: 'cara' },
-    { id: 2, nombre: 'We\'re Even Concealer', p: 'Hydrating Longwear', precio: 52300, img: '/concelears-haze.png', tones: ['Light', 'Medium', 'Warm', 'Deep'], categoria: 'cara' },
-    { id: 3, nombre: 'Radiant Stick Duo', p: 'Iluminador en Barra', precio: 42500, img: '/highlighters.png', tones: ['Golden Glow', 'Rose Stick', 'Silver Stow'], categoria: 'cara' },
-    { id: 4, nombre: 'Invisimatte Setting Powder', p: 'Polvos Volátiles', precio: 55000, img: '/polvos-volatiles.png', tones: ['Butter', 'Lavender'], categoria: 'cara' },
-    { id: 5, nombre: 'Double Take Blush', p: 'Dúo Polvo y Crema', precio: 48900, img: '/blushes-haze.png', tones: ['Peony', 'Coral Haze', 'Rosewood', 'Sunset'], categoria: 'cara' },
-    { id: 6, nombre: 'Mist & Fix Spray', p: 'Larga Duración', precio: 39000, img: '/setting-spray-2.png', tones: [], categoria: 'cara' },
-    { id: 7, nombre: 'Iconic Matte Lipstick', p: 'Labial en barra', precio: 42900, img: '/labiales.png', tones: ['Deep Red', 'True Scarlet', 'Dusty Rose', 'Terracotta', 'Nude Beige', 'Honey Nude'], categoria: 'labios' },
-    { id: 8, nombre: 'Precision Lip Shaper', p: 'Delineador de labios', precio: 31500, img: '/lip-liner.png', tones: ['Pale Lilac', 'Warm Pink', 'Berry Bite', 'Deep Cocoa'], categoria: 'labios' },
-    { id: 9, nombre: 'Gloss Bomb Crystal', p: 'Brillo labial efecto espejo', precio: 38200, img: '/lipgloss.png', tones: ['Diamond Milk', 'Pink Dragonfly', 'Fussy', 'Hot Chocolit'], categoria: 'labios' },
-    { id: 10, nombre: 'Ultimate Glow Palette', p: '12 High-Pigment Shades', precio: 65800, img: '/paleta-sombras.png', tones: [], categoria: 'ojos' },
-    { id: 11, nombre: 'Hella Thicc Mascara', p: 'Volumizing & Lift', precio: 38500, img: '/mascara-pestañas-haze.png', tones: ['Waterproof', 'Fórmula Original'], categoria: 'ojos' },
-    { id: 12, nombre: 'Lineshaper Gel Eyeliner', p: 'Waterproof Gel', precio: 32200, img: '/eyeliners-haze.png', tones: ['Deep Brown', 'Midnight Black'], categoria: 'ojos' }
+    { id: 1, nombre: 'Pro Filt\'r Foundation', p: 'Soft Matte Longwear', precio: 50000, img: '/foundation-haze.png', tones: ['Light', 'Medium', 'Warm', 'Deep'], categoria: 'cara', status: 'released' },
+    { id: 2, nombre: 'We\'re Even Concealer', p: 'Hydrating Longwear', precio: 52300, img: '/concelears-haze.png', tones: ['Light', 'Medium', 'Warm', 'Deep'], categoria: 'cara', status: 'released' },
+    { id: 3, nombre: 'Radiant Stick Duo', p: 'Iluminador en Barra', precio: 42500, img: '/highlighters.png', tones: ['Golden Glow', 'Rose Stick', 'Silver Stow'], categoria: 'cara', status: 'released' },
+    { id: 4, nombre: 'Invisimatte Setting Powder', p: 'Polvos Volátiles', precio: 55000, img: '/polvos-volatiles.png', tones: ['Butter', 'Lavender'], categoria: 'cara', status: 'released' },
+    { id: 5, nombre: 'Double Take Blush', p: 'Dúo Polvo y Crema', precio: 48900, img: '/blushes-haze.png', tones: ['Peony', 'Coral Haze', 'Rosewood', 'Sunset'], categoria: 'cara', status: 'released' },
+    { id: 6, nombre: 'Mist & Fix Spray', p: 'Larga Duración', precio: 39000, img: '/setting-spray-2.png', tones: [], categoria: 'cara', status: 'released' },
+    { id: 7, nombre: 'Iconic Matte Lipstick', p: 'Labial en barra', precio: 42900, img: '/labiales.png', tones: ['Deep Red', 'True Scarlet', 'Dusty Rose', 'Terracotta', 'Nude Beige', 'Honey Nude'], categoria: 'labios', status: 'released' },
+    { id: 8, nombre: 'Precision Lip Shaper', p: 'Delineador de labios', precio: 31500, img: '/lip-liner.png', tones: ['Pale Lilac', 'Warm Pink', 'Berry Bite', 'Deep Cocoa'], categoria: 'labios', status: 'released' },
+    { id: 9, nombre: 'Gloss Bomb Crystal', p: 'Brillo labial efecto espejo', precio: 38200, img: '/lipgloss.png', tones: ['Diamond Milk', 'Pink Dragonfly', 'Fussy', 'Hot Chocolit'], categoria: 'labios', status: 'released' },
+    { id: 10, nombre: 'Ultimate Glow Palette', p: '12 High-Pigment Shades', precio: 65800, img: '/paleta-sombras.png', tones: [], categoria: 'ojos', status: 'released' },
+    { id: 11, nombre: 'Hella Thicc Mascara', p: 'Volumizing & Lift', precio: 38500, img: '/mascara-pestañas-haze.png', tones: ['Waterproof', 'Fórmula Original'], categoria: 'ojos', status: 'released' },
+    { id: 12, nombre: 'Lineshaper Gel Eyeliner', p: 'Waterproof Gel', precio: 32200, img: '/eyeliners-haze.png', tones: ['Deep Brown', 'Midnight Black'], categoria: 'ojos', status: 'released' }
   ],
   skincare: [
-    { id: 13, nombre: 'Hydrating Toner', p: 'Ácido Hialurónico + Lavanda', precio: 35000, img: '/toner-haze.png', tones: [], isNew: true },
-    { id: 14, nombre: 'Gentle Cleanser', p: 'Té Verde + Ceramidas', precio: 38500, img: '/cleanser-real.png', tones: [], isNew: true },
-    { id: 15, nombre: 'Daily Moisturizer', p: 'Péptidos + Squalane', precio: 44900, img: '/cream-real.png', tones: [], isNew: true }
+    { id: 13, nombre: 'Hydrating Toner', p: 'Ácido Hialurónico + Lavanda', precio: 35000, img: '/toner-haze.png', tones: [], isNew: true, status: 'released' },
+    { id: 14, nombre: 'Gentle Cleanser', p: 'Té Verde + Ceramidas', precio: 38500, img: '/cleanser-real.png', tones: [], isNew: true, status: 'released' },
+    { id: 15, nombre: 'Daily Moisturizer', p: 'Péptidos + Squalane', precio: 44900, img: '/cream-real.png', tones: [], isNew: true, status: 'released' }
   ]
 };
 
 function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkincare }) {
+  const [notifyMode, setNotifyMode] = useState(false);
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleNotifyClick = () => {
+    setNotifyMode(true);
+  };
+
+  const handleSubmit = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(email)) {
+      setSubmitted(true);
+      setTimeout(() => {
+        setNotifyMode(false);
+        setSubmitted(false);
+        setEmail('');
+      }, 3000);
+    } else {
+      alert('Por favor, ingresa un email válido.');
+    }
+  };
+
   return (
     <div className="product-card show">
       <div className="product-img">
@@ -61,12 +83,93 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
         )}
         
         <span className="price">${product.precio.toLocaleString()}</span>
-        <button 
-          className={`add-to-cart ${isSkincare ? 'btn-gold' : ''}`}
-          onClick={onAddToCart}
-        >
-          Añadir al Carrito
-        </button>
+        
+        {product.status === 'unreleased' ? (
+          <div className="notify-container">
+            {!notifyMode ? (
+              <button 
+                className="notify-btn"
+                onClick={handleNotifyClick}
+                style={{
+                  backgroundColor: '#95789b',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  transition: '0.3s ease-in-out',
+                  width: '100%'
+                }}
+              >
+                Avisame cuando salga
+              </button>
+            ) : submitted ? (
+              <div 
+                className="thank-you-msg"
+                style={{
+                  backgroundColor: '#e8f5e8',
+                  color: '#2e7d32',
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  transition: '0.3s ease-in-out'
+                }}
+              >
+                ¡Gracias! Te avisaremos.
+              </div>
+            ) : (
+              <div 
+                className="notify-input-container"
+                style={{
+                  display: 'flex',
+                  gap: '8px',
+                  transition: '0.3s ease-in-out'
+                }}
+              >
+                <input
+                  type="email"
+                  placeholder="Tu email aquí..."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+                <button 
+                  onClick={handleSubmit}
+                  style={{
+                    backgroundColor: '#95789b',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    transition: '0.3s ease-in-out'
+                  }}
+                >
+                  ✓
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button 
+            className={`add-to-cart ${isSkincare ? 'btn-gold' : ''}`}
+            onClick={onAddToCart}
+          >
+            Añadir al Carrito
+          </button>
+        )}
       </div>
     </div>
   );
@@ -255,7 +358,13 @@ export default function Home() {
                   <h4>Coming Soon</h4>
                   <p>Serum Reparador Nocturno</p>
                   <span className="price">--</span>
-                  <button className="add-to-cart" disabled>Próximamente</button>
+                  <ProductCard 
+                    product={{ id: 16, nombre: 'Serum Reparador Nocturno', p: 'Vitamina C + Retinol', precio: 0, img: '/placeholder.png', tones: [], status: 'unreleased' }}
+                    selectedTone={null}
+                    onToneSelect={() => {}}
+                    onAddToCart={() => {}}
+                    isSkincare={true}
+                  />
                 </div>
               </div>
               <div className="product-card show">
@@ -264,7 +373,13 @@ export default function Home() {
                   <h4>Coming Soon</h4>
                   <p>Protector Solar Glow</p>
                   <span className="price">--</span>
-                  <button className="add-to-cart" disabled>Próximamente</button>
+                  <ProductCard 
+                    product={{ id: 17, nombre: 'Protector Solar Glow', p: 'SPF 50 + Glow Effect', precio: 0, img: '/placeholder.png', tones: [], status: 'unreleased' }}
+                    selectedTone={null}
+                    onToneSelect={() => {}}
+                    onAddToCart={() => {}}
+                    isSkincare={true}
+                  />
                 </div>
               </div>
               <div className="product-card show">
@@ -273,7 +388,13 @@ export default function Home() {
                   <h4>Coming Soon</h4>
                   <p>Mascarilla Calmante de Noche</p>
                   <span className="price">--</span>
-                  <button className="add-to-cart" disabled>Próximamente</button>
+                  <ProductCard 
+                    product={{ id: 18, nombre: 'Mascarilla Calmante de Noche', p: 'Aloe Vera + Caléndula', precio: 0, img: '/placeholder.png', tones: [], status: 'unreleased' }}
+                    selectedTone={null}
+                    onToneSelect={() => {}}
+                    onAddToCart={() => {}}
+                    isSkincare={true}
+                  />
                 </div>
               </div>
             </div>

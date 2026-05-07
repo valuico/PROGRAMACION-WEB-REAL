@@ -705,8 +705,27 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     color: #d4af37;
 }
 
-.upcoming {
-    opacity: 0.8;
+.notify-container {
+    margin-top: 15px;
+}
+
+.notify-btn:hover {
+    background-color: #7a5f7a !important;
+    transform: translateY(-1px);
+}
+
+.notify-input-container button:hover {
+    background-color: #7a5f7a !important;
+    transform: scale(1.05);
+}
+
+.thank-you-msg {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .faq-section {
