@@ -304,6 +304,31 @@ export default function Home() {
                 </a>
               </div>
             </div>
+
+            <div className="hero-story-band">
+              <div className="hero-story-intro">
+                <span className="hero-kicker">Nuestra esencia</span>
+                <h3>Más que belleza: una marca creada para dejar pasar tu luz natural</h3>
+                <p>En HAZE combinamos estética, fórmulas cuidadas y una experiencia simple para que cada rutina se sienta íntima, elegante y real.</p>
+              </div>
+
+              <div className="hero-story-grid">
+                <article className="hero-story-card">
+                  <span className="hero-story-label">Misión</span>
+                  <p>Crear productos que eleven tu rutina diaria con fórmulas efectivas, sensoriales y fáciles de amar.</p>
+                </article>
+
+                <article className="hero-story-card">
+                  <span className="hero-story-label">Visión</span>
+                  <p>Construir una belleza más clara y consciente, donde el lujo se sienta cercano y auténtico.</p>
+                </article>
+
+                <article className="hero-story-card">
+                  <span className="hero-story-label">Valores</span>
+                  <p>Minimalismo, glow natural, crueldad cero y una experiencia pensada para hacerte sentir bien.</p>
+                </article>
+              </div>
+            </div>
           </section>
         )}
 
