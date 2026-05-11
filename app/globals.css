@@ -433,6 +433,11 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     flex-wrap: wrap;
     gap: 8px;
     margin: 15px 0;
+    min-height: 22px;
+}
+
+.tone-selector-placeholder {
+    visibility: hidden;
 }
 
 .tone-circle {

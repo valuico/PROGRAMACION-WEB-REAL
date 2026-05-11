@@ -147,7 +147,7 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
         <h4>{product.nombre}</h4>
         <p>{product.p}</p>
         
-        {product.tones && product.tones.length > 0 && (
+        {product.tones && product.tones.length > 0 ? (
           <div className="tone-selector">
             {product.tones.map(tone => (
               <button
@@ -162,6 +162,8 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
               ></button>
             ))}
           </div>
+        ) : (
+          <div className="tone-selector tone-selector-placeholder" aria-hidden="true" />
         )}
         
         <span className="price">${product.precio.toLocaleString()}</span>
