@@ -297,10 +297,10 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
    ========================================= */
 .catalog-container {
     display: flex;
-    padding: 40px 40px;
-    max-width: 1300px;
-    width: 100%;
-    margin: 0 auto;
+    width: calc(100% - 120px);
+    max-width: none;
+    padding: 40px 0;
+    margin: 0 60px;
     gap: 40px;
 }
 
