@@ -386,74 +386,155 @@ export default function Home() {
 
         {currentSection === 'faq' && (
           <section className="faq-section">
-            <div className="faq-top">
-              <span className="news-tag">Preguntas frecuentes</span>
-              <h2>Respuestas y reseñas para comprar con confianza</h2>
-              <p>Un espacio con las dudas más comunes, tips de cuidado y opiniones reales de la comunidad HAZE.</p>
-            </div>
-
-            <div className="faq-grid">
-              <div className="faq-questions">
-                <h3>Preguntas frecuentes</h3>
-                <details className="faq-item" open>
-                  <summary>¿Cuánto tarda el envío?</summary>
-                  <p>Los envíos demoran entre 2 y 6 días hábiles según la zona. Te llega un mail con el seguimiento cuando tu pedido sale de nuestro taller.</p>
-                </details>
-                <details className="faq-item">
-                  <summary>¿Puedo combinar makeup y skincare en un mismo carrito?</summary>
-                  <p>Sí, podés agregar productos de ambas categorías y finalizar una sola vez. El carrito guarda todo junto.</p>
-                </details>
-                <details className="faq-item">
-                  <summary>¿Cómo elijo el tono correcto?</summary>
-                  <p>Elegí el tono con el selector del producto. Si dudas, probá el que más se acerque a tu piel y buscá textura natural.</p>
-                </details>
-                <details className="faq-item">
-                  <summary>¿El pago es real?</summary>
-                  <p>El checkout actual es una demo funcional para mostrar el flujo de compra. No procesa cobros reales.</p>
-                </details>
-                <details className="faq-item">
-                  <summary>¿Qué hago si mi producto llega dañado?</summary>
-                  <p>Escribinos en las primeras 48 horas para gestionar cambio o devolución. Queremos que tu experiencia sea premium.</p>
-                </details>
-              </div>
-
-              <div className="faq-reviews">
-                <div className="faq-card">
-                  <div className="faq-review-product">
-                    <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation" width={72} height={72} />
-                    <div>
-                      <h4>Pro Filt'r Foundation</h4>
-                      <span>★★★★★</span>
-                    </div>
+            <div className="faq-main">
+              <section className="faq-hero">
+                <div className="faq-hero-copy">
+                  <span className="news-tag">Preguntas Frecuentes</span>
+                  <h2>Todo lo que necesitás saber antes de comprar en <span className="gold-text">HAZE</span></h2>
+                  <p>Respondimos las dudas más comunes sobre envíos, pagos, tonos, rutinas y experiencia de compra para que recorrer la tienda se sienta simple, segura y linda.</p>
+                  <div className="faq-cta-row">
+                    <a className="skincare-link faq-link-dark" onClick={() => setCurrentSection('makeup')}>
+                      Ver makeup →
+                    </a>
+                    <a className="faq-secondary-link" onClick={() => setCurrentSection('skincare')}>
+                      Descubrir skincare
+                    </a>
                   </div>
-                  <p>"La base queda suave, pareja y duradera. Perfecta para un maquillaje natural pero elegante."</p>
-                  <strong>Martina, Córdoba</strong>
                 </div>
 
-                <div className="faq-card">
-                  <div className="faq-review-product">
-                    <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={72} height={72} />
-                    <div>
-                      <h4>Ultimate Glow Palette</h4>
-                      <span>★★★★★</span>
-                    </div>
+                <div className="faq-hero-visual">
+                  <div className="faq-floating-card">
+                    <Image src="/toner-haze.png" alt="Hydrating Toner HAZE" width={420} height={420} />
                   </div>
-                  <p>"Los tonos se difuminan increíble. Ideal para looks de día y noche sin esfuerzo."</p>
-                  <strong>Julieta, Rosario</strong>
+                  <div className="faq-floating-card alt">
+                    <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette HAZE" width={360} height={360} />
+                  </div>
+                </div>
+              </section>
+
+              <section className="faq-feature-strip">
+                <article>
+                  <strong>Envíos a todo el país</strong>
+                  <p>Despachamos entre 2 y 6 días hábiles y te mandamos seguimiento apenas sale tu pedido.</p>
+                </article>
+                <article>
+                  <strong>Pago simple y seguro</strong>
+                  <p>Podés recorrer un checkout claro, prolijo y pensado para que comprar se sienta fácil.</p>
+                </article>
+                <article>
+                  <strong>Rutinas y tonos guiados</strong>
+                  <p>Te ayudamos a elegir texturas, fórmulas y combinaciones sin que te pierdas entre opciones.</p>
+                </article>
+              </section>
+
+              <section className="faq-content">
+                <div className="faq-column">
+                  <div className="faq-section-head">
+                    <span className="news-tag faq-mini-tag">Dudas más consultadas</span>
+                    <h3>Respuestas claras para comprar con confianza</h3>
+                  </div>
+
+                  <details className="faq-item" open>
+                    <summary>¿Cuánto tarda en llegar mi pedido?</summary>
+                    <p>Los envíos suelen demorar entre 2 y 6 días hábiles. Cuando tu compra se despacha, recibís un correo con el seguimiento para ver cada paso.</p>
+                  </details>
+
+                  <details className="faq-item">
+                    <summary>¿Puedo combinar makeup y skincare en el mismo carrito?</summary>
+                    <p>Sí. Podés mezclar productos de ambas categorías y finalizar todo junto. El carrito mantiene la selección completa en una sola compra.</p>
+                  </details>
+
+                  <details className="faq-item">
+                    <summary>¿Cómo sé qué tono o producto elegir?</summary>
+                    <p>En makeup podés usar el selector de tonos para comparar opciones, y en skincare te conviene arrancar con fórmulas livianas como toner, cleanser y moisturizer según tu rutina.</p>
+                  </details>
+
+                  <details className="faq-item">
+                    <summary>¿Los productos sirven para piel sensible?</summary>
+                    <p>Las fórmulas están pensadas para sentirse suaves y minimalistas. Si tu piel es muy reactiva, te recomendamos probar primero en una zona pequeña.</p>
+                  </details>
+
+                  <details className="faq-item">
+                    <summary>¿La compra del sitio procesa pagos reales?</summary>
+                    <p>El checkout actual funciona como demo del flujo de compra. Está diseñado para mostrar la experiencia completa sin cobrar de verdad.</p>
+                  </details>
+
+                  <details className="faq-item">
+                    <summary>¿Qué pasa si mi pedido llega con un problema?</summary>
+                    <p>Si hay daño, error o algo no llegó como esperabas, escribinos dentro de las primeras 48 horas y te ayudamos con cambio o resolución.</p>
+                  </details>
                 </div>
 
-                <div className="faq-card">
-                  <div className="faq-review-product">
-                    <Image src="/toner-haze.png" alt="Hydrating Toner" width={72} height={72} />
+                <aside className="faq-column faq-side-panel">
+                  <h3>Favoritos del momento</h3>
+
+                  <article className="faq-product-callout">
+                    <Image src="/toner-haze.png" alt="Hydrating Toner HAZE" width={110} height={140} />
                     <div>
                       <h4>Hydrating Toner</h4>
-                      <span>★★★★★</span>
+                      <p>Ideal para refrescar, hidratar y preparar la piel antes del serum, la crema o el makeup.</p>
                     </div>
+                  </article>
+
+                  <article className="faq-product-callout">
+                    <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation HAZE" width={110} height={140} />
+                    <div>
+                      <h4>Pro Filt&apos;r Foundation</h4>
+                      <p>Acabado soft matte y cobertura pareja para un look prolijo que dura todo el día.</p>
+                    </div>
+                  </article>
+
+                  <div className="faq-note">
+                    <h4>Tip HAZE</h4>
+                    <p>Aplicá el toner con la piel apenas húmeda y sellá enseguida con crema para potenciar la hidratación y el glow natural.</p>
                   </div>
-                  <p>"Deja la piel fresca y lista para el resto de mi rutina. Se siente muy liviano y calmante."</p>
-                  <strong>Camila, Buenos Aires</strong>
+                </aside>
+              </section>
+
+              <section className="faq-reviews-section">
+                <div className="faq-section-head faq-section-head-center">
+                  <span className="news-tag faq-mini-tag">Reseñas</span>
+                  <h3>Lo que dice la comunidad</h3>
                 </div>
-              </div>
+
+                <div className="faq-review-grid">
+                  <article className="faq-review-card">
+                    <div className="faq-review-product">
+                      <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation" width={90} height={110} />
+                      <div>
+                        <h4>Pro Filt&apos;r Foundation</h4>
+                        <span>★★★★★</span>
+                      </div>
+                    </div>
+                    <p>"La base queda prolija, liviana y súper pareja. Tiene ese acabado elegante que hace que todo el makeup se vea más premium."</p>
+                    <strong>Martina, Córdoba</strong>
+                  </article>
+
+                  <article className="faq-review-card">
+                    <div className="faq-review-product">
+                      <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={90} height={110} />
+                      <div>
+                        <h4>Ultimate Glow Palette</h4>
+                        <span>★★★★★</span>
+                      </div>
+                    </div>
+                    <p>"Los tonos pigmentan hermoso y se difuminan fácil. La uso para looks suaves de día y también para algo más nocturno."</p>
+                    <strong>Julieta, Rosario</strong>
+                  </article>
+
+                  <article className="faq-review-card">
+                    <div className="faq-review-product">
+                      <Image src="/toner-haze.png" alt="Hydrating Toner" width={90} height={110} />
+                      <div>
+                        <h4>Hydrating Toner</h4>
+                        <span>★★★★★</span>
+                      </div>
+                    </div>
+                    <p>"Deja la piel fresca, calma rápido y me ordena toda la rutina. Se siente liviano pero se nota el cambio enseguida."</p>
+                    <strong>Camila, Buenos Aires</strong>
+                  </article>
+                </div>
+              </section>
             </div>
           </section>
         )}

@@ -409,6 +409,24 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .products-grid { grid-template-columns: repeat(2, 1fr); }
     .skincare-news h2 { font-size: 42px; }
     .skincare-news p { font-size: 16px; }
+    .faq-hero,
+    .faq-content,
+    .faq-review-grid,
+    .faq-feature-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .faq-hero-copy h2 {
+        font-size: 40px;
+    }
+
+    .faq-hero-visual {
+        min-height: 420px;
+    }
+
+    .faq-side-panel {
+        position: static;
+    }
 }
 
 @media (max-width: 768px) {
@@ -485,24 +503,47 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     }
 
     .faq-section {
-        padding: 50px 15px 30px;
+        padding: 24px 0 36px;
     }
 
-    .faq-grid {
+    .faq-main {
+        width: min(100% - 28px, 640px);
+    }
+
+    .faq-hero {
+        padding-top: 12px;
+    }
+
+    .faq-hero-copy h2 {
+        font-size: 31px;
+    }
+
+    .faq-hero-copy p {
+        font-size: 15px;
+    }
+
+    .faq-floating-card {
+        width: 78%;
+    }
+
+    .faq-floating-card.alt {
+        width: 65%;
+    }
+
+    .faq-column:first-child,
+    .faq-side-panel,
+    .faq-review-card {
+        padding: 22px;
+    }
+
+    .faq-product-callout,
+    .faq-review-product {
         grid-template-columns: 1fr;
     }
 
-    .faq-questions,
-    .faq-reviews {
-        padding: 24px;
-    }
-
-    .faq-top h2 {
-        font-size: 28px;
-    }
-
-    .faq-top p {
-        padding: 0 10px;
+    .faq-section-head h3,
+    .faq-side-panel h3 {
+        font-size: 24px;
     }
 
     .product-info p,
@@ -729,130 +770,302 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 }
 
 .faq-section {
-    padding: 80px 40px 60px;
-    background: #fbf7f4;
+    background:
+        radial-gradient(circle at top left, rgba(212, 175, 55, 0.14), transparent 24%),
+        linear-gradient(180deg, #fffefc 0%, #fcf7fb 100%);
+    padding: 40px 0 80px;
 }
 
-.faq-top {
-    max-width: 780px;
-    margin: 0 auto 40px;
-    text-align: center;
-}
-
-.faq-top h2 {
-    font-size: 36px;
-    margin: 18px auto 14px;
-    line-height: 1.1;
-    color: #3b2c4a;
-}
-
-.faq-top p {
-    max-width: 660px;
+.faq-main {
+    width: min(1240px, calc(100% - 48px));
     margin: 0 auto;
-    color: #5f5267;
-    font-size: 16px;
-    line-height: 1.8;
 }
 
-.faq-grid {
+.faq-hero {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 30px;
-    max-width: 1400px;
-    margin: 0 auto;
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: 34px;
+    align-items: center;
+    padding: 28px 0 36px;
 }
 
-.faq-questions,
-.faq-reviews {
-    background: white;
-    border-radius: 28px;
-    border: 1px solid #f1e7ef;
-    box-shadow: 0 18px 50px rgba(149, 120, 155, 0.08);
-    padding: 32px;
+.faq-hero-copy h2 {
+    font-size: 48px;
+    line-height: 1.08;
+    color: #3f2c46;
+    margin-bottom: 18px;
 }
 
-.faq-questions h3 {
-    font-size: 24px;
-    color: #6c5378;
+.faq-hero-copy p {
+    max-width: 640px;
+    font-size: 17px;
+    line-height: 1.75;
+    color: #69586f;
     margin-bottom: 24px;
 }
 
-.faq-item {
-    margin-bottom: 18px;
-    padding-top: 14px;
-    border-top: 1px solid #f0e7ee;
+.faq-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
 }
 
-.faq-item:first-of-type {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0;
+.faq-link-dark {
+    color: #95789b !important;
+}
+
+.faq-secondary-link {
+    color: #5b4b60;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.faq-secondary-link:hover {
+    color: #d4af37;
+}
+
+.faq-hero-visual {
+    position: relative;
+    min-height: 500px;
+}
+
+.faq-floating-card {
+    position: absolute;
+    width: 68%;
+    padding: 20px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(230, 214, 231, 0.9);
+    box-shadow: 0 24px 50px rgba(149, 120, 155, 0.16);
+}
+
+.faq-floating-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 24px;
+}
+
+.faq-floating-card.alt {
+    width: 58%;
+    right: 0;
+    bottom: 10px;
+}
+
+.faq-feature-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 10px 0 40px;
+}
+
+.faq-feature-strip article,
+.faq-note,
+.faq-review-card,
+.faq-side-panel,
+.faq-item,
+.faq-column:first-child {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #eee2ef;
+    box-shadow: 0 14px 35px rgba(149, 120, 155, 0.08);
+}
+
+.faq-feature-strip article {
+    border-radius: 20px;
+    padding: 22px;
+}
+
+.faq-feature-strip strong {
+    display: block;
+    color: #3f2c46;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+}
+
+.faq-feature-strip p {
+    color: #6e5d72;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.faq-content {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 28px;
+    align-items: start;
+}
+
+.faq-column:first-child {
+    border-radius: 28px;
+    padding: 28px;
+}
+
+.faq-section-head {
+    margin-bottom: 24px;
+}
+
+.faq-section-head h3,
+.faq-side-panel h3 {
+    color: #3f2c46;
+    font-size: 28px;
+    line-height: 1.15;
+}
+
+.faq-section-head-center {
+    text-align: center;
+}
+
+.faq-mini-tag {
+    margin-bottom: 14px;
+}
+
+.faq-item {
+    border-radius: 20px;
+    padding: 0 24px;
+    margin-bottom: 16px;
+    overflow: hidden;
 }
 
 .faq-item summary {
-    font-size: 16px;
-    font-weight: 700;
-    color: #3b2c4d;
-    cursor: pointer;
     list-style: none;
+    cursor: pointer;
+    padding: 22px 34px 22px 0;
+    font-weight: 700;
+    color: #4a3550;
+    position: relative;
+    font-size: 16px;
 }
 
 .faq-item summary::-webkit-details-marker {
     display: none;
 }
 
+.faq-item summary::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: 18px;
+    font-size: 26px;
+    color: #d4af37;
+}
+
+.faq-item[open] summary::after {
+    content: '−';
+}
+
 .faq-item p {
-    margin-top: 12px;
-    color: #645769;
+    padding-bottom: 22px;
+    color: #6b5a70;
     line-height: 1.75;
     font-size: 15px;
 }
 
-.faq-card {
-    border-radius: 24px;
-    padding: 28px;
-    background: #fff;
-    border: 1px solid #f1e7ef;
-    display: flex;
-    flex-direction: column;
+.faq-side-panel {
+    border-radius: 26px;
+    padding: 26px;
+    position: sticky;
+    top: 120px;
+}
+
+.faq-product-callout {
+    display: grid;
+    grid-template-columns: 110px 1fr;
     gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.faq-product-callout img {
+    width: 110px;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid #f0e2ef;
+    padding: 8px;
+}
+
+.faq-product-callout h4 {
+    color: #4a3550;
+    margin-bottom: 8px;
+}
+
+.faq-product-callout p,
+.faq-note p {
+    color: #6f6073;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.faq-note {
+    border-radius: 20px;
+    padding: 22px;
+    margin-top: 12px;
+    border-left: 4px solid #d4af37;
+}
+
+.faq-note h4 {
+    color: #95789b;
+    margin-bottom: 10px;
+}
+
+.faq-reviews-section {
+    margin-top: 56px;
+}
+
+.faq-review-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.faq-review-card {
+    border-radius: 24px;
+    padding: 24px;
 }
 
 .faq-review-product {
-    display: flex;
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 16px;
     align-items: center;
-    gap: 18px;
+    margin-bottom: 18px;
 }
 
 .faq-review-product img {
-    width: 68px;
-    height: 68px;
+    width: 90px;
+    height: 110px;
     object-fit: contain;
     border-radius: 18px;
-    border: 1px solid #f0e7ef;
-    background: #faf4f1;
+    background: #fff;
+    border: 1px solid #f0e2ef;
+    padding: 8px;
 }
 
 .faq-review-product h4 {
-    margin: 0;
+    color: #3f2c46;
+    margin-bottom: 6px;
     font-size: 16px;
-    color: #3b2c4b;
 }
 
 .faq-review-product span {
     color: #d4af37;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     font-size: 14px;
 }
 
-.faq-card p {
-    margin: 0;
-    color: #6e5e78;
-    line-height: 1.8;
+.faq-review-card p {
+    color: #6b5a70;
+    line-height: 1.75;
+    margin-bottom: 16px;
 }
 
-.faq-card strong {
-    display: block;
+.faq-review-card strong {
     color: #95789b;
     font-size: 14px;
 }
