@@ -526,6 +526,18 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
         grid-template-columns: 1fr;
     }
 
+    .supabase-crud-card,
+    .supabase-compare-grid,
+    .supabase-compare-columns,
+    .crud-list {
+        grid-template-columns: 1fr;
+    }
+
+    .supabase-crud-copy h4,
+    .supabase-compare-card h4 {
+        font-size: 30px;
+    }
+
     .faq-hero-copy h2 {
         font-size: 40px;
     }
@@ -669,6 +681,16 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .faq-product-callout,
     .faq-review-product {
         grid-template-columns: 1fr;
+    }
+
+    .supabase-crud-card,
+    .supabase-compare-card {
+        padding: 22px;
+    }
+
+    .supabase-crud-copy h4,
+    .supabase-compare-card h4 {
+        font-size: 26px;
     }
 
     .faq-section-head h3,
@@ -1142,6 +1164,173 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 .faq-note h4 {
     color: #95789b;
     margin-bottom: 10px;
+}
+
+.supabase-showcase {
+    margin-top: 56px;
+}
+
+.supabase-crud-card,
+.supabase-compare-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #eee2ef;
+    box-shadow: 0 14px 35px rgba(149, 120, 155, 0.08);
+}
+
+.supabase-crud-card {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 24px;
+    border-radius: 30px;
+    padding: 28px;
+    margin-bottom: 28px;
+}
+
+.supabase-pill {
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid #9dd0ff;
+    color: #6aa9dd;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.supabase-crud-copy h4,
+.supabase-compare-card h4 {
+    color: #3f2c46;
+    font-size: 34px;
+    line-height: 1.12;
+    margin-bottom: 14px;
+}
+
+.supabase-crud-copy > p,
+.supabase-card-copy {
+    color: #6d5c71;
+    line-height: 1.75;
+    margin-bottom: 20px;
+}
+
+.crud-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.crud-list article {
+    padding: 18px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #fff 0%, #fdf9fc 100%);
+    border: 1px solid #efe2ee;
+}
+
+.crud-list strong {
+    display: block;
+    color: #3f2c46;
+    margin-bottom: 8px;
+}
+
+.crud-list p {
+    color: #6f6073;
+    line-height: 1.65;
+    font-size: 14px;
+}
+
+.supabase-code-panel {
+    border-radius: 26px;
+    background: linear-gradient(180deg, #f9fbff 0%, #f4f7fc 100%);
+    border: 1px solid #dde6f2;
+    padding: 22px;
+    overflow: auto;
+}
+
+.supabase-code-panel pre,
+.supabase-compare-card pre {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #506174;
+    white-space: pre-wrap;
+}
+
+.supabase-compare-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.supabase-compare-card {
+    border-radius: 28px;
+    padding: 26px;
+}
+
+.supabase-compare-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.supabase-compare-title {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: #95789b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+}
+
+.supabase-compare-card pre {
+    border-radius: 20px;
+    background: #f8f8fb;
+    border: 1px solid #edf0f4;
+    padding: 18px;
+    margin-bottom: 16px;
+}
+
+.supabase-good-list,
+.supabase-bad-list {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+}
+
+.supabase-good-list li,
+.supabase-bad-list li {
+    color: #6b5a70;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.supabase-good-list li::before,
+.supabase-bad-list li::before {
+    display: inline-block;
+    width: 20px;
+    font-weight: 700;
+}
+
+.supabase-good-list li::before {
+    content: '✓';
+    color: #28a745;
+}
+
+.supabase-bad-list li::before {
+    content: '✕';
+    color: #e14444;
+}
+
+.supabase-note {
+    margin-top: 16px;
+    border-radius: 18px;
+    background: #eef7ff;
+    border: 1px solid #d7e7f9;
+    color: #4b6580;
+    padding: 16px 18px;
+    line-height: 1.7;
+    font-size: 14px;
 }
 
 .faq-reviews-section {
