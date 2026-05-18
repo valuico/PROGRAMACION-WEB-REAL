@@ -51,6 +51,43 @@ function saveLocalCart(cart) {
   localStorage.setItem('hazeCart', JSON.stringify(cart));
 }
 
+async function fetchRemoteCartItems(userId) {
+  if (!supabase || !userId) return [];
+
+  const { data: cartRows, error: cartError } = await supabase
+    .from('carrito')
+    .select('id, cantidad, tono_seleccionado, producto_id')
+    .eq('usuario_id', userId)
+    .order('creado_en', { ascending: false });
+
+  if (cartError || !cartRows) {
+    throw cartError || new Error('No se pudo leer el carrito.');
+  }
+
+  if (cartRows.length === 0) return [];
+
+  const productIds = [...new Set(cartRows.map((row) => row.producto_id))];
+
+  const { data: productRows, error: productsError } = await supabase
+    .from('productos')
+    .select('id, nombre, precio, imagen_url')
+    .in('id', productIds);
+
+  if (productsError || !productRows) {
+    throw productsError || new Error('No se pudieron leer los productos del carrito.');
+  }
+
+  const productMap = new Map(productRows.map((product) => [product.id, product]));
+
+  return cartRows.map((row) => ({
+    id: row.id,
+    cantidad: row.cantidad,
+    tono_seleccionado: row.tono_seleccionado,
+    producto_id: row.producto_id,
+    producto: productMap.get(row.producto_id) || null,
+  }));
+}
+
 function NotifyButton() {
   const [notifyMode, setNotifyMode] = useState(false);
   const [email, setEmail] = useState('');
@@ -267,26 +304,12 @@ export default function Home() {
       if (!authReady) return;
 
       if (user && supabase) {
-        const { data, error } = await supabase
-          .from('carrito')
-          .select(`
-            id,
-            cantidad,
-            tono_seleccionado,
-            producto_id,
-            producto:productos!carrito_producto_id_fkey (
-              id,
-              nombre,
-              precio,
-              imagen_url
-            )
-          `)
-          .eq('usuario_id', user.id)
-          .order('creado_en', { ascending: false });
-
-        if (!error) {
-          setCart(normalizeCartItems(data || []));
+        try {
+          const data = await fetchRemoteCartItems(user.id);
+          setCart(normalizeCartItems(data));
           return;
+        } catch (error) {
+          console.error('No se pudo cargar el carrito remoto:', error);
         }
       }
 
@@ -313,24 +336,8 @@ export default function Home() {
   const syncRemoteCart = async () => {
     if (!user || !supabase) return;
 
-    const { data } = await supabase
-      .from('carrito')
-      .select(`
-        id,
-        cantidad,
-        tono_seleccionado,
-        producto_id,
-        producto:productos!carrito_producto_id_fkey (
-          id,
-          nombre,
-          precio,
-          imagen_url
-        )
-      `)
-      .eq('usuario_id', user.id)
-      .order('creado_en', { ascending: false });
-
-    setCart(normalizeCartItems(data || []));
+    const data = await fetchRemoteCartItems(user.id);
+    setCart(normalizeCartItems(data));
   };
 
   const addToCart = async (product) => {
@@ -348,18 +355,28 @@ export default function Home() {
         (item) => item.id === product.id && item.selectedTone === toneValue
       );
 
+      let remoteError = null;
+
       if (existing?.rowId) {
-        await supabase
+        const { error } = await supabase
           .from('carrito')
           .update({ cantidad: existing.cantidad + 1 })
           .eq('id', existing.rowId);
+        remoteError = error;
       } else {
-        await supabase.from('carrito').insert({
+        const { error } = await supabase.from('carrito').insert({
           usuario_id: user.id,
           producto_id: product.id,
           tono_seleccionado: toneValue,
           cantidad: 1,
         });
+        remoteError = error;
+      }
+
+      if (remoteError) {
+        console.error('No se pudo agregar al carrito remoto:', remoteError);
+        addNotification('No se pudo guardar en Supabase. Revisá carrito/policies.');
+        return;
       }
 
       await syncRemoteCart();
@@ -401,13 +418,23 @@ export default function Home() {
     if (!item) return;
 
     if (user && supabase && item.rowId) {
+      let remoteError = null;
+
       if (item.cantidad > 1) {
-        await supabase
+        const { error } = await supabase
           .from('carrito')
           .update({ cantidad: item.cantidad - 1 })
           .eq('id', item.rowId);
+        remoteError = error;
       } else {
-        await supabase.from('carrito').delete().eq('id', item.rowId);
+        const { error } = await supabase.from('carrito').delete().eq('id', item.rowId);
+        remoteError = error;
+      }
+
+      if (remoteError) {
+        console.error('No se pudo actualizar el carrito remoto:', remoteError);
+        addNotification('No se pudo actualizar el carrito en Supabase.');
+        return;
       }
 
       await syncRemoteCart();

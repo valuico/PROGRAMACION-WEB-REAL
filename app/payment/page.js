@@ -15,6 +15,43 @@ function readLocalCart() {
   }
 }
 
+async function fetchRemoteCartItems(userId) {
+  if (!supabase || !userId) return [];
+
+  const { data: cartRows, error: cartError } = await supabase
+    .from('carrito')
+    .select('id, cantidad, tono_seleccionado, producto_id')
+    .eq('usuario_id', userId)
+    .order('creado_en', { ascending: false });
+
+  if (cartError || !cartRows) {
+    throw cartError || new Error('No se pudo leer el carrito.');
+  }
+
+  if (cartRows.length === 0) return [];
+
+  const productIds = [...new Set(cartRows.map((row) => row.producto_id))];
+
+  const { data: productRows, error: productsError } = await supabase
+    .from('productos')
+    .select('id, nombre, precio, imagen_url')
+    .in('id', productIds);
+
+  if (productsError || !productRows) {
+    throw productsError || new Error('No se pudieron leer los productos del carrito.');
+  }
+
+  const productMap = new Map(productRows.map((product) => [product.id, product]));
+
+  return cartRows.map((row) => ({
+    id: row.id,
+    cantidad: row.cantidad,
+    tono_seleccionado: row.tono_seleccionado,
+    producto_id: row.producto_id,
+    producto: productMap.get(row.producto_id) || null,
+  }));
+}
+
 export default function PaymentPage() {
   const router = useRouter();
   const [cart, setCart] = useState([]);
@@ -45,24 +82,13 @@ export default function PaymentPage() {
           email: session.user.email || '',
         }));
 
-        const { data } = await supabase
-          .from('carrito')
-          .select(`
-            id,
-            cantidad,
-            tono_seleccionado,
-            producto_id,
-            producto:productos!carrito_producto_id_fkey (
-              id,
-              nombre,
-              precio,
-              imagen_url
-            )
-          `)
-          .eq('usuario_id', session.user.id)
-          .order('creado_en', { ascending: false });
-
-        setCart(normalizeCartItems(data || []));
+        try {
+          const data = await fetchRemoteCartItems(session.user.id);
+          setCart(normalizeCartItems(data));
+        } catch (error) {
+          console.error('No se pudo cargar el carrito remoto:', error);
+          setCart([]);
+        }
       } else {
         setCart(readLocalCart());
       }
