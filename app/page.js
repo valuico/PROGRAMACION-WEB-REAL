@@ -1,60 +1,61 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { DEFAULT_PRODUCTS, buildProductsFromRows, getToneColor, normalizeCartItems } from '../lib/shop';
+import { isSupabaseConfigured, supabase } from '../lib/supabase/client';
 
-const PRODUCTS = {
-  makeup: [
-    { id: 1, nombre: 'Pro Filt\'r Foundation', p: 'Soft Matte Longwear', precio: 50000, img: '/foundation-haze.png', tones: ['Light', 'Medium', 'Warm', 'Deep'], categoria: 'cara' },
-    { id: 2, nombre: 'We\'re Even Concealer', p: 'Hydrating Longwear', precio: 52300, img: '/concelears-haze.png', tones: ['Light', 'Medium', 'Warm', 'Deep'], categoria: 'cara' },
-    { id: 3, nombre: 'Radiant Stick Duo', p: 'Iluminador en Barra', precio: 42500, img: '/highlighters.png', tones: ['Golden Glow', 'Rose Stick', 'Silver Stow'], categoria: 'cara' },
-    { id: 4, nombre: 'Invisimatte Setting Powder', p: 'Polvos Volátiles', precio: 55000, img: '/polvos-volatiles.png', tones: ['Butter', 'Lavender'], categoria: 'cara' },
-    { id: 5, nombre: 'Double Take Blush', p: 'Dúo Polvo y Crema', precio: 48900, img: '/blushes-haze.png', tones: ['Peony', 'Coral Haze', 'Rosewood', 'Sunset'], categoria: 'cara' },
-    { id: 6, nombre: 'Mist & Fix Spray', p: 'Larga Duración', precio: 39000, img: '/setting-spray-2.png', tones: [], categoria: 'cara' },
-    { id: 7, nombre: 'Iconic Matte Lipstick', p: 'Labial en barra', precio: 42900, img: '/labiales.png', tones: ['Deep Red', 'True Scarlet', 'Dusty Rose', 'Terracotta', 'Nude Beige', 'Honey Nude'], categoria: 'labios' },
-    { id: 8, nombre: 'Precision Lip Shaper', p: 'Delineador de labios', precio: 31500, img: '/lip-liner.png', tones: ['Pale Lilac', 'Warm Pink', 'Berry Bite', 'Deep Cocoa'], categoria: 'labios' },
-    { id: 9, nombre: 'Gloss Bomb Crystal', p: 'Brillo labial efecto espejo', precio: 38200, img: '/lipgloss.png', tones: ['Diamond Milk', 'Pink Dragonfly', 'Fussy', 'Hot Chocolit'], categoria: 'labios' },
-    { id: 10, nombre: 'Ultimate Glow Palette', p: '12 High-Pigment Shades', precio: 65800, img: '/paleta-sombras.png', tones: [], categoria: 'ojos' },
-    { id: 11, nombre: 'Hella Thicc Mascara', p: 'Volumizing & Lift', precio: 38500, img: '/mascara-pestañas-haze.png', tones: ['Waterproof', 'Fórmula Original'], categoria: 'ojos' },
-    { id: 12, nombre: 'Lineshaper Gel Eyeliner', p: 'Waterproof Gel', precio: 32200, img: '/eyeliners-haze.png', tones: ['Deep Brown', 'Midnight Black'], categoria: 'ojos' }
-  ],
-  skincare: [
-    { id: 13, nombre: 'Hydrating Toner', p: 'Ácido Hialurónico + Lavanda', precio: 35000, img: '/toner-haze.png', tones: [], isNew: true },
-    { id: 14, nombre: 'Gentle Cleanser', p: 'Té Verde + Ceramidas', precio: 38500, img: '/cleanser-real.png', tones: [], isNew: true },
-    { id: 15, nombre: 'Daily Moisturizer', p: 'Péptidos + Squalane', precio: 44900, img: '/cream-real.png', tones: [], isNew: true }
-  ]
-};
+function getUserDisplayName(user) {
+  if (!user) return 'Cuenta';
+
+  return (
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    user.email?.split('@')[0] ||
+    'Mi cuenta'
+  );
+}
+
+function readLocalCart() {
+  try {
+    return JSON.parse(localStorage.getItem('hazeCart') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalCart(cart) {
+  localStorage.setItem('hazeCart', JSON.stringify(cart));
+}
 
 function NotifyButton() {
   const [notifyMode, setNotifyMode] = useState(false);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const handleNotifyClick = () => {
-    setNotifyMode(true);
-  };
-
   const handleSubmit = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (emailRegex.test(email)) {
-      setSubmitted(true);
-      setTimeout(() => {
-        setNotifyMode(false);
-        setSubmitted(false);
-        setEmail('');
-      }, 3000);
-    } else {
-      alert('Por favor, ingresa un email válido.');
+    if (!emailRegex.test(email)) {
+      alert('Por favor, ingresá un email válido.');
+      return;
     }
+
+    setSubmitted(true);
+    setTimeout(() => {
+      setNotifyMode(false);
+      setSubmitted(false);
+      setEmail('');
+    }, 3000);
   };
 
   return (
     <div className="notify-container">
       {!notifyMode ? (
-        <button 
+        <button
           className="notify-btn"
-          onClick={handleNotifyClick}
+          onClick={() => setNotifyMode(true)}
           style={{
             backgroundColor: '#95789b',
             color: 'white',
@@ -65,13 +66,13 @@ function NotifyButton() {
             fontSize: '14px',
             fontWeight: 'bold',
             transition: '0.3s ease-in-out',
-            width: '100%'
+            width: '100%',
           }}
         >
           Avisame cuando salga
         </button>
       ) : submitted ? (
-        <div 
+        <div
           className="thank-you-msg"
           style={{
             backgroundColor: '#e8f5e8',
@@ -81,35 +82,30 @@ function NotifyButton() {
             textAlign: 'center',
             fontSize: '14px',
             fontWeight: 'bold',
-            transition: '0.3s ease-in-out'
           }}
         >
           ¡Gracias! Te avisaremos.
         </div>
       ) : (
-        <div 
+        <div
           className="notify-input-container"
-          style={{
-            display: 'flex',
-            gap: '8px',
-            transition: '0.3s ease-in-out'
-          }}
+          style={{ display: 'flex', gap: '8px' }}
         >
           <input
             type="email"
             placeholder="Tu email aquí..."
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
             style={{
               flex: 1,
               padding: '12px',
               border: '1px solid #ddd',
               borderRadius: '8px',
               fontSize: '14px',
-              outline: 'none'
+              outline: 'none',
             }}
           />
-          <button 
+          <button
             onClick={handleSubmit}
             style={{
               backgroundColor: '#95789b',
@@ -119,7 +115,6 @@ function NotifyButton() {
               borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '16px',
-              transition: '0.3s ease-in-out'
             }}
           >
             ✓
@@ -134,22 +129,22 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
   return (
     <div className="product-card show">
       <div className="product-img">
-        <Image 
-          src={product.img} 
-          alt={product.nombre} 
-          width={300} 
+        <Image
+          src={product.img}
+          alt={product.nombre}
+          width={300}
           height={300}
           style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         />
       </div>
       <div className="product-info">
-        {isSkincare && product.isNew && <span className="gold-badge">Nuevo</span>}
+        {isSkincare && product.isNew ? <span className="gold-badge">Nuevo</span> : null}
         <h4>{product.nombre}</h4>
         <p>{product.p}</p>
-        
+
         {product.tones && product.tones.length > 0 ? (
           <div className="tone-selector">
-            {product.tones.map(tone => (
+            {product.tones.map((tone) => (
               <button
                 key={tone}
                 className={`tone-circle ${selectedTone === tone ? 'active' : ''}`}
@@ -157,17 +152,17 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
                 title={tone}
                 style={{
                   backgroundColor: getToneColor(tone),
-                  border: selectedTone === tone ? '2px solid #95789b' : '1px solid #ccc'
+                  border: selectedTone === tone ? '2px solid #95789b' : '1px solid #ccc',
                 }}
-              ></button>
+              />
             ))}
           </div>
         ) : (
           <div className="tone-selector tone-selector-placeholder" aria-hidden="true" />
         )}
-        
-        <span className="price">${product.precio.toLocaleString()}</span>
-        <button 
+
+        <span className="price">${Number(product.precio).toLocaleString()}</span>
+        <button
           className={`add-to-cart ${isSkincare ? 'btn-gold' : ''}`}
           onClick={onAddToCart}
         >
@@ -178,61 +173,104 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
   );
 }
 
-function getToneColor(tone) {
-  const colors = {
-    'Light': '#f3d9c1',
-    'Medium': '#e5b38a',
-    'Warm': '#c3834c',
-    'Deep': '#633b26',
-    'Golden Glow': '#d4af37',
-    'Rose Stick': '#eec0c8',
-    'Silver Stow': '#e3e4e5',
-    'Butter': '#f5e1cc',
-    'Lavender': '#e3e4e5',
-    'Peony': '#e1959a',
-    'Coral Haze': '#f17f5a',
-    'Rosewood': '#bb6d6d',
-    'Sunset': '#c47645',
-    'Pale Lilac': '#e2d1df',
-    'Warm Pink': '#d1a3a4',
-    'Berry Bite': '#a35d6a',
-    'Deep Cocoa': '#8e6353',
-    'Deep Red': '#8b1220',
-    'True Scarlet': '#b51a1a',
-    'Dusty Rose': '#a65e6d',
-    'Terracotta': '#8d5345',
-    'Nude Beige': '#b0816a',
-    'Honey Nude': '#c8987d',
-    'Diamond Milk': '#ffffff',
-    'Pink Dragonfly': '#f4ccd3',
-    'Fussy': '#d0828c',
-    'Hot Chocolit': '#a47158',
-    'Waterproof': '#008fb3',
-    'Fórmula Original': '#95789b',
-    'Deep Brown': '#5d3a1a',
-    'Midnight Black': '#000000'
-  };
-  return colors[tone] || '#ccc';
-}
-
 export default function Home() {
+  const router = useRouter();
   const [currentSection, setCurrentSection] = useState('hero');
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedTones, setSelectedTones] = useState({});
   const [filter, setFilter] = useState('all');
   const [notifications, setNotifications] = useState([]);
+  const [catalog, setCatalog] = useState(DEFAULT_PRODUCTS);
+  const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
 
-  // Cargar carrito del localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('hazeCart');
-    if (saved) setCart(JSON.parse(saved));
+    async function bootstrapAuth() {
+      if (!supabase) {
+        setAuthReady(true);
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      setUser(session?.user ?? null);
+      setAuthReady(true);
+    }
+
+    bootstrapAuth();
+
+    if (!supabase) return undefined;
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Guardar carrito en localStorage
   useEffect(() => {
-    localStorage.setItem('hazeCart', JSON.stringify(cart));
-  }, [cart]);
+    async function fetchProducts() {
+      if (!supabase) return;
+
+      const { data, error } = await supabase
+        .from('productos')
+        .select('*')
+        .order('tipo', { ascending: true })
+        .order('categoria', { ascending: true })
+        .order('nombre', { ascending: true });
+
+      if (!error && data?.length) {
+        setCatalog(buildProductsFromRows(data));
+      }
+    }
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    async function loadCart() {
+      if (!authReady) return;
+
+      if (user && supabase) {
+        const { data, error } = await supabase
+          .from('carrito')
+          .select(`
+            id,
+            cantidad,
+            tono_seleccionado,
+            producto_id,
+            producto:productos!carrito_producto_id_fkey (
+              id,
+              nombre,
+              precio,
+              imagen_url
+            )
+          `)
+          .eq('usuario_id', user.id)
+          .order('creado_en', { ascending: false });
+
+        if (!error) {
+          setCart(normalizeCartItems(data || []));
+          return;
+        }
+      }
+
+      setCart(readLocalCart());
+    }
+
+    loadCart();
+  }, [user, authReady]);
+
+  useEffect(() => {
+    if (!user) {
+      saveLocalCart(cart);
+    }
+  }, [cart, user]);
 
   const addNotification = (message) => {
     const id = Date.now();
@@ -242,35 +280,152 @@ export default function Home() {
     }, 3200);
   };
 
-  const addToCart = (product) => {
-    const toneTone = selectedTones[product.id];
-    if (product.tones && product.tones.length > 0 && !toneTone) {
-      alert('Por favor, selecciona un tono');
+  const syncRemoteCart = async () => {
+    if (!user || !supabase) return;
+
+    const { data } = await supabase
+      .from('carrito')
+      .select(`
+        id,
+        cantidad,
+        tono_seleccionado,
+        producto_id,
+        producto:productos!carrito_producto_id_fkey (
+          id,
+          nombre,
+          precio,
+          imagen_url
+        )
+      `)
+      .eq('usuario_id', user.id)
+      .order('creado_en', { ascending: false });
+
+    setCart(normalizeCartItems(data || []));
+  };
+
+  const addToCart = async (product) => {
+    const selectedTone = selectedTones[product.id];
+
+    if (product.tones && product.tones.length > 0 && !selectedTone) {
+      alert('Por favor, seleccioná un tono');
       return;
     }
-    
-    setCart([...cart, { ...product, selectedTone: toneTone || 'Único' }]);
-    setSelectedTones({ ...selectedTones, [product.id]: null });
+
+    const toneValue = selectedTone || 'Único';
+
+    if (user && supabase) {
+      const existing = cart.find(
+        (item) => item.id === product.id && item.selectedTone === toneValue
+      );
+
+      if (existing?.rowId) {
+        await supabase
+          .from('carrito')
+          .update({ cantidad: existing.cantidad + 1 })
+          .eq('id', existing.rowId);
+      } else {
+        await supabase.from('carrito').insert({
+          usuario_id: user.id,
+          producto_id: product.id,
+          tono_seleccionado: toneValue,
+          cantidad: 1,
+        });
+      }
+
+      await syncRemoteCart();
+    } else {
+      setCart((prev) => {
+        const existingIndex = prev.findIndex(
+          (item) => item.id === product.id && item.selectedTone === toneValue
+        );
+
+        if (existingIndex >= 0) {
+          const next = [...prev];
+          next[existingIndex] = {
+            ...next[existingIndex],
+            cantidad: next[existingIndex].cantidad + 1,
+          };
+          return next;
+        }
+
+        return [
+          ...prev,
+          {
+            id: product.id,
+            nombre: product.nombre,
+            precio: product.precio,
+            img: product.img,
+            selectedTone: toneValue,
+            cantidad: 1,
+          },
+        ];
+      });
+    }
+
+    setSelectedTones((prev) => ({ ...prev, [product.id]: null }));
     addNotification(`${product.nombre} agregado al carrito`);
   };
 
-  const removeFromCart = (index) => {
-    setCart(cart.filter((_, i) => i !== index));
+  const removeFromCart = async (index) => {
+    const item = cart[index];
+    if (!item) return;
+
+    if (user && supabase && item.rowId) {
+      if (item.cantidad > 1) {
+        await supabase
+          .from('carrito')
+          .update({ cantidad: item.cantidad - 1 })
+          .eq('id', item.rowId);
+      } else {
+        await supabase.from('carrito').delete().eq('id', item.rowId);
+      }
+
+      await syncRemoteCart();
+      return;
+    }
+
+    setCart((prev) => {
+      if (item.cantidad > 1) {
+        return prev.map((entry, entryIndex) =>
+          entryIndex === index
+            ? { ...entry, cantidad: entry.cantidad - 1 }
+            : entry
+        );
+      }
+
+      return prev.filter((_, entryIndex) => entryIndex !== index);
+    });
   };
 
-  const filteredProducts = PRODUCTS.makeup.filter(p => 
-    filter === 'all' || p.categoria === filter
+  const handleSignOut = async () => {
+    if (!supabase) return;
+
+    await supabase.auth.signOut();
+    setCart(readLocalCart());
+    addNotification('Sesión cerrada');
+  };
+
+  const filteredProducts = catalog.makeup.filter(
+    (product) => filter === 'all' || product.categoria === filter
   );
 
-  const totalPrice = cart.reduce((sum, item) => sum + item.precio, 0);
+  const totalPrice = cart.reduce(
+    (sum, item) => sum + Number(item.precio) * (item.cantidad || 1),
+    0
+  );
 
   return (
     <div>
-      {/* Header */}
       <header className="main-header">
         <div className="logo-container">
           <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
-            <Image src="/LOGO-removebg-preview.png" alt="HAZE Beauty" className="haze-logo" width={70} height={70} />
+            <Image
+              src="/LOGO-removebg-preview.png"
+              alt="HAZE Beauty"
+              className="haze-logo"
+              width={70}
+              height={70}
+            />
           </a>
         </div>
 
@@ -281,10 +436,24 @@ export default function Home() {
             <li><a onClick={() => setCurrentSection('makeup')}>Makeup</a></li>
             <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
             <li>
+              <Link href="/login" className="account-link">
+                {getUserDisplayName(user)}
+              </Link>
+            </li>
+            {user ? (
+              <li>
+                <button type="button" className="logout-link" onClick={handleSignOut}>
+                  Salir
+                </button>
+              </li>
+            ) : null}
+            <li>
               <div className="cart-container">
                 <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
                   <span className="cart-icon">🛒</span>
-                  <span id="cart-count">{cart.length}</span>
+                  <span id="cart-count">
+                    {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
+                  </span>
                 </div>
               </div>
             </li>
@@ -293,14 +462,13 @@ export default function Home() {
       </header>
 
       <main>
-        {/* Hero Section */}
-        {currentSection === 'hero' && (
+        {currentSection === 'hero' ? (
           <section className="hero-section">
             <div className="hero-block skincare-news skincare-bg">
               <div className="news-container">
                 <span className="news-tag">NUEVO LANZAMIENTO</span>
                 <h2>HAZE <span className="gold-text">SKINCARE</span> LINE</h2>
-                <p>La espera terminó. Presentamos nuestra primera línea de cuidado facial: fórmulas puras, minimalistas y altamente efectivas para lograr ese "glow" natural.</p>
+                <p>La espera terminó. Presentamos nuestra primera línea de cuidado facial: fórmulas puras, minimalistas y altamente efectivas para lograr ese glow natural.</p>
                 <a onClick={() => setCurrentSection('skincare')} className="skincare-link">
                   Explorar Skincare →
                 </a>
@@ -332,10 +500,9 @@ export default function Home() {
               </div>
             </div>
           </section>
-        )}
+        ) : null}
 
-        {/* Makeup Section */}
-        {currentSection === 'makeup' && (
+        {currentSection === 'makeup' ? (
           <section className="catalog-container">
             <aside className="sidebar">
               <h3>MAKEUP</h3>
@@ -348,21 +515,22 @@ export default function Home() {
             </aside>
 
             <div className="products-grid">
-              {filteredProducts.map(product => (
-                <ProductCard 
-                  key={product.id} 
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
                   product={product}
                   selectedTone={selectedTones[product.id]}
-                  onToneSelect={(tone) => setSelectedTones({ ...selectedTones, [product.id]: tone })}
+                  onToneSelect={(tone) =>
+                    setSelectedTones((prev) => ({ ...prev, [product.id]: tone }))
+                  }
                   onAddToCart={() => addToCart(product)}
                 />
               ))}
             </div>
           </section>
-        )}
+        ) : null}
 
-        {/* Skincare Section */}
-        {currentSection === 'skincare' && (
+        {currentSection === 'skincare' ? (
           <section className="catalog-container skincare-catalog">
             <aside className="sidebar skincare-sidebar">
               <h3>THE GLOW EDIT</h3>
@@ -371,15 +539,15 @@ export default function Home() {
             </aside>
 
             <div className="products-grid">
-              {PRODUCTS.skincare.map(product => (
-                <ProductCard 
-                  key={product.id} 
+              {catalog.skincare.map((product) => (
+                <ProductCard
+                  key={product.id}
                   product={product}
                   isSkincare
                   onAddToCart={() => addToCart(product)}
                 />
               ))}
-              {/* Coming Soon Cards */}
+
               <div className="product-card show">
                 <div className="product-img placeholder-gold">✨</div>
                 <div className="product-info">
@@ -389,6 +557,7 @@ export default function Home() {
                   <NotifyButton />
                 </div>
               </div>
+
               <div className="product-card show">
                 <div className="product-img placeholder-gold">✨</div>
                 <div className="product-info">
@@ -398,6 +567,7 @@ export default function Home() {
                   <NotifyButton />
                 </div>
               </div>
+
               <div className="product-card show">
                 <div className="product-img placeholder-gold">✨</div>
                 <div className="product-info">
@@ -409,9 +579,9 @@ export default function Home() {
               </div>
             </div>
           </section>
-        )}
+        ) : null}
 
-        {currentSection === 'faq' && (
+        {currentSection === 'faq' ? (
           <section className="faq-section">
             <div className="faq-main">
               <section className="faq-hero">
@@ -465,36 +635,26 @@ export default function Home() {
                     <summary>¿Cuánto tarda en llegar mi pedido?</summary>
                     <p>Los envíos suelen demorar entre 2 y 6 días hábiles. Cuando tu compra se despacha, recibís un correo con el seguimiento para ver cada paso.</p>
                   </details>
-
                   <details className="faq-item">
                     <summary>¿Puedo combinar makeup y skincare en el mismo carrito?</summary>
-                    <p>Sí. Podés mezclar productos de ambas categorías y finalizar todo junto. El carrito mantiene la selección completa en una sola compra.</p>
+                    <p>Sí. Podés mezclar productos de ambas categorías y finalizar todo junto. Si iniciás sesión, además tu carrito queda guardado en Supabase.</p>
                   </details>
-
                   <details className="faq-item">
                     <summary>¿Cómo sé qué tono o producto elegir?</summary>
                     <p>En makeup podés usar el selector de tonos para comparar opciones, y en skincare te conviene arrancar con fórmulas livianas como toner, cleanser y moisturizer según tu rutina.</p>
                   </details>
-
                   <details className="faq-item">
                     <summary>¿Los productos sirven para piel sensible?</summary>
                     <p>Las fórmulas están pensadas para sentirse suaves y minimalistas. Si tu piel es muy reactiva, te recomendamos probar primero en una zona pequeña.</p>
                   </details>
-
                   <details className="faq-item">
                     <summary>¿La compra del sitio procesa pagos reales?</summary>
-                    <p>El checkout actual funciona como demo del flujo de compra. Está diseñado para mostrar la experiencia completa sin cobrar de verdad.</p>
-                  </details>
-
-                  <details className="faq-item">
-                    <summary>¿Qué pasa si mi pedido llega con un problema?</summary>
-                    <p>Si hay daño, error o algo no llegó como esperabas, escribinos dentro de las primeras 48 horas y te ayudamos con cambio o resolución.</p>
+                    <p>El checkout actual guarda el pedido en Supabase como simulación académica. No ejecuta un cobro real.</p>
                   </details>
                 </div>
 
                 <aside className="faq-column faq-side-panel">
                   <h3>Favoritos del momento</h3>
-
                   <article className="faq-product-callout">
                     <Image src="/toner-haze.png" alt="Hydrating Toner HAZE" width={110} height={140} />
                     <div>
@@ -502,7 +662,6 @@ export default function Home() {
                       <p>Ideal para refrescar, hidratar y preparar la piel antes del serum, la crema o el makeup.</p>
                     </div>
                   </article>
-
                   <article className="faq-product-callout">
                     <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation HAZE" width={110} height={140} />
                     <div>
@@ -510,65 +669,17 @@ export default function Home() {
                       <p>Acabado soft matte y cobertura pareja para un look prolijo que dura todo el día.</p>
                     </div>
                   </article>
-
                   <div className="faq-note">
                     <h4>Tip HAZE</h4>
                     <p>Aplicá el toner con la piel apenas húmeda y sellá enseguida con crema para potenciar la hidratación y el glow natural.</p>
                   </div>
                 </aside>
               </section>
-
-              <section className="faq-reviews-section">
-                <div className="faq-section-head faq-section-head-center">
-                  <span className="news-tag faq-mini-tag">Reseñas</span>
-                  <h3>Lo que dice la comunidad</h3>
-                </div>
-
-                <div className="faq-review-grid">
-                  <article className="faq-review-card">
-                    <div className="faq-review-product">
-                      <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation" width={90} height={110} />
-                      <div>
-                        <h4>Pro Filt&apos;r Foundation</h4>
-                        <span>★★★★★</span>
-                      </div>
-                    </div>
-                    <p>"La base queda prolija, liviana y súper pareja. Tiene ese acabado elegante que hace que todo el makeup se vea más premium."</p>
-                    <strong>Martina, Córdoba</strong>
-                  </article>
-
-                  <article className="faq-review-card">
-                    <div className="faq-review-product">
-                      <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={90} height={110} />
-                      <div>
-                        <h4>Ultimate Glow Palette</h4>
-                        <span>★★★★★</span>
-                      </div>
-                    </div>
-                    <p>"Los tonos pigmentan hermoso y se difuminan fácil. La uso para looks suaves de día y también para algo más nocturno."</p>
-                    <strong>Julieta, Rosario</strong>
-                  </article>
-
-                  <article className="faq-review-card">
-                    <div className="faq-review-product">
-                      <Image src="/toner-haze.png" alt="Hydrating Toner" width={90} height={110} />
-                      <div>
-                        <h4>Hydrating Toner</h4>
-                        <span>★★★★★</span>
-                      </div>
-                    </div>
-                    <p>"Deja la piel fresca, calma rápido y me ordena toda la rutina. Se siente liviano pero se nota el cambio enseguida."</p>
-                    <strong>Camila, Buenos Aires</strong>
-                  </article>
-                </div>
-              </section>
             </div>
           </section>
-        )}
-
+        ) : null}
       </main>
 
-      {/* Footer */}
       <footer className="main-footer">
         <div className="footer-container">
           <div className="footer-section brand">
@@ -588,7 +699,7 @@ export default function Home() {
           <div className="footer-section newsletter">
             <h4>¡Unite a la comunidad!</h4>
             <p>Recibí ofertas exclusivas y lanzamientos antes que nadie.</p>
-            <form className="footer-form" onSubmit={(e) => { e.preventDefault(); alert('¡Gracias por suscribirte!'); }}>
+            <form className="footer-form" onSubmit={(event) => event.preventDefault()}>
               <input type="email" placeholder="Tu email aquí..." required />
               <button type="submit">Suscribirme</button>
             </form>
@@ -603,8 +714,11 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Cart Sidebar */}
-      <div id="cart-overlay" onClick={() => setCartOpen(false)} style={{ display: cartOpen ? 'block' : 'none' }}></div>
+      <div
+        id="cart-overlay"
+        onClick={() => setCartOpen(false)}
+        style={{ display: cartOpen ? 'block' : 'none' }}
+      ></div>
       <div className="side-cart" style={{ right: cartOpen ? '0' : '-400px' }}>
         <div className="cart-header">
           <h3>Tu Carrito</h3>
@@ -616,14 +730,36 @@ export default function Home() {
             <p className="empty-msg">Tu carrito está vacío.</p>
           ) : (
             cart.map((item, idx) => (
-              <div key={idx} style={{ display: 'flex', gap: '15px', marginBottom: '20px', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+              <div
+                key={`${item.id}-${item.selectedTone}-${idx}`}
+                style={{
+                  display: 'flex',
+                  gap: '15px',
+                  marginBottom: '20px',
+                  alignItems: 'center',
+                  borderBottom: '1px solid #eee',
+                  paddingBottom: '10px',
+                }}
+              >
                 <Image src={item.img} alt={item.nombre} width={60} height={60} style={{ borderRadius: '8px' }} />
                 <div style={{ flex: 1 }}>
                   <h4 style={{ fontSize: '14px', margin: 0, color: '#333' }}>{item.nombre}</h4>
-                  <p style={{ fontSize: '12px', color: '#95789b', margin: '4px 0' }}>Tono: {item.selectedTone}</p>
-                  <span style={{ fontWeight: 'bold', color: '#d4af37' }}>${item.precio.toLocaleString()}</span>
+                  <p style={{ fontSize: '12px', color: '#95789b', margin: '4px 0' }}>
+                    Tono: {item.selectedTone}
+                  </p>
+                  <p style={{ fontSize: '12px', color: '#95789b', margin: '4px 0' }}>
+                    Cantidad: {item.cantidad || 1}
+                  </p>
+                  <span style={{ fontWeight: 'bold', color: '#d4af37' }}>
+                    ${(Number(item.precio) * (item.cantidad || 1)).toLocaleString()}
+                  </span>
                 </div>
-                <button onClick={() => removeFromCart(idx)} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '20px' }}>&times;</button>
+                <button
+                  onClick={() => removeFromCart(idx)}
+                  style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '20px' }}
+                >
+                  &times;
+                </button>
               </div>
             ))
           )}
@@ -634,10 +770,22 @@ export default function Home() {
             <span>Total:</span>
             <span id="cart-total-amount">${totalPrice.toLocaleString()}</span>
           </div>
-          <Link href="/payment">
-            <button className="btn-checkout">Finalizar Compra</button>
-          </Link>
-          <p className="payment-methods">Aceptamos tarjetas de crédito, débito y transferencia.</p>
+
+          {isSupabaseConfigured && !user ? (
+            <button className="btn-checkout" onClick={() => router.push('/login')}>
+              Iniciá sesión para comprar
+            </button>
+          ) : (
+            <Link href="/payment">
+              <button className="btn-checkout">Finalizar Compra</button>
+            </Link>
+          )}
+
+          <p className="payment-methods">
+            {user
+              ? 'Tu carrito está sincronizado con tu cuenta de Supabase.'
+              : 'Podés comprar como invitada o iniciar sesión para guardar el carrito.'}
+          </p>
         </div>
       </div>
 
