@@ -7,6 +7,27 @@ import { useRouter } from 'next/navigation';
 import { DEFAULT_PRODUCTS, buildProductsFromRows, getToneColor, normalizeCartItems } from '../lib/shop';
 import { isSupabaseConfigured, supabase } from '../lib/supabase/client';
 
+const EDITORIAL_SLIDES = [
+  {
+    image: '/haze-editorial-gloss.png',
+    title: 'Brillo suave, gesto preciso',
+    text: 'Texturas luminosas, tonos delicados y una estética pensada para elevar lo cotidiano.',
+    tag: 'Glow Edit',
+  },
+  {
+    image: '/haze-editorial-flatlay.png',
+    title: 'Una colección que conversa entre sí',
+    text: 'Makeup intuitivo, femenino y versátil para crear looks completos con una sola identidad visual.',
+    tag: 'Makeup Story',
+  },
+  {
+    image: '/haze-editorial-lips.png',
+    title: 'El detalle final que cambia todo',
+    text: 'Lips y liner en tonos románticos para un acabado pulido, moderno y naturalmente HAZE.',
+    tag: 'Soft Color',
+  },
+];
+
 function getUserDisplayName(user) {
   if (!user) return 'Cuenta';
 
@@ -184,6 +205,15 @@ export default function Home() {
   const [catalog, setCatalog] = useState(DEFAULT_PRODUCTS);
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+  const [currentEditorialSlide, setCurrentEditorialSlide] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setCurrentEditorialSlide((prev) => (prev + 1) % EDITORIAL_SLIDES.length);
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     async function bootstrapAuth() {
@@ -499,6 +529,55 @@ export default function Home() {
                 </article>
               </div>
             </div>
+
+            <section className="editorial-carousel">
+              <div className="editorial-copy">
+                <span className="hero-kicker">Visual Story</span>
+                <h3>Una identidad suave, luminosa y muy HAZE</h3>
+                <p>
+                  Imágenes que traducen el universo de la marca: brillos sutiles,
+                  lavandas delicados y una belleza pensada para sentirse cercana.
+                </p>
+                <div className="editorial-slide-meta">
+                  <span className="editorial-pill">
+                    {EDITORIAL_SLIDES[currentEditorialSlide].tag}
+                  </span>
+                  <h4>{EDITORIAL_SLIDES[currentEditorialSlide].title}</h4>
+                  <p>{EDITORIAL_SLIDES[currentEditorialSlide].text}</p>
+                </div>
+              </div>
+
+              <div className="editorial-visual">
+                <div className="editorial-frame">
+                  {EDITORIAL_SLIDES.map((slide, index) => (
+                    <div
+                      key={slide.image}
+                      className={`editorial-slide ${index === currentEditorialSlide ? 'active' : ''}`}
+                    >
+                      <Image
+                        src={slide.image}
+                        alt={slide.title}
+                        width={1400}
+                        height={1000}
+                        className="editorial-image"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="editorial-controls">
+                  {EDITORIAL_SLIDES.map((slide, index) => (
+                    <button
+                      key={slide.title}
+                      type="button"
+                      className={`editorial-dot ${index === currentEditorialSlide ? 'active' : ''}`}
+                      onClick={() => setCurrentEditorialSlide(index)}
+                      aria-label={`Ver slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
           </section>
         ) : null}
 

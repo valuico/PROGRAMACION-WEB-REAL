@@ -310,6 +310,122 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     line-height: 1.75;
 }
 
+.editorial-carousel {
+    width: min(1180px, calc(100% - 48px));
+    margin: 34px auto 0;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 28px;
+    align-items: center;
+}
+
+.editorial-copy {
+    padding: 22px 8px;
+}
+
+.editorial-copy h3 {
+    color: #3f2c46;
+    font-size: 36px;
+    line-height: 1.12;
+    margin-bottom: 14px;
+}
+
+.editorial-copy > p {
+    color: #6d5c71;
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 24px;
+}
+
+.editorial-slide-meta {
+    padding: 22px 24px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #eee2ef;
+    box-shadow: 0 14px 34px rgba(149, 120, 155, 0.08);
+}
+
+.editorial-pill {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #f8f2f8;
+    color: #95789b;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.editorial-slide-meta h4 {
+    color: #3f2c46;
+    font-size: 26px;
+    line-height: 1.15;
+    margin-bottom: 10px;
+}
+
+.editorial-slide-meta p {
+    color: #6f6073;
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.editorial-visual {
+    position: relative;
+}
+
+.editorial-frame {
+    position: relative;
+    min-height: 620px;
+    border-radius: 34px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #f4ebf4 0%, #e8def2 100%);
+    box-shadow: 0 24px 60px rgba(90, 64, 98, 0.16);
+}
+
+.editorial-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(1.02);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.editorial-slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.editorial-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.editorial-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.editorial-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background: #d9cadf;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.editorial-dot.active {
+    background: #95789b;
+    transform: scale(1.15);
+}
+
 /* =========================================
 3. CATÁLOGO ESTRUCTURA (SIDEBAR + GRID)
    ========================================= */
@@ -519,6 +635,8 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .skincare-news p { font-size: 16px; }
     .hero-story-grid { grid-template-columns: 1fr; }
     .hero-story-intro h3 { font-size: 30px; }
+    .editorial-carousel { grid-template-columns: 1fr; }
+    .editorial-copy h3 { font-size: 32px; }
     .faq-hero,
     .faq-content,
     .faq-review-grid,
@@ -613,6 +731,30 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     .hero-story-intro p,
     .hero-story-card p {
         font-size: 14px;
+    }
+
+    .editorial-carousel {
+        width: calc(100% - 28px);
+        margin-top: 24px;
+        gap: 18px;
+    }
+
+    .editorial-copy {
+        padding: 0;
+    }
+
+    .editorial-copy h3 {
+        font-size: 28px;
+    }
+
+    .editorial-copy > p,
+    .editorial-slide-meta p {
+        font-size: 14px;
+    }
+
+    .editorial-frame {
+        min-height: 360px;
+        border-radius: 24px;
     }
 
     .catalog-container {
