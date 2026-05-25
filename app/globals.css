@@ -437,6 +437,20 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     padding: 40px 0;
     margin: 0 60px;
     gap: 40px;
+    position: relative;
+}
+
+.catalog-container::before {
+    content: '';
+    position: absolute;
+    inset: 10px -24px auto -24px;
+    height: 420px;
+    border-radius: 40px;
+    background:
+        radial-gradient(circle at top left, rgba(183, 145, 203, 0.16), transparent 34%),
+        radial-gradient(circle at top right, rgba(149, 120, 155, 0.12), transparent 30%),
+        linear-gradient(180deg, rgba(250, 245, 251, 0.95) 0%, rgba(255, 255, 255, 0) 100%);
+    z-index: -1;
 }
 
 /* Menú Lateral */
@@ -451,7 +465,8 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
     border: 2px solid #d4af37;
     border-top-left-radius: 15px;
     border-bottom-right-radius: 15px;
-    background-color: #fffdf9;
+    background: linear-gradient(180deg, #fffdfc 0%, #f8f1f9 100%);
+    box-shadow: 0 18px 40px rgba(149, 120, 155, 0.12);
 }
 
 .sidebar h3 {
@@ -471,7 +486,7 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 
 .sidebar a {
     text-decoration: none;
-    color: #555;
+    color: #65556a;
     font-size: 14px;
     transition: 0.3s;
     cursor: pointer;
@@ -501,9 +516,12 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 .product-card {
     display: none;
     flex-direction: column;
-    background: #fff;
-    transition: transform 0.3s ease;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(252, 247, 252, 0.96) 100%);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(149, 120, 155, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     opacity: 0;
+    padding: 14px 14px 18px;
 }
 
 .product-card.show {
@@ -513,8 +531,10 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 }
 
 .product-img {
-    background-color: #fcfaff;
-    border-radius: 8px;
+    background:
+        radial-gradient(circle at top, rgba(191, 164, 210, 0.18), transparent 45%),
+        linear-gradient(180deg, #fcfaff 0%, #f4edf8 100%);
+    border-radius: 14px;
     height: 300px;
 }
 
@@ -534,6 +554,10 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
 
 .product-card:hover .product-img img {
    transform: scale(1.08);
+}
+
+.product-card:hover {
+    box-shadow: 0 24px 52px rgba(149, 120, 155, 0.16);
 }
 
 .product-info h4 {
@@ -994,7 +1018,9 @@ BOTÓN CON EFECTO DE LÍNEA DESLIZANTE
    ========================================= */
 .skincare-sidebar {
     border: 2px solid #d4af37 !important;
-    background-color: #fffdf9;
+    background:
+        radial-gradient(circle at top right, rgba(183, 145, 203, 0.14), transparent 38%),
+        linear-gradient(180deg, #fffdfb 0%, #f7eff7 100%);
 }
 
 .sidebar-desc {
