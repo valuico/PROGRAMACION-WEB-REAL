@@ -164,6 +164,6 @@ values
   ('Hella Thicc Mascara', 'Mascara voluminizadora y lifting.', 'Volumizing & Lift', 38500, 45, '/mascara-pestañas-haze.png', 'ojos', 'makeup', '["Waterproof","Fórmula Original"]', false),
   ('Lineshaper Gel Eyeliner', 'Delineador gel waterproof.', 'Waterproof Gel', 32200, 34, '/eyeliners-haze.png', 'ojos', 'makeup', '["Deep Brown","Midnight Black"]', false),
   ('Hydrating Toner', 'Toner con ácido hialurónico y lavanda.', 'Ácido Hialurónico + Lavanda', 35000, 50, '/toner-haze.png', 'skincare', 'skincare', '[]', true),
-  ('Gentle Cleanser', 'Limpieza suave con té verde y ceramidas.', 'Té Verde + Ceramidas', 38500, 48, '/cleanser-real.png', 'skincare', 'skincare', '[]', true),
-  ('Daily Moisturizer', 'Crema diaria con péptidos y squalane.', 'Péptidos + Squalane', 44900, 42, '/cream-real.png', 'skincare', 'skincare', '[]', true)
+  ('Gentle Cleanser', 'Limpieza suave con té verde y ceramidas.', 'Té Verde + Ceramidas', 38500, 48, '/cleanser.png', 'skincare', 'skincare', '[]', true),
+  ('Daily Moisturizer', 'Crema diaria con péptidos y squalane.', 'Péptidos + Squalane', 44900, 42, '/crema-hidratante.png', 'skincare', 'skincare', '[]', true)
 on conflict do nothing;
