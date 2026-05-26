@@ -243,6 +243,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
   const [currentEditorialSlide, setCurrentEditorialSlide] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -251,6 +252,37 @@ export default function Home() {
 
     return () => window.clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 18);
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.14, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    return () => observer.disconnect();
+  }, [currentSection]);
 
   useEffect(() => {
     async function bootstrapAuth() {
@@ -473,7 +505,7 @@ export default function Home() {
 
   return (
     <div>
-      <header className="main-header">
+      <header className={`main-header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="logo-container">
           <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
             <Image
@@ -532,7 +564,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="hero-story-band">
+            <div className="hero-story-band reveal-on-scroll">
               <div className="hero-story-intro">
                 <span className="hero-kicker">Nuestra esencia</span>
                 <h3>Más que belleza: una marca creada para dejar pasar tu luz natural</h3>
@@ -557,7 +589,7 @@ export default function Home() {
               </div>
             </div>
 
-            <section className="editorial-carousel">
+            <section className="editorial-carousel reveal-on-scroll">
               <div className="editorial-copy">
                 <span className="hero-kicker">Visual Story</span>
                 <h3>Una identidad suave, luminosa y muy HAZE</h3>
@@ -609,7 +641,7 @@ export default function Home() {
         ) : null}
 
         {currentSection === 'makeup' ? (
-          <section className="catalog-container">
+          <section className="catalog-container reveal-on-scroll">
             <aside className="sidebar">
               <h3>MAKEUP</h3>
               <ul>
@@ -637,7 +669,7 @@ export default function Home() {
         ) : null}
 
         {currentSection === 'skincare' ? (
-          <section className="catalog-container skincare-catalog">
+          <section className="catalog-container skincare-catalog reveal-on-scroll">
             <aside className="sidebar skincare-sidebar">
               <h3>THE GLOW EDIT</h3>
               <p className="sidebar-desc">Fórmulas minimalistas diseñadas para resaltar tu luz propia. El dorado de la ciencia y la pureza de la naturaleza.</p>
@@ -689,7 +721,7 @@ export default function Home() {
 
         {currentSection === 'faq' ? (
           <section className="faq-section">
-            <div className="faq-main">
+            <div className="faq-main reveal-on-scroll">
               <section className="faq-hero">
                 <div className="faq-hero-copy">
                   <span className="news-tag">Preguntas Frecuentes</span>
@@ -918,7 +950,23 @@ await supabase.from('carrito').insert({
         <div className="footer-bottom">
           <p>&copy; 2026 HAZE Beauty. Todos los derechos reservados.</p>
           <div className="social-icons">
-            <span>Instagram</span> | <span>TikTok</span> | <span>Facebook</span>
+            <a href="#" aria-label="Instagram" className="social-icon-link">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect>
+                <circle cx="12" cy="12" r="4"></circle>
+                <circle cx="17.3" cy="6.7" r="1"></circle>
+              </svg>
+            </a>
+            <a href="#" aria-label="TikTok" className="social-icon-link">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14.5 4c.5 2 1.9 3.6 4 4.1v2.7c-1.5 0-2.9-.4-4-1.2v6.2a5.3 5.3 0 1 1-5.3-5.3c.4 0 .8 0 1.1.1v2.7a2.7 2.7 0 1 0 1.6 2.5V4h2.6z"></path>
+              </svg>
+            </a>
+            <a href="#" aria-label="Facebook" className="social-icon-link">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13.7 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.2-1.4 1.4-1.4H16.6V4.5c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4.1v1.7H8v2.8h2.4v7h3.3z"></path>
+              </svg>
+            </a>
           </div>
         </div>
       </footer>
