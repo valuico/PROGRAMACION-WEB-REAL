@@ -114,66 +114,25 @@ function NotifyButton() {
         <button
           className="notify-btn"
           onClick={() => setNotifyMode(true)}
-          style={{
-            backgroundColor: '#95789b',
-            color: 'white',
-            border: 'none',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            transition: '0.3s ease-in-out',
-            width: '100%',
-          }}
         >
           Avisame cuando salga
         </button>
       ) : submitted ? (
-        <div
-          className="thank-you-msg"
-          style={{
-            backgroundColor: '#e8f5e8',
-            color: '#2e7d32',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            textAlign: 'center',
-            fontSize: '14px',
-            fontWeight: 'bold',
-          }}
-        >
+        <div className="thank-you-msg">
           ¡Gracias! Te avisaremos.
         </div>
       ) : (
-        <div
-          className="notify-input-container"
-          style={{ display: 'flex', gap: '8px' }}
-        >
+        <div className="notify-input-container">
           <input
             type="email"
             placeholder="Tu email aquí..."
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            style={{
-              flex: 1,
-              padding: '12px',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '14px',
-              outline: 'none',
-            }}
+            className="notify-input"
           />
           <button
             onClick={handleSubmit}
-            style={{
-              backgroundColor: '#95789b',
-              color: 'white',
-              border: 'none',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
+            className="notify-submit"
           >
             ✓
           </button>
