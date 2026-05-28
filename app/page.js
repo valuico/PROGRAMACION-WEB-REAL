@@ -586,8 +586,9 @@ export default function Home() {
         className={`main-header premium-header ${isScrolled ? 'scrolled' : ''}`}
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
-        <div className="nav-top-row">
-          <div className="logo-container nav-logo-left">
+        <div className="nav-container">
+          {/* Logo a la izquierda */}
+          <div className="logo-wrapper">
             <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
               <Image
                 src="/LOGO-removebg-preview.png"
@@ -599,41 +600,44 @@ export default function Home() {
             </a>
           </div>
 
-          <nav className="nav-menu premium-nav">
-            <ul>
-              <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
-              <li
-                className="nav-has-mega"
-                onMouseEnter={() => setActiveMegaMenu('skincare')}
-              >
-                <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
-              </li>
-              <li
-                className="nav-has-mega"
-                onMouseEnter={() => setActiveMegaMenu('makeup')}
-              >
-                <a onClick={() => openMakeupCategory('all')}>Makeup</a>
-              </li>
-              <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
-            </ul>
-          </nav>
+          {/* Navegación y acciones a la derecha */}
+          <div className="nav-actions">
+            <nav className="nav-menu premium-nav">
+              <ul>
+                <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
+                <li
+                  className="nav-has-mega"
+                  onMouseEnter={() => setActiveMegaMenu('skincare')}
+                >
+                  <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
+                </li>
+                <li
+                  className="nav-has-mega"
+                  onMouseEnter={() => setActiveMegaMenu('makeup')}
+                >
+                  <a onClick={() => openMakeupCategory('all')}>Makeup</a>
+                </li>
+                <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
+              </ul>
+            </nav>
 
-          <div className="nav-utility nav-utility-right">
-            {user ? (
-              <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
-                Salir
-              </button>
-            ) : (
-              <Link href="/login" className="account-link nav-utility-btn">
-                Ingresar
-              </Link>
-            )}
-            <div className="cart-container">
-              <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
-                <span className="cart-icon">🛒</span>
-                <span id="cart-count">
-                  {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
-                </span>
+            <div className="nav-utility">
+              {user ? (
+                <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
+                  Salir
+                </button>
+              ) : (
+                <Link href="/login" className="account-link nav-utility-btn">
+                  Ingresar
+                </Link>
+              )}
+              <div className="cart-container">
+                <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
+                  <span className="cart-icon">🛒</span>
+                  <span id="cart-count">
+                    {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
