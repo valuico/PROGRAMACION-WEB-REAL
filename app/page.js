@@ -9,7 +9,7 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase/client';
 
 const EDITORIAL_SLIDES = [
   {
-    image: '/haze-editorial-gloss.png',
+    image: '/labiales carrusel.png',
     title: 'Brillo suave, gesto preciso',
     text: 'Texturas luminosas, tonos delicados y una estética pensada para elevar lo cotidiano.',
     tag: 'Glow Edit',
