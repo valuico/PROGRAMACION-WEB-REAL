@@ -242,8 +242,6 @@ export default function Home() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showLoader, setShowLoader] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [cursorVisible, setCursorVisible] = useState(false);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -293,26 +291,6 @@ export default function Home() {
 
     return () => window.clearTimeout(timeoutId);
   }, [showLoader]);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-    if (!mediaQuery.matches) return undefined;
-
-    const handleMouseMove = (event) => {
-      setCursorPosition({ x: event.clientX, y: event.clientY });
-      setCursorVisible(true);
-    };
-
-    const handleMouseLeave = () => setCursorVisible(false);
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, []);
 
   useEffect(() => {
     const elements = document.querySelectorAll('.reveal-on-scroll');
@@ -603,11 +581,6 @@ export default function Home() {
           </div>
         </div>
       ) : null}
-
-      <div
-        className={`custom-cursor ${cursorVisible ? 'visible' : ''}`}
-        style={{ transform: `translate(${cursorPosition.x}px, ${cursorPosition.y}px)` }}
-      />
 
       <header
         className={`main-header premium-header ${isScrolled ? 'scrolled' : ''}`}

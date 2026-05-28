@@ -2970,27 +2970,10 @@ body {
     text-transform: uppercase;
 }
 
-.custom-cursor {
-    position: fixed;
-    top: -5px;
-    left: -5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(164, 115, 163, 0.9);
-    pointer-events: none;
-    z-index: 2500;
-    opacity: 0;
-    transition: transform 0.12s ease-out, opacity 0.2s ease;
-}
-
-.custom-cursor.visible {
-    opacity: 1;
-}
-
 .premium-header {
     display: grid;
     grid-template-rows: auto auto;
+    position: relative;
     height: auto;
     padding: 20px 60px 16px;
     gap: 10px;
@@ -3032,6 +3015,24 @@ body {
 
 .premium-nav ul {
     gap: 42px;
+}
+
+@media (min-width: 1200px) {
+    .premium-header {
+        padding-right: 260px;
+    }
+
+    .nav-links-row {
+        position: absolute;
+        right: 60px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: max-content;
+    }
+
+    .premium-nav {
+        margin: 0;
+    }
 }
 
 .premium-nav a,
@@ -3503,14 +3504,6 @@ body {
     to { opacity: 0; visibility: hidden; }
 }
 
-@media (hover: hover) and (pointer: fine) {
-    body,
-    a,
-    button {
-        cursor: none;
-    }
-}
-
 @media (max-width: 1024px) {
     .routine-grid,
     .testimonials-grid,
@@ -3567,9 +3560,5 @@ body {
     .welcome-form,
     .notify-input-container {
         flex-direction: column;
-    }
-
-    .custom-cursor {
-        display: none;
     }
 }
