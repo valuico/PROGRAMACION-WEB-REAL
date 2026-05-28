@@ -297,6 +297,10 @@ export default function PaymentPage() {
               <button type="button" className="checkout-secondary-btn" onClick={() => router.push('/')}>
                 Volver al Carrito
               </button>
+              <div className="payment-icons-row" aria-label="Métodos de pago">
+                <span className="payment-icon-chip">VISA</span>
+                <span className="payment-icon-chip">Mastercard</span>
+              </div>
             </form>
           </div>
         ) : null}

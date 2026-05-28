@@ -28,6 +28,40 @@ const EDITORIAL_SLIDES = [
   },
 ];
 
+const TICKER_ITEMS = [
+  'Crueldad cero',
+  'Envío gratis en compras +$50.000',
+  'Nuevo lanzamiento Skincare',
+  'Fórmulas veganas',
+  'Glow minimalista todos los días',
+];
+
+const ROUTINE_STEPS = [
+  { number: '01', title: 'Limpiar', copy: 'Una limpieza suave para retirar impurezas sin perder confort.', icon: '○' },
+  { number: '02', title: 'Tonificar', copy: 'Prepará la piel con hidratación liviana y una base fresca.', icon: '◐' },
+  { number: '03', title: 'Hidratar', copy: 'Sellá la rutina con nutrición ligera y una textura envolvente.', icon: '◌' },
+  { number: '04', title: 'Iluminar', copy: 'Sumá glow y color con un acabado pulido, delicado y moderno.', icon: '✦' },
+];
+
+const TESTIMONIALS = [
+  {
+    quote: 'La rutina se siente simple, elegante y mi piel queda luminosa sin esfuerzo.',
+    name: 'Martina, Buenos Aires',
+  },
+  {
+    quote: 'Los tonos de makeup son suaves pero distintos. Todo se ve muy premium.',
+    name: 'Julieta, Rosario',
+  },
+  {
+    quote: 'El sitio transmite la marca perfecto: femenino, limpio y fácil de recorrer.',
+    name: 'Sofía, Córdoba',
+  },
+];
+
+const COMMUNITY_CARDS = Array.from({ length: 6 }, (_, index) => ({
+  id: index + 1,
+}));
+
 function getUserDisplayName(user) {
   if (!user) return 'Cuenta';
 
@@ -167,6 +201,7 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
                 className={`tone-circle ${selectedTone === tone ? 'active' : ''}`}
                 onClick={() => onToneSelect(tone)}
                 title={tone}
+                data-tone={tone}
                 style={{
                   backgroundColor: getToneColor(tone),
                   border: selectedTone === tone ? '2px solid #95789b' : '1px solid #ccc',
@@ -203,6 +238,12 @@ export default function Home() {
   const [authReady, setAuthReady] = useState(false);
   const [currentEditorialSlide, setCurrentEditorialSlide] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showLoader, setShowLoader] = useState(true);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [cursorVisible, setCursorVisible] = useState(false);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -219,6 +260,58 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setShowLoader(false), 1500);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    const handleScrollProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
+    };
+
+    handleScrollProgress();
+    window.addEventListener('scroll', handleScrollProgress, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScrollProgress);
+  }, []);
+
+  useEffect(() => {
+    if (showLoader) return;
+
+    const alreadySeen = localStorage.getItem('hazeWelcomeSeen');
+    if (alreadySeen) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setShowWelcomeModal(true);
+      localStorage.setItem('hazeWelcomeSeen', 'true');
+    }, 2000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [showLoader]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (!mediaQuery.matches) return undefined;
+
+    const handleMouseMove = (event) => {
+      setCursorPosition({ x: event.clientX, y: event.clientY });
+      setCursorVisible(true);
+    };
+
+    const handleMouseLeave = () => setCursorVisible(false);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
+    };
   }, []);
 
   useEffect(() => {
@@ -462,52 +555,172 @@ export default function Home() {
     0
   );
 
+  const openMakeupCategory = (nextFilter) => {
+    setFilter(nextFilter);
+    setCurrentSection('makeup');
+    setActiveMegaMenu(null);
+  };
+
+  const openSkincareSection = () => {
+    setCurrentSection('skincare');
+    setActiveMegaMenu(null);
+  };
+
   return (
     <div>
-      <header className={`main-header ${isScrolled ? 'scrolled' : ''}`}>
-        <div className="logo-container">
-          <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
-            <Image
-              src="/LOGO-removebg-preview.png"
-              alt="HAZE Beauty"
-              className="haze-logo"
-              width={70}
-              height={70}
-            />
-          </a>
+      <div className="scroll-progress-bar" style={{ transform: `scaleX(${scrollProgress / 100})` }} />
+
+      {showLoader ? (
+        <div className="page-loader">
+          <Image
+            src="/LOGO-removebg-preview.png"
+            alt="HAZE Beauty"
+            width={220}
+            height={88}
+            className="loader-logo"
+          />
+        </div>
+      ) : null}
+
+      {showWelcomeModal ? (
+        <div className="welcome-modal-overlay" onClick={() => setShowWelcomeModal(false)}>
+          <div className="welcome-modal" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="welcome-close"
+              onClick={() => setShowWelcomeModal(false)}
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+            <span className="hero-kicker">Bienvenida</span>
+            <h3>Bienvenida a HAZE</h3>
+            <p>Suscribite y recibí 10% off en tu primera compra.</p>
+            <div className="welcome-form">
+              <input type="email" placeholder="Tu email" />
+              <button type="button">Suscribirme</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <div
+        className={`custom-cursor ${cursorVisible ? 'visible' : ''}`}
+        style={{ transform: `translate(${cursorPosition.x}px, ${cursorPosition.y}px)` }}
+      />
+
+      <header
+        className={`main-header premium-header ${isScrolled ? 'scrolled' : ''}`}
+        onMouseLeave={() => setActiveMegaMenu(null)}
+      >
+        <div className="nav-top-row">
+          <div className="nav-top-spacer" />
+          <div className="logo-container nav-logo-center">
+            <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
+              <Image
+                src="/LOGO-removebg-preview.png"
+                alt="HAZE Beauty"
+                className="haze-logo"
+                width={70}
+                height={70}
+              />
+            </a>
+          </div>
+          <div className="nav-utility">
+            {user ? (
+              <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
+                Salir
+              </button>
+            ) : (
+              <Link href="/login" className="account-link nav-utility-btn">
+                Ingresar
+              </Link>
+            )}
+            <div className="cart-container">
+              <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
+                <span className="cart-icon">🛒</span>
+                <span id="cart-count">
+                  {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <nav className="nav-menu">
-          <ul>
-            <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
-            <li><a onClick={() => setCurrentSection('skincare')}>Skincare</a></li>
-            <li><a onClick={() => setCurrentSection('makeup')}>Makeup</a></li>
-            <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
-            <li>
-              <Link href="/login" className="account-link">
-                {getUserDisplayName(user)}
-              </Link>
-            </li>
-            {user ? (
-              <li>
-                <button type="button" className="logout-link" onClick={handleSignOut}>
-                  Salir
-                </button>
+        <div className="nav-links-row">
+          <nav className="nav-menu premium-nav">
+            <ul>
+              <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
+              <li
+                className="nav-has-mega"
+                onMouseEnter={() => setActiveMegaMenu('skincare')}
+              >
+                <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
               </li>
-            ) : null}
-            <li>
-              <div className="cart-container">
-                <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
-                  <span className="cart-icon">🛒</span>
-                  <span id="cart-count">
-                    {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
-                  </span>
+              <li
+                className="nav-has-mega"
+                onMouseEnter={() => setActiveMegaMenu('makeup')}
+              >
+                <a onClick={() => openMakeupCategory('all')}>Makeup</a>
+              </li>
+              <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
+              <li>
+                <Link href="/login" className="account-link">
+                  {getUserDisplayName(user)}
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
+          {activeMegaMenu === 'skincare' ? (
+            <div className="mega-menu">
+              <div className="mega-menu-links">
+                <span className="mega-menu-label">Skincare edit</span>
+                <button type="button" onClick={openSkincareSection}>Ver toda la rutina</button>
+                <button type="button" onClick={openSkincareSection}>Hydrating Toner</button>
+                <button type="button" onClick={openSkincareSection}>Gentle Cleanser</button>
+                <button type="button" onClick={openSkincareSection}>Daily Moisturizer</button>
+              </div>
+              <div className="mega-menu-feature">
+                <Image src="/toner-haze.png" alt="Hydrating Toner" width={180} height={220} />
+                <div>
+                  <strong>Hydrating Toner</strong>
+                  <p>El primer paso glow para una piel fresca, calma y luminosa.</p>
                 </div>
               </div>
-            </li>
-          </ul>
-        </nav>
+            </div>
+          ) : null}
+
+          {activeMegaMenu === 'makeup' ? (
+            <div className="mega-menu">
+              <div className="mega-menu-links">
+                <span className="mega-menu-label">Makeup edit</span>
+                <button type="button" onClick={() => openMakeupCategory('all')}>Explorar todo</button>
+                <button type="button" onClick={() => openMakeupCategory('cara')}>Cara</button>
+                <button type="button" onClick={() => openMakeupCategory('ojos')}>Ojos</button>
+                <button type="button" onClick={() => openMakeupCategory('labios')}>Labios</button>
+              </div>
+              <div className="mega-menu-feature">
+                <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={220} height={180} />
+                <div>
+                  <strong>Ultimate Glow Palette</strong>
+                  <p>Sombras suaves y tonos versátiles para looks pulidos con identidad HAZE.</p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="nav-divider" />
       </header>
+
+      <div className="ticker-bar">
+        <div className="ticker-track">
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, index) => (
+            <span key={`${item}-${index}`}>{item} ·</span>
+          ))}
+        </div>
+      </div>
 
       <main>
         {currentSection === 'hero' ? (
@@ -520,6 +733,9 @@ export default function Home() {
                 <a onClick={() => setCurrentSection('skincare')} className="skincare-link">
                   Explorar Skincare →
                 </a>
+              </div>
+              <div className="hero-scroll-indicator">
+                <span />
               </div>
             </div>
 
@@ -596,22 +812,75 @@ export default function Home() {
                 </div>
               </div>
             </section>
+
+            <section className="routine-section reveal-on-scroll">
+              <div className="routine-shell">
+                <div className="routine-heading">
+                  <span className="hero-kicker">Rutina diaria</span>
+                  <h3>Tu rutina HAZE</h3>
+                </div>
+                <div className="routine-grid">
+                  {ROUTINE_STEPS.map((step) => (
+                    <article key={step.number} className="routine-step">
+                      <span className="routine-icon">{step.icon}</span>
+                      <strong>{step.number}</strong>
+                      <h4>{step.title}</h4>
+                      <p>{step.copy}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="testimonials-section reveal-on-scroll">
+              <div className="testimonials-shell">
+                <span className="hero-kicker">Reseñas</span>
+                <h3>Lo que dice la comunidad</h3>
+                <div className="testimonials-grid">
+                  {TESTIMONIALS.map((testimonial) => (
+                    <article key={testimonial.name} className="testimonial-card">
+                      <span className="testimonial-stars">★★★★★</span>
+                      <p>{testimonial.quote}</p>
+                      <strong>{testimonial.name}</strong>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="community-section reveal-on-scroll">
+              <div className="community-shell">
+                <span className="hero-kicker">Comunidad</span>
+                <h3>La comunidad HAZE</h3>
+                <p>@hazebeauty · Seguinos en Instagram</p>
+                <div className="community-grid">
+                  {COMMUNITY_CARDS.map((card) => (
+                    <article key={card.id} className="community-card">
+                      <span className="community-camera">⌾</span>
+                      <div className="community-overlay">♡</div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
           </section>
         ) : null}
 
         {currentSection === 'makeup' ? (
           <section className="catalog-container reveal-on-scroll">
-            <aside className="sidebar">
-              <h3>MAKEUP</h3>
-              <ul>
-                <li><a onClick={() => setFilter('all')}>Explorar Todo</a></li>
-                <li><a onClick={() => setFilter('cara')}>Cara</a></li>
-                <li><a onClick={() => setFilter('ojos')}>Ojos</a></li>
-                <li><a onClick={() => setFilter('labios')}>Labios</a></li>
-              </ul>
-            </aside>
+            <div className="catalog-shell">
+              <div className="catalog-intro">
+                <span className="hero-kicker">Makeup edit</span>
+                <h3>Looks suaves, tonos pulidos y fórmulas que acompañan tu ritmo</h3>
+                <div className="catalog-pills">
+                  <button type="button" className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>Explorar todo</button>
+                  <button type="button" className={filter === 'cara' ? 'active' : ''} onClick={() => setFilter('cara')}>Cara</button>
+                  <button type="button" className={filter === 'ojos' ? 'active' : ''} onClick={() => setFilter('ojos')}>Ojos</button>
+                  <button type="button" className={filter === 'labios' ? 'active' : ''} onClick={() => setFilter('labios')}>Labios</button>
+                </div>
+              </div>
 
-            <div className="products-grid">
+              <div className="products-grid">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -623,19 +892,22 @@ export default function Home() {
                   onAddToCart={() => addToCart(product)}
                 />
               ))}
+              </div>
             </div>
           </section>
         ) : null}
 
         {currentSection === 'skincare' ? (
           <section className="catalog-container skincare-catalog reveal-on-scroll">
-            <aside className="sidebar skincare-sidebar">
-              <h3>THE GLOW EDIT</h3>
-              <p className="sidebar-desc">Fórmulas minimalistas diseñadas para resaltar tu luz propia. El dorado de la ciencia y la pureza de la naturaleza.</p>
-              <div className="gold-line"></div>
-            </aside>
+            <div className="catalog-shell">
+              <div className="catalog-intro skincare-intro-card">
+                <span className="hero-kicker">The glow edit</span>
+                <h3>Fórmulas minimalistas para una rutina delicada, sensorial y luminosa</h3>
+                <p className="sidebar-desc">Limpiá, tonificá e hidratá con una colección pensada para resaltar tu luz propia desde el primer paso.</p>
+                <div className="gold-line"></div>
+              </div>
 
-            <div className="products-grid">
+              <div className="products-grid">
               {catalog.skincare.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -646,9 +918,11 @@ export default function Home() {
               ))}
 
               <div className="product-card show">
-                <div className="product-img placeholder-gold">✨</div>
+                <div className="product-img placeholder-gold">
+                  <span className="coming-soon-mark">Próximamente</span>
+                </div>
                 <div className="product-info">
-                  <h4>Coming Soon</h4>
+                  <h4>Próximamente</h4>
                   <p>Serum Reparador Nocturno</p>
                   <span className="price">--</span>
                   <NotifyButton />
@@ -656,9 +930,11 @@ export default function Home() {
               </div>
 
               <div className="product-card show">
-                <div className="product-img placeholder-gold">✨</div>
+                <div className="product-img placeholder-gold">
+                  <span className="coming-soon-mark">Próximamente</span>
+                </div>
                 <div className="product-info">
-                  <h4>Coming Soon</h4>
+                  <h4>Próximamente</h4>
                   <p>Protector Solar Glow</p>
                   <span className="price">--</span>
                   <NotifyButton />
@@ -666,13 +942,16 @@ export default function Home() {
               </div>
 
               <div className="product-card show">
-                <div className="product-img placeholder-gold">✨</div>
+                <div className="product-img placeholder-gold">
+                  <span className="coming-soon-mark">Próximamente</span>
+                </div>
                 <div className="product-info">
-                  <h4>Coming Soon</h4>
+                  <h4>Próximamente</h4>
                   <p>Mascarilla Calmante de Noche</p>
                   <span className="price">--</span>
                   <NotifyButton />
                 </div>
+              </div>
               </div>
             </div>
           </section>
@@ -966,7 +1245,7 @@ await supabase.from('carrito').insert({
                   <p style={{ fontSize: '12px', color: '#95789b', margin: '4px 0' }}>
                     Cantidad: {item.cantidad || 1}
                   </p>
-                  <span style={{ fontWeight: 'bold', color: '#d4af37' }}>
+                  <span style={{ fontWeight: 'bold', color: '#996998' }}>
                     ${(Number(item.precio) * (item.cantidad || 1)).toLocaleString()}
                   </span>
                 </div>
