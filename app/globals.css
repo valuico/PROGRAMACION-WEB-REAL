@@ -2983,7 +2983,7 @@ body {
 
 .nav-top-row {
     display: grid;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 24px;
 }
@@ -2995,7 +2995,7 @@ body {
 
 .nav-utility {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
     gap: 18px;
 }
@@ -3004,7 +3004,6 @@ body {
     display: flex;
     align-items: center;
     gap: 18px;
-    order: -1;
 }
 
 .nav-utility-btn {
