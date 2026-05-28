@@ -587,8 +587,7 @@ export default function Home() {
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
         <div className="nav-top-row">
-          <div className="nav-top-spacer" />
-          <div className="logo-container nav-logo-center">
+          <div className="logo-container nav-logo-left">
             <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
               <Image
                 src="/LOGO-removebg-preview.png"
@@ -599,7 +598,27 @@ export default function Home() {
               />
             </a>
           </div>
-          <div className="nav-utility">
+
+          <nav className="nav-menu premium-nav">
+            <ul>
+              <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
+              <li
+                className="nav-has-mega"
+                onMouseEnter={() => setActiveMegaMenu('skincare')}
+              >
+                <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
+              </li>
+              <li
+                className="nav-has-mega"
+                onMouseEnter={() => setActiveMegaMenu('makeup')}
+              >
+                <a onClick={() => openMakeupCategory('all')}>Makeup</a>
+              </li>
+              <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
+            </ul>
+          </nav>
+
+          <div className="nav-utility nav-utility-right">
             {user ? (
               <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
                 Salir
@@ -620,69 +639,43 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="nav-links-row">
-          <nav className="nav-menu premium-nav">
-            <ul>
-              <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
-              <li
-                className="nav-has-mega"
-                onMouseEnter={() => setActiveMegaMenu('skincare')}
-              >
-                <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
-              </li>
-              <li
-                className="nav-has-mega"
-                onMouseEnter={() => setActiveMegaMenu('makeup')}
-              >
-                <a onClick={() => openMakeupCategory('all')}>Makeup</a>
-              </li>
-              <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
-              <li>
-                <Link href="/login" className="account-link">
-                  {getUserDisplayName(user)}
-                </Link>
-              </li>
-            </ul>
-          </nav>
-
-          {activeMegaMenu === 'skincare' ? (
-            <div className="mega-menu">
-              <div className="mega-menu-links">
-                <span className="mega-menu-label">Skincare edit</span>
-                <button type="button" onClick={openSkincareSection}>Ver toda la rutina</button>
-                <button type="button" onClick={openSkincareSection}>Hydrating Toner</button>
-                <button type="button" onClick={openSkincareSection}>Gentle Cleanser</button>
-                <button type="button" onClick={openSkincareSection}>Daily Moisturizer</button>
-              </div>
-              <div className="mega-menu-feature">
-                <Image src="/toner-haze.png" alt="Hydrating Toner" width={180} height={220} />
-                <div>
-                  <strong>Hydrating Toner</strong>
-                  <p>El primer paso glow para una piel fresca, calma y luminosa.</p>
-                </div>
+        {activeMegaMenu === 'skincare' ? (
+          <div className="mega-menu">
+            <div className="mega-menu-links">
+              <span className="mega-menu-label">Skincare edit</span>
+              <button type="button" onClick={openSkincareSection}>Ver toda la rutina</button>
+              <button type="button" onClick={openSkincareSection}>Hydrating Toner</button>
+              <button type="button" onClick={openSkincareSection}>Gentle Cleanser</button>
+              <button type="button" onClick={openSkincareSection}>Daily Moisturizer</button>
+            </div>
+            <div className="mega-menu-feature">
+              <Image src="/toner-haze.png" alt="Hydrating Toner" width={180} height={220} />
+              <div>
+                <strong>Hydrating Toner</strong>
+                <p>El primer paso glow para una piel fresca, calma y luminosa.</p>
               </div>
             </div>
-          ) : null}
+          </div>
+        ) : null}
 
-          {activeMegaMenu === 'makeup' ? (
-            <div className="mega-menu">
-              <div className="mega-menu-links">
-                <span className="mega-menu-label">Makeup edit</span>
-                <button type="button" onClick={() => openMakeupCategory('all')}>Explorar todo</button>
-                <button type="button" onClick={() => openMakeupCategory('cara')}>Cara</button>
-                <button type="button" onClick={() => openMakeupCategory('ojos')}>Ojos</button>
-                <button type="button" onClick={() => openMakeupCategory('labios')}>Labios</button>
-              </div>
-              <div className="mega-menu-feature">
-                <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={220} height={180} />
-                <div>
-                  <strong>Ultimate Glow Palette</strong>
-                  <p>Sombras suaves y tonos versátiles para looks pulidos con identidad HAZE.</p>
-                </div>
+        {activeMegaMenu === 'makeup' ? (
+          <div className="mega-menu">
+            <div className="mega-menu-links">
+              <span className="mega-menu-label">Makeup edit</span>
+              <button type="button" onClick={() => openMakeupCategory('all')}>Explorar todo</button>
+              <button type="button" onClick={() => openMakeupCategory('cara')}>Cara</button>
+              <button type="button" onClick={() => openMakeupCategory('ojos')}>Ojos</button>
+              <button type="button" onClick={() => openMakeupCategory('labios')}>Labios</button>
+            </div>
+            <div className="mega-menu-feature">
+              <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette" width={220} height={180} />
+              <div>
+                <strong>Ultimate Glow Palette</strong>
+                <p>Sombras suaves y tonos versátiles para looks pulidos con identidad HAZE.</p>
               </div>
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
         <div className="nav-divider" />
       </header>

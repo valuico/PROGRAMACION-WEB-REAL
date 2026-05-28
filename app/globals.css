@@ -60,6 +60,7 @@ main {
     list-style: none;
     display: flex;
     gap: 35px;
+    align-items: center;
 }
 
 .nav-menu a {
@@ -2982,13 +2983,14 @@ body {
 
 .nav-top-row {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
+    gap: 24px;
 }
 
-.nav-logo-center {
+.nav-logo-left {
     display: flex;
-    justify-content: center;
+    align-items: center;
 }
 
 .nav-utility {
@@ -2998,8 +3000,14 @@ body {
     gap: 18px;
 }
 
+.nav-utility-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
 .nav-utility-btn {
-    margin-right: 6px;
+    margin-right: 0;
 }
 
 .nav-links-row {
@@ -3019,15 +3027,12 @@ body {
 
 @media (min-width: 1200px) {
     .premium-header {
-        padding-right: 260px;
+        padding-right: 60px;
     }
 
     .nav-links-row {
-        position: absolute;
-        right: 60px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: max-content;
+        position: relative;
+        width: 100%;
     }
 
     .premium-nav {
@@ -3129,8 +3134,12 @@ body {
     color: #ffffff;
     padding: 10px 0;
     position: sticky;
-    top: 132px;
-    z-index: 980;
+    top: 0;
+    z-index: 1020;
+}
+
+.main-header {
+    top: 40px;
 }
 
 .ticker-track {
