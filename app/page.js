@@ -587,21 +587,45 @@ export default function Home() {
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
         <div className="nav-container">
-          {/* Logo a la izquierda */}
-          <div className="logo-wrapper">
-            <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
-              <Image
-                src="/LOGO-removebg-preview.png"
-                alt="HAZE Beauty"
-                className="haze-logo"
-                width={70}
-                height={70}
-              />
-            </a>
+          <div className="top-bar">
+            <div className="top-left" />
+
+            <div className="logo-center">
+              <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
+                <Image
+                  src="/LOGO-removebg-preview.png"
+                  alt="HAZE Beauty"
+                  className="haze-logo"
+                  width={70}
+                  height={70}
+                />
+              </a>
+            </div>
+
+            <div className="top-right">
+              <div className="nav-utility">
+                {user ? (
+                  <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
+                    Salir
+                  </button>
+                ) : (
+                  <Link href="/login" className="account-link nav-utility-btn">
+                    Ingresar
+                  </Link>
+                )}
+                <div className="cart-container">
+                  <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
+                    <span className="cart-icon">🛒</span>
+                    <span id="cart-count">
+                      {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Navegación y acciones a la derecha */}
-          <div className="nav-actions">
+          <div className="bottom-nav">
             <nav className="nav-menu premium-nav">
               <ul>
                 <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
@@ -620,26 +644,6 @@ export default function Home() {
                 <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
               </ul>
             </nav>
-
-            <div className="nav-utility">
-              {user ? (
-                <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
-                  Salir
-                </button>
-              ) : (
-                <Link href="/login" className="account-link nav-utility-btn">
-                  Ingresar
-                </Link>
-              )}
-              <div className="cart-container">
-                <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
-                  <span className="cart-icon">🛒</span>
-                  <span id="cart-count">
-                    {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -682,15 +686,15 @@ export default function Home() {
         ) : null}
 
         <div className="nav-divider" />
-      </header>
 
-      <div className="ticker-bar">
-        <div className="ticker-track">
-          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, index) => (
-            <span key={`${item}-${index}`}>{item} ·</span>
-          ))}
+        <div className="ticker-bar">
+          <div className="ticker-track">
+            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, index) => (
+              <span key={`${item}-${index}`}>{item} ·</span>
+            ))}
+          </div>
         </div>
-      </div>
+      </header>
 
       <main>
         {currentSection === 'hero' ? (
