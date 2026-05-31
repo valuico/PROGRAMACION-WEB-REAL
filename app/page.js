@@ -755,23 +755,49 @@ export default function Home() {
         className={`main-header premium-header ${isScrolled ? 'scrolled' : ''}`}
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
-        <div className="nav-container">
-          <div className="top-bar">
-            <div className="top-left" />
+        <div className="promo-banner">
+          <div className="promo-banner-content">
+            <span>GLOW MINIMALISTA: ritual esencial para una piel luminosa.</span>
+            <span>ENVÍO GRATIS en compras superiores a $50.000.</span>
+          </div>
+        </div>
 
-            <div className="logo-center">
+        <div className="nav-container">
+          <div className="header-row">
+            <div className="header-left">
               <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
                 <Image
                   src="/LOGO-removebg-preview.png"
                   alt="HAZE Beauty"
                   className="haze-logo"
-                  width={70}
-                  height={70}
+                  width={140}
+                  height={48}
                 />
               </a>
             </div>
 
-            <div className="top-right">
+            <div className="header-center">
+              <nav className="nav-menu premium-nav">
+                <ul>
+                  <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
+                  <li
+                    className="nav-has-mega"
+                    onMouseEnter={() => setActiveMegaMenu('skincare')}
+                  >
+                    <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
+                  </li>
+                  <li
+                    className="nav-has-mega"
+                    onMouseEnter={() => setActiveMegaMenu('makeup')}
+                  >
+                    <a onClick={() => openMakeupCategory('all')}>Makeup</a>
+                  </li>
+                  <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
+                </ul>
+              </nav>
+            </div>
+
+            <div className="header-right">
               <div className="nav-utility">
                 {isAdmin ? (
                   <button
@@ -801,27 +827,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="bottom-nav">
-            <nav className="nav-menu premium-nav">
-              <ul>
-                <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
-                <li
-                  className="nav-has-mega"
-                  onMouseEnter={() => setActiveMegaMenu('skincare')}
-                >
-                  <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
-                </li>
-                <li
-                  className="nav-has-mega"
-                  onMouseEnter={() => setActiveMegaMenu('makeup')}
-                >
-                  <a onClick={() => openMakeupCategory('all')}>Makeup</a>
-                </li>
-                <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
-              </ul>
-            </nav>
           </div>
         </div>
 
