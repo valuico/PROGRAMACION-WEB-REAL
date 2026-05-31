@@ -242,6 +242,22 @@ export default function Home() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showLoader, setShowLoader] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+  const [adminProducts, setAdminProducts] = useState([]);
+  const [adminOrders, setAdminOrders] = useState([]);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState('');
+  const [adminForm, setAdminForm] = useState({
+    nombre: '',
+    descripcion: '',
+    descripcion_corta: '',
+    precio: '',
+    stock: '',
+    categoria: 'skincare',
+    tipo: 'skincare',
+    imagen_url: '',
+  });
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -343,22 +359,86 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    async function fetchProducts() {
-      if (!supabase) return;
+    async function loadUserProfile() {
+      if (!authReady || !user) {
+        setIsAdmin(false);
+        setUserProfile(null);
+        return;
+      }
 
-      const { data, error } = await supabase
-        .from('productos')
-        .select('*')
-        .order('tipo', { ascending: true })
-        .order('categoria', { ascending: true })
-        .order('nombre', { ascending: true });
+      const email = user.email?.toLowerCase() || '';
+      const isCompanyEmail = email.endsWith('@hazebeauty.com');
+      let dbRole = null;
+      let profile = null;
 
-      if (!error && data?.length) {
-        setCatalog(buildProductsFromRows(data));
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!error && data) {
+          profile = data;
+          dbRole = data.role;
+        }
+      }
+
+      setUserProfile(profile);
+      setIsAdmin(isCompanyEmail || dbRole === 'admin');
+    }
+
+    loadUserProfile();
+  }, [user, authReady]);
+
+  useEffect(() => {
+    if (!isAdmin || !supabase) return;
+
+    async function loadAdminData() {
+      setAdminLoading(true);
+      setAdminError('');
+
+      try {
+        const [productResponse, orderResponse] = await Promise.all([
+          supabase.from('productos').select('*').order('nombre', { ascending: true }),
+          supabase.from('ordenes').select('*, orden_items(*)').order('creado_en', { ascending: false }),
+        ]);
+
+        if (!productResponse.error && productResponse.data) {
+          setAdminProducts(productResponse.data);
+        }
+
+        if (!orderResponse.error && orderResponse.data) {
+          setAdminOrders(orderResponse.data);
+        }
+      } catch (adminFetchError) {
+        setAdminError('No se pudieron cargar los datos de administración.');
+        console.error(adminFetchError);
+      } finally {
+        setAdminLoading(false);
       }
     }
 
-    fetchProducts();
+    loadAdminData();
+  }, [isAdmin]);
+
+  const refreshCatalog = async () => {
+    if (!supabase) return;
+
+    const { data, error } = await supabase
+      .from('productos')
+      .select('*')
+      .order('tipo', { ascending: true })
+      .order('categoria', { ascending: true })
+      .order('nombre', { ascending: true });
+
+    if (!error && data?.length) {
+      setCatalog(buildProductsFromRows(data));
+    }
+  };
+
+  useEffect(() => {
+    refreshCatalog();
   }, []);
 
   useEffect(() => {
@@ -386,6 +466,95 @@ export default function Home() {
       saveLocalCart(cart);
     }
   }, [cart, user]);
+
+  const handleAdminFormChange = (field, value) => {
+    setAdminForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleUpdateAdminProduct = async (product) => {
+    if (!supabase || !isAdmin) return;
+
+    const { id, nombre, descripcion, descripcion_corta, precio, stock, categoria, tipo, imagen_url } = product;
+    const numericPrice = Number(precio);
+    const numericStock = Number(stock);
+
+    const { error } = await supabase.from('productos').update({
+      nombre,
+      descripcion,
+      descripcion_corta,
+      precio: numericPrice,
+      stock: numericStock,
+      categoria,
+      tipo,
+      imagen_url,
+    }).eq('id', id);
+
+    if (error) {
+      setAdminError('No se pudo actualizar el producto.');
+      return;
+    }
+
+    addNotification('Producto actualizado');
+    await refreshCatalog();
+    setAdminProducts((prev) => prev.map((item) => (item.id === id ? { ...item, precio: numericPrice, stock: numericStock } : item)));
+  };
+
+  const handleDeleteAdminProduct = async (productId) => {
+    if (!supabase || !isAdmin) return;
+
+    const { error } = await supabase.from('productos').delete().eq('id', productId);
+    if (error) {
+      setAdminError('No se pudo eliminar el producto.');
+      return;
+    }
+
+    addNotification('Producto eliminado');
+    await refreshCatalog();
+    setAdminProducts((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const handleCreateAdminProduct = async () => {
+    if (!supabase || !isAdmin) return;
+
+    const { nombre, descripcion, descripcion_corta, precio, stock, categoria, tipo, imagen_url } = adminForm;
+    if (!nombre || !precio || !stock) {
+      setAdminError('Completá nombre, precio y stock antes de crear el producto.');
+      return;
+    }
+
+    const numericPrice = Number(precio);
+    const numericStock = Number(stock);
+
+    const { error } = await supabase.from('productos').insert([{ 
+      nombre,
+      descripcion,
+      descripcion_corta,
+      precio: numericPrice,
+      stock: numericStock,
+      categoria,
+      tipo,
+      imagen_url,
+    }]);
+
+    if (error) {
+      setAdminError('No se pudo crear el producto.');
+      return;
+    }
+
+    addNotification('Producto creado');
+    setAdminForm({ nombre: '', descripcion: '', descripcion_corta: '', precio: '', stock: '', categoria: 'skincare', tipo: 'skincare', imagen_url: '' });
+    await refreshCatalog();
+    if (supabase && isAdmin) {
+      const { data, error: adminDataError } = await supabase
+        .from('productos')
+        .select('*')
+        .order('nombre', { ascending: true });
+
+      if (!adminDataError && data) {
+        setAdminProducts(data);
+      }
+    }
+  };
 
   const addNotification = (message) => {
     const id = Date.now();
@@ -604,6 +773,15 @@ export default function Home() {
 
             <div className="top-right">
               <div className="nav-utility">
+                {isAdmin ? (
+                  <button
+                    type="button"
+                    className="admin-panel-btn nav-utility-btn"
+                    onClick={() => setCurrentSection('admin')}
+                  >
+                    Admin
+                  </button>
+                ) : null}
                 {user ? (
                   <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
                     Salir
@@ -697,6 +875,240 @@ export default function Home() {
       </header>
 
       <main>
+        {currentSection === 'admin' ? (
+          <section className="admin-dashboard-section">
+            <div className="admin-dashboard-header">
+              <div>
+                <span className="hero-kicker">Panel de administración</span>
+                <h2>Control de la tienda HAZE</h2>
+                <p>Gestioná productos, precios, stock y pedidos desde un panel protegido.</p>
+              </div>
+              <div className="admin-badge-row">
+                <span className="admin-badge">{user?.email?.endsWith('@hazebeauty.com') ? 'Admin de empresa' : 'Admin'}</span>
+                <span className="admin-user">{user?.email || 'Sin sesión'}</span>
+              </div>
+            </div>
+
+            {adminLoading ? (
+              <div className="admin-loading">Cargando contenido de administración…</div>
+            ) : null}
+
+            {adminError ? <p className="admin-error">{adminError}</p> : null}
+
+            {!isAdmin ? (
+              <div className="admin-unauthorized">
+                <h3>Acceso no autorizado</h3>
+                <p>Solo los usuarios con correo @hazebeauty.com o rol de admin pueden ver este panel.</p>
+              </div>
+            ) : (
+              <div className="admin-grid">
+                <div className="admin-card admin-summary-card">
+                  <div>
+                    <h3>Resumen rápido</h3>
+                    <p>Ventas y productos actualizados en tiempo real.</p>
+                  </div>
+                  <div className="admin-summary-list">
+                    <span className="summary-item">
+                      <strong>{adminOrders.length}</strong>
+                      Pedidos totales
+                    </span>
+                    <span className="summary-item">
+                      <strong>{adminProducts.length}</strong>
+                      Productos
+                    </span>
+                    <span className="summary-item">
+                      <strong>{adminOrders.reduce((sum, order) => sum + Number(order.total), 0).toLocaleString('es-CL')}</strong>
+                      Total ventas
+                    </span>
+                  </div>
+                </div>
+
+                <div className="admin-card admin-orders-card">
+                  <div className="admin-card-header">
+                    <h3>Últimos pedidos</h3>
+                  </div>
+                  <div className="orders-list">
+                    {adminOrders.length === 0 ? (
+                      <p>No hay pedidos registrados aún.</p>
+                    ) : (
+                      adminOrders.slice(0, 5).map((order) => (
+                        <article key={order.id} className="order-card">
+                          <div>
+                            <strong>Pedido #{order.id}</strong>
+                            <p>{order.email_cliente || 'Cliente anónimo'}</p>
+                          </div>
+                          <div>
+                            <span>${Number(order.total).toLocaleString('es-CL')}</span>
+                            <span className="order-status">{order.estado}</span>
+                          </div>
+                        </article>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="admin-card admin-products-card">
+                  <div className="admin-card-header">
+                    <h3>Productos</h3>
+                    <p>Modificá precios, stock y eliminá productos fácilmente.</p>
+                  </div>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Precio</th>
+                          <th>Stock</th>
+                          <th>Categoría</th>
+                          <th>Tipo</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {adminProducts.map((product) => (
+                          <tr key={product.id}>
+                            <td>
+                              <input
+                                type="text"
+                                value={product.nombre || ''}
+                                onChange={(event) => {
+                                  const value = event.target.value;
+                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, nombre: value } : item));
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                value={product.precio ?? ''}
+                                onChange={(event) => {
+                                  const value = event.target.value;
+                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, precio: value } : item));
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                value={product.stock ?? ''}
+                                onChange={(event) => {
+                                  const value = event.target.value;
+                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, stock: value } : item));
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                value={product.categoria || ''}
+                                onChange={(event) => {
+                                  const value = event.target.value;
+                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, categoria: value } : item));
+                                }}
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                value={product.tipo || ''}
+                                onChange={(event) => {
+                                  const value = event.target.value;
+                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, tipo: value } : item));
+                                }}
+                              />
+                            </td>
+                            <td className="admin-actions-cell">
+                              <button
+                                type="button"
+                                className="admin-action-btn"
+                                onClick={() => handleUpdateAdminProduct(product)}
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                type="button"
+                                className="admin-action-btn delete"
+                                onClick={() => handleDeleteAdminProduct(product.id)}
+                              >
+                                Eliminar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="admin-form-card">
+                    <h4>Agregar producto nuevo</h4>
+                    <div className="admin-form-grid">
+                      <label>
+                        Nombre
+                        <input
+                          type="text"
+                          value={adminForm.nombre}
+                          onChange={(event) => handleAdminFormChange('nombre', event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Precio
+                        <input
+                          type="number"
+                          value={adminForm.precio}
+                          onChange={(event) => handleAdminFormChange('precio', event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Stock
+                        <input
+                          type="number"
+                          value={adminForm.stock}
+                          onChange={(event) => handleAdminFormChange('stock', event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Categoría
+                        <input
+                          type="text"
+                          value={adminForm.categoria}
+                          onChange={(event) => handleAdminFormChange('categoria', event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        Tipo
+                        <input
+                          type="text"
+                          value={adminForm.tipo}
+                          onChange={(event) => handleAdminFormChange('tipo', event.target.value)}
+                        />
+                      </label>
+                      <label className="full-width">
+                        Imagen URL
+                        <input
+                          type="text"
+                          value={adminForm.imagen_url}
+                          onChange={(event) => handleAdminFormChange('imagen_url', event.target.value)}
+                        />
+                      </label>
+                      <label className="full-width">
+                        Descripción corta
+                        <input
+                          type="text"
+                          value={adminForm.descripcion_corta}
+                          onChange={(event) => handleAdminFormChange('descripcion_corta', event.target.value)}
+                        />
+                      </label>
+                    </div>
+                    <button type="button" className="admin-create-btn" onClick={handleCreateAdminProduct}>
+                      Crear producto
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+        ) : null}
+
         {currentSection === 'hero' ? (
           <section className="hero-section">
             <div className="hero-block skincare-news skincare-bg">
