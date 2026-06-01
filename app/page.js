@@ -91,8 +91,7 @@ async function fetchRemoteCartItems(userId) {
   const { data: cartRows, error: cartError } = await supabase
     .from('carrito')
     .select('id, cantidad, tono_seleccionado, producto_id')
-    .eq('usuario_id', userId)
-    .order('creado_en', { ascending: false });
+    .eq('usuario_id', userId);
 
   if (cartError || !cartRows) {
     throw cartError || new Error('No se pudo leer el carrito.');
@@ -608,18 +607,14 @@ export default function Home() {
         (item) => item.id === product.id && item.selectedTone === toneValue
       );
 
-      let remoteError = null;
-
       const newCantidad = existing ? (existing.cantidad || 1) + 1 : 1;
 
-      const { error } = await supabase.from('carrito').upsert({
+      const { error: remoteError } = await supabase.from('carrito').upsert({
         usuario_id: user.id,
         producto_id: product.id,
         tono_seleccionado: toneValue,
         cantidad: newCantidad,
       }, { onConflict: 'usuario_id,producto_id,tono_seleccionado' });
-
-      remoteError = error;
 
       if (remoteError) {
         console.error('No se pudo agregar al carrito remoto:', remoteError);
@@ -627,7 +622,29 @@ export default function Home() {
         return;
       }
 
-      await syncRemoteCart();
+      // Mostrar notificación inmediatamente
+      setSelectedTones((prev) => ({ ...prev, [product.id]: null }));
+      addNotification(`${product.nombre} agregado al carrito`);
+
+      // Sincronizar carrito en segundo plano
+      try {
+        await syncRemoteCart();
+      } catch (syncErr) {
+        console.error('Error sincronizando carrito:', syncErr);
+        // Actualizar estado local como fallback
+        setCart((prev) => {
+          const existingIndex = prev.findIndex(
+            (item) => item.id === product.id && item.selectedTone === toneValue
+          );
+          if (existingIndex >= 0) {
+            const next = [...prev];
+            next[existingIndex] = { ...next[existingIndex], cantidad: newCantidad };
+            return next;
+          }
+          return [...prev, { id: product.id, nombre: product.nombre, precio: product.precio, img: product.img, selectedTone: toneValue, cantidad: 1 }];
+        });
+      }
+      return;
     } else {
       setCart((prev) => {
         const existingIndex = prev.findIndex(
