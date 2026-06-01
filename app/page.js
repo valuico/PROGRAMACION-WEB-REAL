@@ -610,21 +610,16 @@ export default function Home() {
 
       let remoteError = null;
 
-      if (existing?.rowId) {
-        const { error } = await supabase
-          .from('carrito')
-          .update({ cantidad: existing.cantidad + 1 })
-          .eq('id', existing.rowId);
-        remoteError = error;
-      } else {
-        const { error } = await supabase.from('carrito').insert({
-          usuario_id: user.id,
-          producto_id: product.id,
-          tono_seleccionado: toneValue,
-          cantidad: 1,
-        });
-        remoteError = error;
-      }
+      const newCantidad = existing ? (existing.cantidad || 1) + 1 : 1;
+
+      const { error } = await supabase.from('carrito').upsert({
+        usuario_id: user.id,
+        producto_id: product.id,
+        tono_seleccionado: toneValue,
+        cantidad: newCantidad,
+      }, { onConflict: 'usuario_id,producto_id,tono_seleccionado' });
+
+      remoteError = error;
 
       if (remoteError) {
         console.error('No se pudo agregar al carrito remoto:', remoteError);
