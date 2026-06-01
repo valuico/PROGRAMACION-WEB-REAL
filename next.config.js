@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
-    unoptimized: false,
+    unoptimized: true, // necesario para export estático y Vercel sin servidor de imágenes
   },
 }
 

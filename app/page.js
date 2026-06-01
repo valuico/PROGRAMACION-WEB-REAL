@@ -248,6 +248,8 @@ export default function Home() {
   const [adminOrders, setAdminOrders] = useState([]);
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminError, setAdminError] = useState('');
+  const [adminSection, setAdminSection] = useState('dashboard');
+  const [adminClients, setAdminClients] = useState([]);
   const [adminForm, setAdminForm] = useState({
     nombre: '',
     descripcion: '',
@@ -372,6 +374,9 @@ export default function Home() {
       let profile = null;
 
       if (supabase) {
+        const { data: roleData } = await supabase.rpc('get_my_role');
+        if (roleData) dbRole = roleData;
+
         const { data, error } = await supabase
           .from('usuarios')
           .select('*')
@@ -380,7 +385,6 @@ export default function Home() {
 
         if (!error && data) {
           profile = data;
-          dbRole = data.role;
         }
       }
 
@@ -399,9 +403,10 @@ export default function Home() {
       setAdminError('');
 
       try {
-        const [productResponse, orderResponse] = await Promise.all([
-          supabase.from('productos').select('*').order('nombre', { ascending: true }),
-          supabase.from('ordenes').select('*, orden_items(*)').order('creado_en', { ascending: false }),
+        const [productResponse, orderResponse, clientResponse] = await Promise.all([
+          supabase.rpc('get_all_products'),
+          supabase.rpc('get_all_orders'),
+          supabase.rpc('get_all_clients'),
         ]);
 
         if (!productResponse.error && productResponse.data) {
@@ -409,7 +414,15 @@ export default function Home() {
         }
 
         if (!orderResponse.error && orderResponse.data) {
-          setAdminOrders(orderResponse.data);
+          // get_all_orders devuelve json_agg (un solo objeto JSON)
+          const orders = Array.isArray(orderResponse.data)
+            ? orderResponse.data
+            : orderResponse.data || [];
+          setAdminOrders(orders);
+        }
+
+        if (!clientResponse.error && clientResponse.data) {
+          setAdminClients(clientResponse.data);
         }
       } catch (adminFetchError) {
         setAdminError('No se pudieron cargar los datos de administración.');
@@ -511,6 +524,15 @@ export default function Home() {
     addNotification('Producto eliminado');
     await refreshCatalog();
     setAdminProducts((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    if (!supabase || !isAdmin) return;
+    const { error } = await supabase.from('ordenes').update({ estado: newStatus }).eq('id', orderId);
+    if (!error) {
+      setAdminOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, estado: newStatus } : o));
+      addNotification('Estado del pedido actualizado');
+    }
   };
 
   const handleCreateAdminProduct = async () => {
@@ -755,79 +777,95 @@ export default function Home() {
         className={`main-header premium-header ${isScrolled ? 'scrolled' : ''}`}
         onMouseLeave={() => setActiveMegaMenu(null)}
       >
-        <div className="promo-banner">
-          <div className="promo-banner-content">
-            <span>GLOW MINIMALISTA: ritual esencial para una piel luminosa.</span>
-            <span>ENVÍO GRATIS en compras superiores a $50.000.</span>
-          </div>
-        </div>
+        {/* promo-banner oculto temporalmente */}
 
         <div className="nav-container">
+          {/* Fila superior: utilidades a la derecha, logo centrado */}
           <div className="header-row">
             <div className="header-left">
-              <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer' }}>
+              {isAdmin ? (
+                <button
+                  type="button"
+                  className="admin-panel-btn nav-utility-btn"
+                  onClick={() => setCurrentSection('admin')}
+                >
+                  Admin
+                </button>
+              ) : <span />}
+            </div>
+
+            <div className="header-center">
+              <a onClick={() => setCurrentSection('hero')} style={{ cursor: 'pointer', display: 'flex' }}>
                 <Image
                   src="/LOGO-removebg-preview.png"
                   alt="HAZE Beauty"
                   className="haze-logo"
-                  width={140}
-                  height={48}
+                  width={220}
+                  height={72}
+                  style={{ width: '200px', height: 'auto' }}
                 />
               </a>
             </div>
 
-            <div className="header-center">
-              <nav className="nav-menu premium-nav">
-                <ul>
-                  <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
-                  <li
-                    className="nav-has-mega"
-                    onMouseEnter={() => setActiveMegaMenu('skincare')}
-                  >
-                    <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
-                  </li>
-                  <li
-                    className="nav-has-mega"
-                    onMouseEnter={() => setActiveMegaMenu('makeup')}
-                  >
-                    <a onClick={() => openMakeupCategory('all')}>Makeup</a>
-                  </li>
-                  <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
-                </ul>
-              </nav>
-            </div>
-
             <div className="header-right">
               <div className="nav-utility">
-                {isAdmin ? (
-                  <button
-                    type="button"
-                    className="admin-panel-btn nav-utility-btn"
-                    onClick={() => setCurrentSection('admin')}
-                  >
-                    Admin
-                  </button>
-                ) : null}
                 {user ? (
-                  <button type="button" className="logout-link nav-utility-btn" onClick={handleSignOut}>
-                    Salir
-                  </button>
+                  <>
+                    <Link href="/ordenes" className="nav-icon-btn" title="Mis órdenes">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      <span className="nav-icon-label">{getUserDisplayName(user)}</span>
+                    </Link>
+                  </>
                 ) : (
-                  <Link href="/login" className="account-link nav-utility-btn">
-                    Ingresar
+                  <Link href="/login" className="nav-icon-btn" title="Ingresar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span className="nav-icon-label">Ingresar</span>
                   </Link>
                 )}
-                <div className="cart-container">
-                  <div className="cart-wrapper" onClick={() => setCartOpen(!cartOpen)}>
-                    <span className="cart-icon">🛒</span>
-                    <span id="cart-count">
+                <button className="nav-icon-btn cart-icon-btn" onClick={() => setCartOpen(!cartOpen)} title="Carrito">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                  {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0) > 0 && (
+                    <span className="cart-badge">
                       {cart.reduce((sum, item) => sum + (item.cantidad || 1), 0)}
                     </span>
-                  </div>
-                </div>
+                  )}
+                </button>
               </div>
             </div>
           </div>
+
+        </div>
+
+        {/* Fila de navegación full-width debajo del logo */}
+        <div className="header-nav-row">
+          <nav className="nav-menu premium-nav">
+            <ul>
+              <li><a onClick={() => setCurrentSection('hero')}>Inicio</a></li>
+              <li
+                className="nav-has-mega"
+                onMouseEnter={() => setActiveMegaMenu('skincare')}
+              >
+                <a onClick={() => setCurrentSection('skincare')}>Skincare</a>
+              </li>
+              <li
+                className="nav-has-mega"
+                onMouseEnter={() => setActiveMegaMenu('makeup')}
+              >
+                <a onClick={() => openMakeupCategory('all')}>Makeup</a>
+              </li>
+              <li><a onClick={() => setCurrentSection('faq')}>FAQ</a></li>
+            </ul>
+          </nav>
         </div>
 
         {activeMegaMenu === 'skincare' ? (
@@ -868,249 +906,268 @@ export default function Home() {
           </div>
         ) : null}
 
-        <div className="nav-divider" />
-
-        <div className="ticker-bar">
-          <div className="ticker-track">
-            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, index) => (
-              <span key={`${item}-${index}`}>{item} ·</span>
-            ))}
-          </div>
-        </div>
+        {/* ticker oculto temporalmente */}
       </header>
 
       <main>
         {currentSection === 'admin' ? (
-          <section className="admin-dashboard-section">
-            <div className="admin-dashboard-header">
-              <div>
-                <span className="hero-kicker">Panel de administración</span>
-                <h2>Control de la tienda HAZE</h2>
-                <p>Gestioná productos, precios, stock y pedidos desde un panel protegido.</p>
+          <section className="ap-shell">
+            {/* Sidebar */}
+            <aside className="ap-sidebar">
+              <div className="ap-sidebar-brand">
+                <span className="ap-brand-label">HAZE</span>
+                <span className="ap-brand-sub">Admin</span>
               </div>
-              <div className="admin-badge-row">
-                <span className="admin-badge">{user?.email?.endsWith('@hazebeauty.com') ? 'Admin de empresa' : 'Admin'}</span>
-                <span className="admin-user">{user?.email || 'Sin sesión'}</span>
+              <nav className="ap-nav">
+                {[
+                  { id: 'dashboard', label: 'Dashboard', icon: '◈' },
+                  { id: 'productos', label: 'Productos', icon: '◇' },
+                  { id: 'pedidos', label: 'Pedidos', icon: '◻' },
+                  { id: 'clientes', label: 'Clientes', icon: '○' },
+                ].map(({ id, label, icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`ap-nav-item ${adminSection === id ? 'active' : ''}`}
+                    onClick={() => setAdminSection(id)}
+                  >
+                    <span className="ap-nav-icon">{icon}</span>
+                    {label}
+                  </button>
+                ))}
+              </nav>
+              <div className="ap-sidebar-user">
+                <span className="ap-user-email">{user?.email}</span>
+                <button type="button" className="ap-signout" onClick={handleSignOut}>Cerrar sesión</button>
               </div>
-            </div>
+            </aside>
 
-            {adminLoading ? (
-              <div className="admin-loading">Cargando contenido de administración…</div>
-            ) : null}
-
-            {adminError ? <p className="admin-error">{adminError}</p> : null}
-
-            {!isAdmin ? (
-              <div className="admin-unauthorized">
-                <h3>Acceso no autorizado</h3>
-                <p>Solo los usuarios con correo @hazebeauty.com o rol de admin pueden ver este panel.</p>
-              </div>
-            ) : (
-              <div className="admin-grid">
-                <div className="admin-card admin-summary-card">
-                  <div>
-                    <h3>Resumen rápido</h3>
-                    <p>Ventas y productos actualizados en tiempo real.</p>
-                  </div>
-                  <div className="admin-summary-list">
-                    <span className="summary-item">
-                      <strong>{adminOrders.length}</strong>
-                      Pedidos totales
-                    </span>
-                    <span className="summary-item">
-                      <strong>{adminProducts.length}</strong>
-                      Productos
-                    </span>
-                    <span className="summary-item">
-                      <strong>{adminOrders.reduce((sum, order) => sum + Number(order.total), 0).toLocaleString('es-CL')}</strong>
-                      Total ventas
-                    </span>
-                  </div>
+            {/* Contenido principal */}
+            <main className="ap-content">
+              {adminLoading ? (
+                <div className="ap-loading">Cargando…</div>
+              ) : !isAdmin ? (
+                <div className="ap-unauthorized">
+                  <h3>Acceso no autorizado</h3>
+                  <p>Solo administradores pueden ver este panel.</p>
                 </div>
+              ) : (
+                <>
+                  {/* ── DASHBOARD ── */}
+                  {adminSection === 'dashboard' && (
+                    <div className="ap-section">
+                      <div className="ap-page-header">
+                        <h2>Dashboard</h2>
+                        <p>Resumen general del negocio</p>
+                      </div>
 
-                <div className="admin-card admin-orders-card">
-                  <div className="admin-card-header">
-                    <h3>Últimos pedidos</h3>
-                  </div>
-                  <div className="orders-list">
-                    {adminOrders.length === 0 ? (
-                      <p>No hay pedidos registrados aún.</p>
-                    ) : (
-                      adminOrders.slice(0, 5).map((order) => (
-                        <article key={order.id} className="order-card">
-                          <div>
-                            <strong>Pedido #{order.id}</strong>
-                            <p>{order.email_cliente || 'Cliente anónimo'}</p>
-                          </div>
-                          <div>
-                            <span>${Number(order.total).toLocaleString('es-CL')}</span>
-                            <span className="order-status">{order.estado}</span>
-                          </div>
-                        </article>
-                      ))
-                    )}
-                  </div>
-                </div>
+                      <div className="ap-kpi-grid">
+                        <div className="ap-kpi">
+                          <span className="ap-kpi-label">Ventas totales</span>
+                          <span className="ap-kpi-value">${adminOrders.reduce((s, o) => s + Number(o.total || 0), 0).toLocaleString('es-AR')}</span>
+                        </div>
+                        <div className="ap-kpi">
+                          <span className="ap-kpi-label">Pedidos</span>
+                          <span className="ap-kpi-value">{adminOrders.length}</span>
+                        </div>
+                        <div className="ap-kpi">
+                          <span className="ap-kpi-label">Productos</span>
+                          <span className="ap-kpi-value">{adminProducts.length}</span>
+                        </div>
+                        <div className="ap-kpi">
+                          <span className="ap-kpi-label">Clientes</span>
+                          <span className="ap-kpi-value">{adminClients.length}</span>
+                        </div>
+                      </div>
 
-                <div className="admin-card admin-products-card">
-                  <div className="admin-card-header">
-                    <h3>Productos</h3>
-                    <p>Modificá precios, stock y eliminá productos fácilmente.</p>
-                  </div>
-                  <div className="admin-table-wrap">
-                    <table className="admin-table">
-                      <thead>
-                        <tr>
-                          <th>Nombre</th>
-                          <th>Precio</th>
-                          <th>Stock</th>
-                          <th>Categoría</th>
-                          <th>Tipo</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {adminProducts.map((product) => (
-                          <tr key={product.id}>
-                            <td>
-                              <input
-                                type="text"
-                                value={product.nombre || ''}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, nombre: value } : item));
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                value={product.precio ?? ''}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, precio: value } : item));
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                value={product.stock ?? ''}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, stock: value } : item));
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="text"
-                                value={product.categoria || ''}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, categoria: value } : item));
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="text"
-                                value={product.tipo || ''}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  setAdminProducts((prev) => prev.map((item) => item.id === product.id ? { ...item, tipo: value } : item));
-                                }}
-                              />
-                            </td>
-                            <td className="admin-actions-cell">
-                              <button
-                                type="button"
-                                className="admin-action-btn"
-                                onClick={() => handleUpdateAdminProduct(product)}
-                              >
-                                Guardar
-                              </button>
-                              <button
-                                type="button"
-                                className="admin-action-btn delete"
-                                onClick={() => handleDeleteAdminProduct(product.id)}
-                              >
-                                Eliminar
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="admin-form-card">
-                    <h4>Agregar producto nuevo</h4>
-                    <div className="admin-form-grid">
-                      <label>
-                        Nombre
-                        <input
-                          type="text"
-                          value={adminForm.nombre}
-                          onChange={(event) => handleAdminFormChange('nombre', event.target.value)}
-                        />
-                      </label>
-                      <label>
-                        Precio
-                        <input
-                          type="number"
-                          value={adminForm.precio}
-                          onChange={(event) => handleAdminFormChange('precio', event.target.value)}
-                        />
-                      </label>
-                      <label>
-                        Stock
-                        <input
-                          type="number"
-                          value={adminForm.stock}
-                          onChange={(event) => handleAdminFormChange('stock', event.target.value)}
-                        />
-                      </label>
-                      <label>
-                        Categoría
-                        <input
-                          type="text"
-                          value={adminForm.categoria}
-                          onChange={(event) => handleAdminFormChange('categoria', event.target.value)}
-                        />
-                      </label>
-                      <label>
-                        Tipo
-                        <input
-                          type="text"
-                          value={adminForm.tipo}
-                          onChange={(event) => handleAdminFormChange('tipo', event.target.value)}
-                        />
-                      </label>
-                      <label className="full-width">
-                        Imagen URL
-                        <input
-                          type="text"
-                          value={adminForm.imagen_url}
-                          onChange={(event) => handleAdminFormChange('imagen_url', event.target.value)}
-                        />
-                      </label>
-                      <label className="full-width">
-                        Descripción corta
-                        <input
-                          type="text"
-                          value={adminForm.descripcion_corta}
-                          onChange={(event) => handleAdminFormChange('descripcion_corta', event.target.value)}
-                        />
-                      </label>
+                      <div className="ap-recent-header">
+                        <h3>Pedidos recientes</h3>
+                      </div>
+                      <div className="ap-table-wrap">
+                        <table className="ap-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Cliente</th>
+                              <th>Total</th>
+                              <th>Estado</th>
+                              <th>Fecha</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminOrders.slice(0, 8).map((order) => (
+                              <tr key={order.id}>
+                                <td className="ap-td-muted">#{order.id}</td>
+                                <td>{order.email_cliente || '—'}</td>
+                                <td>${Number(order.total || 0).toLocaleString('es-AR')}</td>
+                                <td><span className={`ap-status ap-status-${order.estado}`}>{order.estado}</span></td>
+                                <td className="ap-td-muted">{order.creado_en ? new Date(order.creado_en).toLocaleDateString('es-AR') : '—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                    <button type="button" className="admin-create-btn" onClick={handleCreateAdminProduct}>
-                      Crear producto
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+                  )}
+
+                  {/* ── PRODUCTOS ── */}
+                  {adminSection === 'productos' && (
+                    <div className="ap-section">
+                      <div className="ap-page-header">
+                        <h2>Productos</h2>
+                        <p>Editá precios, stock y creá nuevos productos</p>
+                      </div>
+
+                      {adminError && <p className="ap-error">{adminError}</p>}
+
+                      <div className="ap-table-wrap">
+                        <table className="ap-table">
+                          <thead>
+                            <tr>
+                              <th>Nombre</th>
+                              <th>Precio</th>
+                              <th>Stock</th>
+                              <th>Categoría</th>
+                              <th>Tipo</th>
+                              <th>Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminProducts.map((product) => (
+                              <tr key={product.id}>
+                                <td>
+                                  <input className="ap-input" type="text" value={product.nombre || ''} onChange={(e) => setAdminProducts((prev) => prev.map((i) => i.id === product.id ? { ...i, nombre: e.target.value } : i))} />
+                                </td>
+                                <td>
+                                  <input className="ap-input ap-input-sm" type="number" value={product.precio ?? ''} onChange={(e) => setAdminProducts((prev) => prev.map((i) => i.id === product.id ? { ...i, precio: e.target.value } : i))} />
+                                </td>
+                                <td>
+                                  <input className="ap-input ap-input-sm" type="number" value={product.stock ?? ''} onChange={(e) => setAdminProducts((prev) => prev.map((i) => i.id === product.id ? { ...i, stock: e.target.value } : i))} />
+                                </td>
+                                <td>
+                                  <input className="ap-input ap-input-sm" type="text" value={product.categoria || ''} onChange={(e) => setAdminProducts((prev) => prev.map((i) => i.id === product.id ? { ...i, categoria: e.target.value } : i))} />
+                                </td>
+                                <td>
+                                  <input className="ap-input ap-input-sm" type="text" value={product.tipo || ''} onChange={(e) => setAdminProducts((prev) => prev.map((i) => i.id === product.id ? { ...i, tipo: e.target.value } : i))} />
+                                </td>
+                                <td className="ap-actions-cell">
+                                  <button type="button" className="ap-btn-save" onClick={() => handleUpdateAdminProduct(product)}>Guardar</button>
+                                  <button type="button" className="ap-btn-delete" onClick={() => handleDeleteAdminProduct(product.id)}>Eliminar</button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="ap-form-section">
+                        <h3>Agregar producto</h3>
+                        <div className="ap-form-grid">
+                          {[
+                            { label: 'Nombre', field: 'nombre', type: 'text', full: false },
+                            { label: 'Precio', field: 'precio', type: 'number', full: false },
+                            { label: 'Stock', field: 'stock', type: 'number', full: false },
+                            { label: 'Categoría', field: 'categoria', type: 'text', full: false },
+                            { label: 'Tipo', field: 'tipo', type: 'text', full: false },
+                            { label: 'URL de imagen', field: 'imagen_url', type: 'text', full: true },
+                            { label: 'Descripción corta', field: 'descripcion_corta', type: 'text', full: true },
+                          ].map(({ label, field, type, full }) => (
+                            <label key={field} className={`ap-label ${full ? 'full' : ''}`}>
+                              {label}
+                              <input className="ap-input" type={type} value={adminForm[field]} onChange={(e) => handleAdminFormChange(field, e.target.value)} />
+                            </label>
+                          ))}
+                        </div>
+                        <button type="button" className="ap-btn-primary" onClick={handleCreateAdminProduct}>Crear producto</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── PEDIDOS ── */}
+                  {adminSection === 'pedidos' && (
+                    <div className="ap-section">
+                      <div className="ap-page-header">
+                        <h2>Pedidos</h2>
+                        <p>{adminOrders.length} pedidos en total</p>
+                      </div>
+                      <div className="ap-table-wrap">
+                        <table className="ap-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Cliente</th>
+                              <th>Total</th>
+                              <th>Items</th>
+                              <th>Estado</th>
+                              <th>Fecha</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminOrders.map((order) => (
+                              <tr key={order.id}>
+                                <td className="ap-td-muted">#{order.id}</td>
+                                <td>{order.email_cliente || '—'}</td>
+                                <td>${Number(order.total || 0).toLocaleString('es-AR')}</td>
+                                <td className="ap-td-muted">{order.orden_items?.length ?? 0} items</td>
+                                <td>
+                                  <select
+                                    className="ap-select"
+                                    value={order.estado || 'pendiente'}
+                                    onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                                  >
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="procesando">Procesando</option>
+                                    <option value="enviado">Enviado</option>
+                                    <option value="entregado">Entregado</option>
+                                    <option value="cancelado">Cancelado</option>
+                                  </select>
+                                </td>
+                                <td className="ap-td-muted">{order.creado_en ? new Date(order.creado_en).toLocaleDateString('es-AR') : '—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── CLIENTES ── */}
+                  {adminSection === 'clientes' && (
+                    <div className="ap-section">
+                      <div className="ap-page-header">
+                        <h2>Clientes</h2>
+                        <p>{adminClients.length} usuarios registrados</p>
+                      </div>
+                      <div className="ap-table-wrap">
+                        <table className="ap-table">
+                          <thead>
+                            <tr>
+                              <th>Email</th>
+                              <th>Nombre</th>
+                              <th>Rol</th>
+                              <th>Registro</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminClients.map((client) => (
+                              <tr key={client.id}>
+                                <td>{client.email || '—'}</td>
+                                <td>{client.nombre || client.full_name || '—'}</td>
+                                <td><span className={`ap-status ${client.role === 'admin' ? 'ap-status-admin' : 'ap-status-pendiente'}`}>{client.role || 'cliente'}</span></td>
+                                <td className="ap-td-muted">{client.creado_en ? new Date(client.creado_en).toLocaleDateString('es-AR') : '—'}</td>
+                              </tr>
+                            ))}
+                            {adminClients.length === 0 && (
+                              <tr><td colSpan={4} className="ap-empty">No hay clientes registrados aún.</td></tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </main>
           </section>
         ) : null}
 
@@ -1239,26 +1296,11 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="community-section reveal-on-scroll">
-              <div className="community-shell">
-                <span className="hero-kicker">Comunidad</span>
-                <h3>La comunidad HAZE</h3>
-                <p>@hazebeauty · Seguinos en Instagram</p>
-                <div className="community-grid">
-                  {COMMUNITY_CARDS.map((card) => (
-                    <article key={card.id} className="community-card">
-                      <span className="community-camera">⌾</span>
-                      <div className="community-overlay">♡</div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </section>
           </section>
         ) : null}
 
         {currentSection === 'makeup' ? (
-          <section className="catalog-container reveal-on-scroll">
+          <section className="catalog-container">
             <div className="catalog-shell">
               <div className="catalog-intro">
                 <span className="hero-kicker">Makeup edit</span>
@@ -1289,7 +1331,7 @@ export default function Home() {
         ) : null}
 
         {currentSection === 'skincare' ? (
-          <section className="catalog-container skincare-catalog reveal-on-scroll">
+          <section className="catalog-container skincare-catalog">
             <div className="catalog-shell">
               <div className="catalog-intro skincare-intro-card">
                 <span className="hero-kicker">The glow edit</span>
@@ -1308,38 +1350,35 @@ export default function Home() {
                 />
               ))}
 
-              <div className="product-card show">
-                <div className="product-img placeholder-gold">
-                  <span className="coming-soon-mark">Próximamente</span>
+              <div className="product-card show coming-soon-card">
+                <div className="product-img coming-soon-img">
+                  <span className="coming-soon-label">— Pronto —</span>
                 </div>
                 <div className="product-info">
-                  <h4>Próximamente</h4>
-                  <p>Serum Reparador Nocturno</p>
-                  <span className="price">--</span>
+                  <h4>Serum Reparador Nocturno</h4>
+                  <p>En desarrollo · Lanzamiento 2026</p>
                   <NotifyButton />
                 </div>
               </div>
 
-              <div className="product-card show">
-                <div className="product-img placeholder-gold">
-                  <span className="coming-soon-mark">Próximamente</span>
+              <div className="product-card show coming-soon-card">
+                <div className="product-img coming-soon-img">
+                  <span className="coming-soon-label">— Pronto —</span>
                 </div>
                 <div className="product-info">
-                  <h4>Próximamente</h4>
-                  <p>Protector Solar Glow</p>
-                  <span className="price">--</span>
+                  <h4>Protector Solar Glow</h4>
+                  <p>En desarrollo · Lanzamiento 2026</p>
                   <NotifyButton />
                 </div>
               </div>
 
-              <div className="product-card show">
-                <div className="product-img placeholder-gold">
-                  <span className="coming-soon-mark">Próximamente</span>
+              <div className="product-card show coming-soon-card">
+                <div className="product-img coming-soon-img">
+                  <span className="coming-soon-label">— Pronto —</span>
                 </div>
                 <div className="product-info">
-                  <h4>Próximamente</h4>
-                  <p>Mascarilla Calmante de Noche</p>
-                  <span className="price">--</span>
+                  <h4>Mascarilla Calmante de Noche</h4>
+                  <p>En desarrollo · Lanzamiento 2026</p>
                   <NotifyButton />
                 </div>
               </div>

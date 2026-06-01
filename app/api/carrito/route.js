@@ -1,80 +1,79 @@
-import { createServerSupabaseClient } from '../../../lib/supabase/server';
-import { successResponse, errorResponse, validarCantidad } from '../../../lib/api-utils';
+import { createServerClient } from '../../../lib/supabase/server';
+
+function getToken(request) {
+  return request.headers.get('authorization')?.replace('Bearer ', '') || null;
+}
+
+export async function GET(request) {
+  try {
+    const token = getToken(request);
+    const supabase = createServerClient(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return Response.json({ error: 'No autenticado' }, { status: 401 });
+
+    const { data, error } = await supabase
+      .from('carrito')
+      .select('id, cantidad, tono_seleccionado, producto:productos(id, nombre, precio, imagen_url)')
+      .eq('usuario_id', user.id);
+
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ success: true, data });
+  } catch (err) {
+    return Response.json({ error: 'Error al obtener carrito' }, { status: 500 });
+  }
+}
 
 export async function POST(request) {
   try {
-    const supabase = createServerSupabaseClient();
-    const { data: user, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return errorResponse('No autorizado. Debes iniciar sesión.', 'auth_required', 401);
-    }
+    const token = getToken(request);
+    const supabase = createServerClient(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return Response.json({ error: 'No autenticado' }, { status: 401 });
 
     const body = await request.json();
-    const productoId = Number(body.producto_id);
-    const cantidad = Number(body.cantidad);
+    const { producto_id, cantidad, tono_seleccionado } = body;
 
-    if (!Number.isInteger(productoId) || productoId <= 0) {
-      return errorResponse('producto_id inválido.', 'invalid_product_id', 400);
+    if (!producto_id || !Number.isInteger(Number(producto_id))) {
+      return Response.json({ error: 'producto_id inválido' }, { status: 400 });
+    }
+    if (!cantidad || !Number.isInteger(Number(cantidad)) || cantidad < 1 || cantidad > 100) {
+      return Response.json({ error: 'cantidad debe ser entre 1 y 100' }, { status: 400 });
     }
 
-    if (!validarCantidad(cantidad)) {
-      return errorResponse('cantidad inválida. Debe ser un entero entre 1 y 100.', 'invalid_quantity', 400);
-    }
-
-    const { data: product, error: productError } = await supabase
+    const { data: producto, error: prodError } = await supabase
       .from('productos')
       .select('id, stock')
-      .eq('id', productoId)
+      .eq('id', producto_id)
       .maybeSingle();
 
-    if (productError) {
-      return errorResponse('Error al verificar el producto.', 'product_validation_error', 500);
-    }
+    if (prodError || !producto) return Response.json({ error: 'Producto no encontrado' }, { status: 404 });
+    if (producto.stock < cantidad) return Response.json({ error: 'Stock insuficiente' }, { status: 400 });
 
-    if (!product) {
-      return errorResponse('Producto no encontrado.', 'product_not_found', 404);
-    }
+    const { error } = await supabase.from('carrito').upsert({
+      usuario_id: user.id,
+      producto_id: Number(producto_id),
+      tono_seleccionado: tono_seleccionado || 'Único',
+      cantidad: Number(cantidad),
+    }, { onConflict: 'usuario_id,producto_id,tono_seleccionado' });
 
-    if (product.stock < cantidad) {
-      return errorResponse('No hay stock suficiente para el producto solicitado.', 'insufficient_stock', 400);
-    }
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ success: true }, { status: 201 });
+  } catch (err) {
+    return Response.json({ error: 'Error al agregar al carrito' }, { status: 500 });
+  }
+}
 
-    const { data: existingCartItem, error: cartQueryError } = await supabase
-      .from('carrito')
-      .select('id, cantidad')
-      .eq('usuario_id', user.id)
-      .eq('producto_id', productoId)
-      .maybeSingle();
+export async function DELETE(request) {
+  try {
+    const token = getToken(request);
+    const supabase = createServerClient(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return Response.json({ error: 'No autenticado' }, { status: 401 });
 
-    if (cartQueryError) {
-      return errorResponse('Error al consultar el carrito.', 'cart_query_error', 500);
-    }
-
-    if (existingCartItem) {
-      const { error: updateError } = await supabase
-        .from('carrito')
-        .update({ cantidad })
-        .eq('id', existingCartItem.id);
-
-      if (updateError) {
-        return errorResponse('No se pudo actualizar el carrito.', 'cart_update_error', 500);
-      }
-    } else {
-      const { error: insertError } = await supabase.from('carrito').insert({
-        usuario_id: user.id,
-        producto_id: productoId,
-        cantidad,
-        tono_seleccionado: null,
-      });
-
-      if (insertError) {
-        return errorResponse('No se pudo agregar el producto al carrito.', 'cart_insert_error', 500);
-      }
-    }
-
-    return successResponse({ producto_id: productoId, cantidad }, 201);
-  } catch (exception) {
-    return errorResponse('Error de servidor al manipular el carrito.', 'server_error', 500);
+    const { error } = await supabase.from('carrito').delete().eq('usuario_id', user.id);
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ success: true });
+  } catch (err) {
+    return Response.json({ error: 'Error al vaciar carrito' }, { status: 500 });
   }
 }

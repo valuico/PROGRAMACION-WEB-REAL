@@ -1,20 +1,17 @@
-import { createServerSupabaseClient } from '../../../lib/supabase/server';
-import { successResponse, errorResponse } from '../../../lib/api-utils';
+import { createServerClient } from '../../../lib/supabase/server';
 
 export async function GET() {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = createServerClient();
     const { data, error } = await supabase
       .from('productos')
-      .select('id, nombre, descripcion, descripcion_corta, precio, stock, imagen_url, categoria, tipo, tonos, es_nuevo')
-      .order('id', { ascending: true });
+      .select('*')
+      .order('tipo', { ascending: true })
+      .order('nombre', { ascending: true });
 
-    if (error) {
-      return errorResponse('No se pudieron cargar los productos.', 'productos_load_error', 500);
-    }
-
-    return successResponse(data || [], 200);
-  } catch (exception) {
-    return errorResponse('Error de servidor al obtener productos.', 'server_error', 500);
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ success: true, data });
+  } catch (err) {
+    return Response.json({ error: 'Error al obtener productos' }, { status: 500 });
   }
 }

@@ -108,59 +108,45 @@ export default function PaymentPage() {
     event.preventDefault();
     setError('');
 
-    if (isSupabaseConfigured && !user) {
-      setError('Necesitás iniciar sesión para registrar la compra en Supabase.');
+    if (!user) {
+      setError('Necesitás iniciar sesión para completar la compra.');
       return;
     }
 
-    if (isSupabaseConfigured && user && supabase) {
-      const { error: profileError } = await supabase.from('usuarios').upsert({
+    try {
+      // Obtener token de sesión para enviarlo a la API
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      // Actualizar perfil
+      await supabase.from('usuarios').upsert({
         id: user.id,
         email: user.email,
         nombre: formData.name,
       });
 
-      if (profileError) {
-        setError(profileError.message);
-        return;
-      }
-
-      const { data: orderData, error: orderError } = await supabase
-        .from('ordenes')
-        .insert({
-          usuario_id: user.id,
-          total: totalPrice,
-          estado: 'simulada',
+      // Crear orden via API Route (total calculado en servidor)
+      const res = await fetch('/api/ordenes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           nombre_cliente: formData.name,
           email_cliente: formData.email,
-        })
-        .select()
-        .single();
+        }),
+      });
 
-      if (orderError) {
-        setError(orderError.message);
+      const result = await res.json();
+
+      if (!res.ok) {
+        setError(result.error || 'Error al procesar la orden.');
         return;
       }
-
-      const itemsPayload = cart.map((item) => ({
-        orden_id: orderData.id,
-        producto_id: item.id,
-        nombre_producto: item.nombre,
-        precio_unitario: item.precio,
-        cantidad: item.cantidad || 1,
-        tono_seleccionado: item.selectedTone,
-      }));
-
-      const { error: itemsError } = await supabase.from('orden_items').insert(itemsPayload);
-
-      if (itemsError) {
-        setError(itemsError.message);
-        return;
-      }
-
-      await supabase.from('carrito').delete().eq('usuario_id', user.id);
-    } else {
-      localStorage.setItem('hazeCart', JSON.stringify([]));
+    } catch (err) {
+      setError('Error de conexión. Intentá de nuevo.');
+      return;
     }
 
     setSubmitted(true);
