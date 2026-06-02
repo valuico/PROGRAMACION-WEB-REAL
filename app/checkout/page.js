@@ -5,12 +5,12 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase/client';
 
 const ESTADO_LABELS = {
-  pendiente: 'Pendiente de pago',
-  pagada: 'Pagada',
+  pendiente:  'Pendiente de pago',
+  pagada:     'Pagada',
   confirmada: 'Confirmada',
-  enviada: 'Enviada',
-  entregada: 'Entregada',
-  cancelada: 'Cancelada',
+  enviada:    'Enviada',
+  entregada:  'Entregada',
+  cancelada:  'Cancelada',
 };
 
 function CheckoutContent() {
@@ -36,26 +36,16 @@ function CheckoutContent() {
     setLoading(true);
     setError(null);
     try {
-
       const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.push('/login');
-        return;
-      }
+      if (!session) { router.push('/login'); return; }
 
       const res = await fetch(`/api/ordenes/${orden_id}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        setError(json.error || 'No se pudo cargar la orden.');
-        return;
-      }
-
+      if (!res.ok || !json.success) { setError(json.error || 'No se pudo cargar la orden.'); return; }
       setOrden(json.data);
-    } catch (err) {
+    } catch {
       setError('Error al cargar la orden.');
     } finally {
       setLoading(false);
@@ -66,31 +56,20 @@ function CheckoutContent() {
     setProcesando(true);
     setError(null);
     try {
-
       const { data: { session } } = await supabase.auth.getSession();
-
       const res = await fetch('/api/pagos/crear-preferencia', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ orden_id: orden.id }),
       });
       const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        setError(json.error || 'Error al procesar el pago.');
-        return;
-      }
-
+      if (!res.ok || !json.success) { setError(json.error || 'Error al procesar el pago.'); return; }
       if (json.payment_link) {
-        // Semana 13: redirigir a Mercado Pago
         window.location.href = json.payment_link;
       } else {
-        alert('Preferencia creada correctamente. La integración real con Mercado Pago estará disponible en la Semana 13.');
+        alert('Preferencia creada. Integración real con Mercado Pago disponible próximamente.');
       }
-    } catch (err) {
+    } catch {
       setError('Error al conectar con el servicio de pagos.');
     } finally {
       setProcesando(false);
@@ -99,20 +78,28 @@ function CheckoutContent() {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <p style={styles.loading}>Cargando orden...</p>
+      <div className="checkout-page">
+        <div className="checkout-layout single-panel">
+          <div className="checkout-panel">
+            <p style={{ color: '#95789b', textAlign: 'center', padding: '40px 0' }}>Cargando orden…</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error && !orden) {
     return (
-      <div style={styles.container}>
-        <div style={styles.errorBox}>
-          <p>{error}</p>
-          <button onClick={() => router.push('/ordenes')} style={styles.btnSecundario}>
-            Ver mis órdenes
-          </button>
+      <div className="checkout-page">
+        <div className="checkout-layout single-panel">
+          <div className="checkout-panel">
+            <div className="checkout-eyebrow">ERROR</div>
+            <h1>Algo salió mal</h1>
+            <p style={{ color: '#b42318', marginBottom: '24px' }}>{error}</p>
+            <button className="checkout-secondary-btn" onClick={() => router.push('/ordenes')}>
+              Ver mis órdenes
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -123,100 +110,160 @@ function CheckoutContent() {
   const total = Number(orden.total);
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.titulo}>Finalizar compra</h1>
+    <div className="checkout-page">
+      <div className="checkout-layout">
 
-        {/* Resumen de la orden */}
-        <div style={styles.seccion}>
-          <h2 style={styles.subtitulo}>Resumen de orden</h2>
-          <div style={styles.infoRow}>
-            <span style={styles.label}>Nº de orden</span>
-            <span style={styles.valor}>#{orden.id}</span>
-          </div>
-          <div style={styles.infoRow}>
-            <span style={styles.label}>Estado</span>
-            <span style={{ ...styles.badge, ...getBadgeStyle(orden.estado) }}>
-              {ESTADO_LABELS[orden.estado] || orden.estado}
-            </span>
-          </div>
-        </div>
+        {/* Panel izquierdo — resumen */}
+        <div className="checkout-panel">
+          <div className="checkout-eyebrow">RESUMEN DE ORDEN</div>
+          <h1>Finalizar compra</h1>
 
-        {/* Items */}
-        {orden.orden_items && orden.orden_items.length > 0 && (
-          <div style={styles.seccion}>
-            <h2 style={styles.subtitulo}>Productos</h2>
-            {orden.orden_items.map((item) => (
-              <div key={item.id} style={styles.itemRow}>
-                <div>
-                  <p style={styles.itemNombre}>{item.nombre_producto}</p>
-                  {item.tono_seleccionado && (
-                    <p style={styles.itemTono}>{item.tono_seleccionado}</p>
-                  )}
-                </div>
-                <div style={styles.itemPrecio}>
-                  <span>{item.cantidad}x</span>
-                  <span>${Number(item.precio_unitario).toLocaleString('es-AR')}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Total */}
-        <div style={styles.totalRow}>
-          <span style={styles.totalLabel}>Total a pagar</span>
-          <span style={styles.totalValor}>${total.toLocaleString('es-AR')}</span>
-        </div>
-
-        {/* Métodos de pago */}
-        {orden.estado === 'pendiente' && (
-          <div style={styles.seccion}>
-            <h2 style={styles.subtitulo}>Método de pago</h2>
-
-            <div style={styles.metodoPago}>
-              <div style={styles.metodoPagoHeader}>
-                <span style={styles.metodoPagoIcon}>💳</span>
-                <span style={styles.metodoPagoNombre}>Mercado Pago</span>
-                <span style={styles.metodoPagoBadge}>Disponible</span>
-              </div>
-              <p style={styles.metodoPagoDesc}>
-                Pagá con tarjeta, transferencia o dinero en cuenta.
-              </p>
+          {/* Info de la orden */}
+          <div className="checkout-totals" style={{ marginBottom: '24px' }}>
+            <div>
+              <span>Nº de orden</span>
+              <strong>#{orden.id}</strong>
             </div>
-
-            <div style={{ ...styles.metodoPago, opacity: 0.5 }}>
-              <div style={styles.metodoPagoHeader}>
-                <span style={styles.metodoPagoIcon}>🏦</span>
-                <span style={styles.metodoPagoNombre}>Transferencia bancaria</span>
-                <span style={{ ...styles.metodoPagoBadge, background: '#e5e7eb', color: '#6b7280' }}>
-                  Próximamente
+            <div>
+              <span>Estado</span>
+              <strong>
+                <span className={`ap-status ap-status-${orden.estado}`}>
+                  {ESTADO_LABELS[orden.estado] || orden.estado}
                 </span>
+              </strong>
+            </div>
+          </div>
+
+          {/* Items */}
+          {orden.orden_items && orden.orden_items.length > 0 && (
+            <div className="checkout-items">
+              {orden.orden_items.map((item) => (
+                <div key={item.id} className="checkout-item" style={{ alignItems: 'center' }}>
+                  <div style={{ flex: 1 }}>
+                    <h4>{item.nombre_producto}</h4>
+                    {item.tono_seleccionado && item.tono_seleccionado !== 'Único' && (
+                      <p>Tono: {item.tono_seleccionado}</p>
+                    )}
+                    <p>Cantidad: {item.cantidad}</p>
+                    <span>${(Number(item.precio_unitario) * item.cantidad).toLocaleString('es-AR')}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Total */}
+          <div className="checkout-totals" style={{ marginTop: '8px' }}>
+            <div>
+              <span>Subtotal</span>
+              <strong>${total.toLocaleString('es-AR')}</strong>
+            </div>
+            <div>
+              <span>Envío</span>
+              <strong>Gratis</strong>
+            </div>
+            <div style={{ borderTop: '1px solid #ece0ee', paddingTop: '12px', marginTop: '4px' }}>
+              <span style={{ fontWeight: '700', fontSize: '16px' }}>Total</span>
+              <strong style={{ fontSize: '22px', color: '#95789b' }}>${total.toLocaleString('es-AR')}</strong>
+            </div>
+          </div>
+
+          <button className="checkout-secondary-btn" onClick={() => router.push('/ordenes')} style={{ marginTop: '20px' }}>
+            ← Volver a mis órdenes
+          </button>
+        </div>
+
+        {/* Panel derecho — pago */}
+        {orden.estado === 'pendiente' && (
+          <div className="checkout-panel">
+            <div className="checkout-eyebrow">MÉTODO DE PAGO</div>
+            <h2>Seleccioná cómo pagar</h2>
+
+            {/* Mercado Pago */}
+            <div style={{
+              border: '2px solid #95789b', borderRadius: '16px', padding: '20px',
+              marginBottom: '12px', background: 'rgba(149,120,155,0.04)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '1.4rem' }}>💳</span>
+                <div>
+                  <strong style={{ color: '#3f2c46', display: 'block' }}>Mercado Pago</strong>
+                  <span style={{ fontSize: '0.8rem', color: '#95789b' }}>Tarjeta, transferencia o dinero en cuenta</span>
+                </div>
+                <span className="news-tag" style={{ marginLeft: 'auto', fontSize: '11px' }}>Disponible</span>
               </div>
             </div>
+
+            {/* Transferencia — próximamente */}
+            <div style={{
+              border: '1px solid #ece0ee', borderRadius: '16px', padding: '20px',
+              marginBottom: '24px', opacity: 0.5
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '1.4rem' }}>🏦</span>
+                <div>
+                  <strong style={{ color: '#3f2c46', display: 'block' }}>Transferencia bancaria</strong>
+                  <span style={{ fontSize: '0.8rem', color: '#95789b' }}>Próximamente</span>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <p className="auth-feedback auth-error" style={{ marginBottom: '16px' }}>
+                ⚠ {error}
+              </p>
+            )}
 
             <button
+              className="checkout-primary-btn"
               onClick={handlePagar}
               disabled={procesando}
-              style={procesando ? { ...styles.btnPagar, opacity: 0.7, cursor: 'not-allowed' } : styles.btnPagar}
+              style={{ opacity: procesando ? 0.7 : 1 }}
             >
               {procesando ? 'Procesando...' : 'Pagar con Mercado Pago'}
             </button>
+
+            {/* Seguridad */}
+            <div style={{
+              display: 'flex', gap: '10px', alignItems: 'flex-start',
+              marginTop: '20px', padding: '14px', background: '#faf7fb',
+              borderRadius: '12px', border: '1px solid #ece0ee'
+            }}>
+              <span>🔒</span>
+              <p style={{ margin: 0, fontSize: '12px', color: '#95789b', lineHeight: 1.6 }}>
+                Tus datos están protegidos con encriptación SSL. No almacenamos información de tu tarjeta.
+              </p>
+            </div>
+
+            <div className="payment-icons-row" style={{ marginTop: '16px' }}>
+              <span className="payment-icon-chip">VISA</span>
+              <span className="payment-icon-chip">Mastercard</span>
+              <span className="payment-icon-chip">Mercado Pago</span>
+            </div>
           </div>
         )}
 
-        {/* Seguridad */}
-        <div style={styles.seguridadBox}>
-          <span>🔒</span>
-          <p style={styles.seguridadTexto}>
-            Tus datos están protegidos con encriptación SSL. No almacenamos información de tu tarjeta.
-          </p>
-        </div>
-
-        {/* Navegación */}
-        <button onClick={() => router.push('/ordenes')} style={styles.btnSecundario}>
-          ← Volver a mis órdenes
-        </button>
+        {/* Si ya está pagada/confirmada */}
+        {orden.estado !== 'pendiente' && (
+          <div className="checkout-panel">
+            <div className="checkout-eyebrow">ESTADO</div>
+            <h2>
+              {orden.estado === 'entregada' ? '¡Orden completada!' :
+               orden.estado === 'cancelada' ? 'Orden cancelada' :
+               'Orden en proceso'}
+            </h2>
+            <p style={{ color: '#6e5d72', lineHeight: 1.7 }}>
+              {orden.estado === 'pagada' && 'Tu pago fue confirmado. Estamos preparando tu pedido.'}
+              {orden.estado === 'confirmada' && 'Tu pedido fue confirmado y está siendo preparado.'}
+              {orden.estado === 'enviada' && 'Tu pedido está en camino.'}
+              {orden.estado === 'entregada' && '¡Gracias por tu compra! Esperamos que disfrutes tus productos.'}
+              {orden.estado === 'cancelada' && 'Esta orden fue cancelada. Si tenés preguntas, contactanos.'}
+            </p>
+            <button className="checkout-secondary-btn" onClick={() => router.push('/')} style={{ marginTop: '20px' }}>
+              Volver a la tienda
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -224,142 +271,16 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '2rem', color: '#6b7280' }}>Cargando...</div>}>
+    <Suspense fallback={
+      <div className="checkout-page">
+        <div className="checkout-layout single-panel">
+          <div className="checkout-panel">
+            <p style={{ color: '#95789b', textAlign: 'center', padding: '40px 0' }}>Cargando…</p>
+          </div>
+        </div>
+      </div>
+    }>
       <CheckoutContent />
     </Suspense>
   );
 }
-
-function getBadgeStyle(estado) {
-  const colores = {
-    pendiente: { background: '#fef3c7', color: '#92400e' },
-    pagada: { background: '#d1fae5', color: '#065f46' },
-    confirmada: { background: '#dbeafe', color: '#1e40af' },
-    enviada: { background: '#ede9fe', color: '#5b21b6' },
-    entregada: { background: '#d1fae5', color: '#065f46' },
-    cancelada: { background: '#fee2e2', color: '#991b1b' },
-  };
-  return colores[estado] || {};
-}
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: '#f9fafb',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    padding: '2rem 1rem',
-  },
-  card: {
-    background: '#fff',
-    borderRadius: '12px',
-    boxShadow: '0 1px 8px rgba(0,0,0,0.1)',
-    padding: '2rem',
-    width: '100%',
-    maxWidth: '520px',
-  },
-  titulo: {
-    fontSize: '1.5rem',
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: '1.5rem',
-  },
-  subtitulo: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: '0.75rem',
-  },
-  seccion: {
-    borderTop: '1px solid #f3f4f6',
-    paddingTop: '1rem',
-    marginTop: '1rem',
-  },
-  infoRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '0.5rem',
-  },
-  label: { color: '#6b7280', fontSize: '0.9rem' },
-  valor: { fontWeight: '600', color: '#111827' },
-  badge: {
-    padding: '2px 10px',
-    borderRadius: '999px',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-  },
-  itemRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0.5rem 0',
-    borderBottom: '1px solid #f3f4f6',
-  },
-  itemNombre: { margin: 0, fontWeight: '500', color: '#111827', fontSize: '0.9rem' },
-  itemTono: { margin: 0, color: '#9ca3af', fontSize: '0.8rem' },
-  itemPrecio: { display: 'flex', gap: '0.5rem', color: '#374151', fontSize: '0.9rem' },
-  totalRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1rem 0',
-    borderTop: '2px solid #f3f4f6',
-    marginTop: '0.5rem',
-  },
-  totalLabel: { fontWeight: '600', fontSize: '1rem', color: '#374151' },
-  totalValor: { fontWeight: '700', fontSize: '1.4rem', color: '#111827' },
-  metodoPago: {
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    padding: '0.75rem 1rem',
-    marginBottom: '0.75rem',
-  },
-  metodoPagoHeader: { display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' },
-  metodoPagoIcon: { fontSize: '1.1rem' },
-  metodoPagoNombre: { fontWeight: '600', fontSize: '0.95rem', flex: 1 },
-  metodoPagoBadge: {
-    background: '#d1fae5',
-    color: '#065f46',
-    padding: '2px 8px',
-    borderRadius: '999px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
-  },
-  metodoPagoDesc: { margin: 0, color: '#6b7280', fontSize: '0.85rem' },
-  btnPagar: {
-    width: '100%',
-    padding: '0.85rem',
-    background: '#009ee3',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    fontWeight: '700',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    marginTop: '0.5rem',
-  },
-  btnSecundario: {
-    background: 'none',
-    border: 'none',
-    color: '#6b7280',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    marginTop: '1rem',
-    padding: '0',
-    textDecoration: 'underline',
-  },
-  seguridadBox: {
-    display: 'flex',
-    gap: '0.5rem',
-    alignItems: 'flex-start',
-    background: '#f9fafb',
-    borderRadius: '8px',
-    padding: '0.75rem',
-    marginTop: '1rem',
-  },
-  seguridadTexto: { margin: 0, color: '#6b7280', fontSize: '0.8rem' },
-  loading: { color: '#6b7280', fontSize: '1rem' },
-  errorBox: { textAlign: 'center', color: '#dc2626' },
-};

@@ -138,17 +138,10 @@ export default function LoginPage() {
     }
   };
 
-  const inputStyle = (field) => ({
-    width: '100%',
-    padding: '10px 12px',
-    border: `1px solid ${fieldErrors[field] ? '#dc2626' : '#e5e7eb'}`,
-    borderRadius: '6px',
-    fontSize: '0.95rem',
-    outline: 'none',
-    boxSizing: 'border-box',
-    background: fieldErrors[field] ? '#fff5f5' : '#fff',
-    transition: 'border-color 0.15s',
-  });
+  const inputErrorStyle = (field) => fieldErrors[field] ? {
+    borderColor: '#b42318',
+    background: '#fff0f0',
+  } : {};
 
   return (
     <div className="auth-page">
@@ -177,53 +170,47 @@ export default function LoginPage() {
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
 
           {mode === 'signup' && (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: '500' }}>
-                Nombre
-              </label>
+            <div>
+              <label>Nombre</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={e => handleChange('name', e.target.value)}
                 placeholder="Tu nombre"
-                style={inputStyle('name')}
+                style={inputErrorStyle('name')}
               />
               {fieldErrors.name && <p style={errStyle}>{fieldErrors.name}</p>}
             </div>
           )}
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: '500' }}>
-              Email
-            </label>
+          <div>
+            <label>Email</label>
             <input
               type="email"
               value={formData.email}
               onChange={e => handleChange('email', e.target.value)}
               placeholder="tu@email.com"
-              style={inputStyle('email')}
+              style={inputErrorStyle('email')}
               autoComplete="email"
             />
             {fieldErrors.email && <p style={errStyle}>{fieldErrors.email}</p>}
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem', fontWeight: '500' }}>
-              Contraseña
-            </label>
+          <div>
+            <label>Contraseña</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={e => handleChange('password', e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                style={{ ...inputStyle('password'), paddingRight: '44px' }}
+                style={{ ...inputErrorStyle('password'), paddingRight: '56px' }}
                 autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(v => !v)}
-                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', fontSize: '0.85rem' }}
+                style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#95789b', fontSize: '0.8rem', fontWeight: '600' }}
               >
                 {showPassword ? 'Ocultar' : 'Ver'}
               </button>
@@ -235,14 +222,11 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', padding: '10px 12px', marginBottom: '1rem' }}>
-              <p style={{ color: '#dc2626', fontSize: '0.875rem', margin: 0 }}>⚠ {error}</p>
+            <p className="auth-feedback auth-error">⚠ {error}</p>
             </div>
           )}
           {info && (
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '10px 12px', marginBottom: '1rem' }}>
-              <p style={{ color: '#16a34a', fontSize: '0.875rem', margin: 0 }}>✓ {info}</p>
-            </div>
+            <p className="auth-feedback auth-info">✓ {info}</p>
           )}
 
           <button type="submit" className="checkout-primary-btn" disabled={loading}
