@@ -242,7 +242,6 @@ export default function Home() {
   const [showLoader, setShowLoader] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -347,31 +346,18 @@ export default function Home() {
     async function loadUserProfile() {
       if (!authReady || !user) {
         setIsAdmin(false);
-        setUserProfile(null);
         return;
       }
 
       const email = user.email?.toLowerCase() || '';
       const isCompanyEmail = email.endsWith('@hazebeauty.com');
       let dbRole = null;
-      let profile = null;
 
       if (supabase) {
         const { data: roleData } = await supabase.rpc('get_my_role');
         if (roleData) dbRole = roleData;
-
-        const { data, error } = await supabase
-          .from('usuarios')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (!error && data) {
-          profile = data;
-        }
       }
 
-      setUserProfile(profile);
       setIsAdmin(isCompanyEmail || dbRole === 'admin');
     }
 
