@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { createBrowserClient } from '../../lib/supabase/client';
+import { supabase } from '../../lib/supabase/client';
 
 const ESTADO_LABELS = {
   pendiente: 'Pendiente de pago',
@@ -13,7 +13,7 @@ const ESTADO_LABELS = {
   cancelada: 'Cancelada',
 };
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orden_id = searchParams.get('orden_id');
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createBrowserClient();
+
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
@@ -66,7 +66,7 @@ export default function CheckoutPage() {
     setProcesando(true);
     setError(null);
     try {
-      const supabase = createBrowserClient();
+
       const { data: { session } } = await supabase.auth.getSession();
 
       const res = await fetch('/api/pagos/crear-preferencia', {
@@ -219,6 +219,14 @@ export default function CheckoutPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', color: '#6b7280' }}>Cargando...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
 
