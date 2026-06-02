@@ -47,12 +47,19 @@ export async function POST(request) {
       return Response.json({ error: 'La orden no tiene items' }, { status: 400 });
     }
 
-    // 5. Construir estructura de preferencia para Mercado Pago
-    // (Semana 13: aquí se llamará al SDK real de Mercado Pago)
+    // 5. Verificar que el Access Token de MP está configurado
+    const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    if (!mpToken) {
+      return Response.json({ error: 'Mercado Pago no configurado' }, { status: 500 });
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://haze-beauty-real.vercel.app';
+
+    // 6. Construir preferencia y llamar a la API de Mercado Pago
     const preferencia = {
       items: orden.orden_items.map((item) => ({
         title: item.nombre_producto,
-        quantity: item.cantidad,
+        quantity: Number(item.cantidad),
         unit_price: Number(item.precio_unitario),
         currency_id: 'ARS',
       })),
@@ -60,25 +67,42 @@ export async function POST(request) {
         email: orden.email_cliente || user.email,
       },
       external_reference: String(orden.id),
-      notification_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/pagos/webhook`,
+      notification_url: `${appUrl}/api/pagos/webhook`,
       back_urls: {
-        success: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/ordenes?pago=exitoso`,
-        failure: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/${orden.id}?pago=fallido`,
-        pending: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/ordenes?pago=pendiente`,
+        success: `${appUrl}/ordenes?pago=exitoso`,
+        failure: `${appUrl}/checkout?orden_id=${orden.id}&pago=fallido`,
+        pending: `${appUrl}/ordenes?pago=pendiente`,
       },
       auto_return: 'approved',
     };
 
+    const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${mpToken}`,
+      },
+      body: JSON.stringify(preferencia),
+    });
+
+    if (!mpRes.ok) {
+      const mpError = await mpRes.json();
+      console.error('Error de Mercado Pago:', mpError);
+      return Response.json({ error: 'Error al crear preferencia en Mercado Pago' }, { status: 502 });
+    }
+
+    const mpData = await mpRes.json();
+
     return Response.json({
       success: true,
-      preferencia,
       orden_id: orden.id,
       total: Number(orden.total),
-      // Semana 13: esto será el init_point (link) real de Mercado Pago
-      payment_link: null,
-      mensaje: 'Preferencia preparada. Integración con Mercado Pago disponible en Semana 13.',
+      payment_link: mpData.init_point,       // link real de MP (producción)
+      sandbox_link: mpData.sandbox_init_point, // link de prueba
     });
+
   } catch (err) {
+    console.error('Error en crear-preferencia:', err);
     return Response.json({ error: 'Error al crear preferencia de pago' }, { status: 500 });
   }
 }

@@ -64,10 +64,11 @@ function CheckoutContent() {
       });
       const json = await res.json();
       if (!res.ok || !json.success) { setError(json.error || 'Error al procesar el pago.'); return; }
-      if (json.payment_link) {
-        window.location.href = json.payment_link;
+      const link = json.sandbox_link || json.payment_link;
+      if (link) {
+        window.location.href = link;
       } else {
-        alert('Preferencia creada. Integración real con Mercado Pago disponible próximamente.');
+        setError('No se pudo obtener el link de pago.');
       }
     } catch {
       setError('Error al conectar con el servicio de pagos.');
