@@ -45,59 +45,43 @@ export async function POST(request) {
       return Response.json({ error: 'El carrito está vacío' }, { status: 400 });
     }
 
-    // Validar stock
-    for (const item of carritoItems) {
-      if (!item.producto) return Response.json({ error: 'Producto no encontrado' }, { status: 404 });
-      if (item.producto.stock < item.cantidad) {
-        return Response.json({ error: `Stock insuficiente para ${item.producto.nombre}` }, { status: 400 });
-      }
-    }
-
     // Calcular total en servidor (nunca confiar en el cliente)
     const total = carritoItems.reduce(
       (sum, item) => sum + Number(item.producto.precio) * item.cantidad, 0
     );
 
-    // Crear orden
-    const { data: orderData, error: orderError } = await supabase
-      .from('ordenes')
-      .insert({
-        usuario_id: user.id,
-        total,
-        estado: 'pendiente',
-        nombre_cliente: nombre_cliente || '',
-        email_cliente: email_cliente || user.email,
-      })
-      .select()
-      .single();
-
-    if (orderError) return Response.json({ error: orderError.message }, { status: 500 });
-
-    // Insertar items de la orden
-    const itemsPayload = carritoItems.map((item) => ({
-      orden_id: orderData.id,
+    // Preparar items en formato JSONB para el stored procedure
+    const items = carritoItems.map((item) => ({
       producto_id: item.producto.id,
       nombre_producto: item.producto.nombre,
       precio_unitario: Number(item.producto.precio),
       cantidad: item.cantidad,
-      tono_seleccionado: item.tono_seleccionado,
+      tono_seleccionado: item.tono_seleccionado || null,
     }));
 
-    const { error: itemsError } = await supabase.from('orden_items').insert(itemsPayload);
-    if (itemsError) return Response.json({ error: itemsError.message }, { status: 500 });
+    // Llamar al stored procedure — transacción atómica en la BD
+    const { data, error } = await supabase.rpc('crear_orden_completa', {
+      p_usuario_id: user.id,
+      p_items: items,
+      p_total: total,
+      p_nombre_cliente: nombre_cliente || '',
+      p_email_cliente: email_cliente || user.email,
+    });
 
-    // Actualizar stock
-    for (const item of carritoItems) {
-      await supabase
-        .from('productos')
-        .update({ stock: item.producto.stock - item.cantidad })
-        .eq('id', item.producto.id);
+    if (error) return Response.json({ error: error.message }, { status: 500 });
+
+    const resultado = data?.[0];
+    if (!resultado?.success) {
+      return Response.json(
+        { error: resultado?.error_msg || 'Error al crear la orden' },
+        { status: 400 }
+      );
     }
 
-    // Vaciar carrito
-    await supabase.from('carrito').delete().eq('usuario_id', user.id);
-
-    return Response.json({ success: true, data: orderData }, { status: 201 });
+    return Response.json(
+      { success: true, data: { id: resultado.orden_id } },
+      { status: 201 }
+    );
   } catch (err) {
     return Response.json({ error: 'Error al crear la orden' }, { status: 500 });
   }
