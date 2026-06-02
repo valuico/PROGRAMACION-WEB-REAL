@@ -4084,7 +4084,50 @@ body {
 
 @media (max-width: 768px) {
     .premium-header {
-        padding: 16px 18px 14px;
+        padding: 0 16px;
+    }
+
+    /* En mobile: layout flex en vez de absolute */
+    .header-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 0;
+        min-height: unset;
+    }
+
+    .header-left {
+        position: static;
+        flex: 1;
+    }
+
+    .header-center {
+        flex: 0 0 auto;
+    }
+
+    .header-right {
+        position: static;
+        flex: 1;
+        justify-content: flex-end;
+    }
+
+    .haze-logo {
+        width: 120px !important;
+    }
+
+    /* Ocultar etiquetas, solo íconos */
+    .nav-icon-label {
+        display: none;
+    }
+
+    .nav-icon-btn {
+        gap: 0;
+        padding: 6px;
+    }
+
+    .nav-utility {
+        gap: 8px;
     }
 
     .nav-top-row {
@@ -4096,17 +4139,14 @@ body {
         display: none;
     }
 
-    .nav-utility {
-        justify-content: center;
-    }
-
     .premium-nav {
         width: 100%;
-        padding: 14px 18px;
+        padding: 10px 16px;
     }
 
     .premium-nav ul {
-        gap: 18px;
+        gap: 14px;
+        font-size: 0.82rem;
     }
 
     .ticker-bar {
