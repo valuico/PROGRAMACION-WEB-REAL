@@ -238,6 +238,7 @@ export default function Home() {
   const [currentEditorialSlide, setCurrentEditorialSlide] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState(null);
+  const [targetProductId, setTargetProductId] = useState(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showLoader, setShowLoader] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -582,6 +583,25 @@ export default function Home() {
     setActiveMegaMenu(null);
   };
 
+  const openSkincareProduct = (productId) => {
+    setTargetProductId(productId);
+    setCurrentSection('skincare');
+    setActiveMegaMenu(null);
+  };
+
+  useEffect(() => {
+    if (!targetProductId || currentSection !== 'skincare') return;
+    const el = document.querySelector(`[data-product-id="${targetProductId}"]`);
+    if (el) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('product-highlight');
+        setTimeout(() => el.classList.remove('product-highlight'), 1500);
+      }, 80);
+      setTargetProductId(null);
+    }
+  }, [targetProductId, currentSection]);
+
   return (
     <div>
       <div className="scroll-progress-bar" style={{ transform: `scaleX(${scrollProgress / 100})` }} />
@@ -728,9 +748,9 @@ export default function Home() {
             <div className="mega-menu-links">
               <span className="mega-menu-label">Skincare edit</span>
               <button type="button" onClick={openSkincareSection}>Ver toda la rutina</button>
-              <button type="button" onClick={openSkincareSection}>Hydrating Toner</button>
-              <button type="button" onClick={openSkincareSection}>Gentle Cleanser</button>
-              <button type="button" onClick={openSkincareSection}>Daily Moisturizer</button>
+              <button type="button" onClick={() => openSkincareProduct(13)}>Hydrating Toner</button>
+              <button type="button" onClick={() => openSkincareProduct(14)}>Gentle Cleanser</button>
+              <button type="button" onClick={() => openSkincareProduct(15)}>Daily Moisturizer</button>
             </div>
             <div className="mega-menu-feature">
               <Image src="/toner-haze.png" alt="Hydrating Toner" width={180} height={220} />
@@ -760,6 +780,7 @@ export default function Home() {
             </div>
           </div>
         ) : null}
+
 
         {/* ticker oculto temporalmente */}
       </header>
@@ -942,12 +963,13 @@ export default function Home() {
 
               <div className="products-grid">
               {catalog.skincare.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isSkincare
-                  onAddToCart={() => addToCart(product)}
-                />
+                <div key={product.id} data-product-id={product.id}>
+                  <ProductCard
+                    product={product}
+                    isSkincare
+                    onAddToCart={() => addToCart(product)}
+                  />
+                </div>
               ))}
 
               <div className="product-card show coming-soon-card">

@@ -3025,6 +3025,49 @@ body {
     opacity: 0.75;
 }
 
+/* Accesos rápidos mobile */
+.mobile-quick-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-quick-nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #fff;
+        border-top: 1px solid rgba(63, 44, 70, 0.08);
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-quick-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-quick-nav button {
+        flex-shrink: 0;
+        background: #faf5fb;
+        border: 1px solid #e3d2e5;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #3f2c46;
+        cursor: pointer;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .mobile-quick-nav button:active {
+        background: #95789b;
+        color: #fff;
+        border-color: #95789b;
+    }
+}
+
 /* Fila de navegación separada debajo del logo */
 .header-nav-row {
     display: flex;
@@ -4281,3 +4324,14 @@ body {
 }
 
 .ordenes-back a:hover { color: #3f2c46; }
+
+/* Highlight animado al navegar a un producto específico */
+.product-highlight {
+    animation: product-pulse 1.5s ease;
+}
+
+@keyframes product-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(149, 120, 155, 0.5); transform: scale(1); }
+    40%  { box-shadow: 0 0 0 16px rgba(149, 120, 155, 0); transform: scale(1.02); }
+    100% { box-shadow: 0 0 0 0 rgba(149, 120, 155, 0); transform: scale(1); }
+}
