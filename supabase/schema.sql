@@ -156,7 +156,7 @@ values
   ('Radiant Stick Duo', 'Iluminador en barra con acabado glow.', 'Iluminador en Barra', 42500, 25, '/highlighters.png', 'cara', 'makeup', '["Golden Glow","Rose Stick","Silver Stow"]', false),
   ('Invisimatte Setting Powder', 'Polvos volátiles de acabado suave.', 'Polvos Volátiles', 55000, 28, '/polvos-volatiles.png', 'cara', 'makeup', '["Butter","Lavender"]', false),
   ('Double Take Blush', 'Rubor dúo polvo y crema.', 'Dúo Polvo y Crema', 48900, 30, '/blushes-haze.png', 'cara', 'makeup', '["Peony","Coral Haze","Rosewood","Sunset"]', false),
-  ('Mist & Fix Spray', 'Spray fijador de larga duración.', 'Larga Duración', 39000, 24, '/setting-spray-2.png', 'cara', 'makeup', '[]', false),
+  ('Mist & Fix Spray', 'Spray fijador de larga duración.', 'Larga Duración', 39000, 24, '/setting-spray-expanded.png', 'cara', 'makeup', '[]', false),
   ('Iconic Matte Lipstick', 'Labial en barra acabado terciopelo.', 'Labial en barra', 42900, 60, '/labiales.png', 'labios', 'makeup', '["Deep Red","True Scarlet","Dusty Rose","Terracotta","Nude Beige","Honey Nude"]', false),
   ('Precision Lip Shaper', 'Delineador de labios de larga duración.', 'Delineador de labios', 31500, 55, '/lip-liner.png', 'labios', 'makeup', '["Pale Lilac","Warm Pink","Berry Bite","Deep Cocoa"]', false),
   ('Gloss Bomb Crystal', 'Brillo labial efecto espejo.', 'Brillo labial efecto espejo', 38200, 32, '/lipgloss.png', 'labios', 'makeup', '["Diamond Milk","Pink Dragonfly","Fussy","Hot Chocolit"]', false),
