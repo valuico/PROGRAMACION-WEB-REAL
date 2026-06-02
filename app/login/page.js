@@ -138,6 +138,8 @@ export default function LoginPage() {
     }
   };
 
+  const errStyle = { color: '#b42318', fontSize: '12px', marginTop: '4px' };
+
   const inputErrorStyle = (field) => fieldErrors[field] ? {
     borderColor: '#b42318',
     background: '#fff0f0',
