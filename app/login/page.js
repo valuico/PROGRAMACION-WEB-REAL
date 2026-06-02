@@ -222,11 +222,10 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="auth-feedback auth-error">⚠ {error}</p>
-            </div>
+            <p className="auth-feedback auth-error">{error}</p>
           )}
           {info && (
-            <p className="auth-feedback auth-info">✓ {info}</p>
+            <p className="auth-feedback auth-info">{info}</p>
           )}
 
           <button type="submit" className="checkout-primary-btn" disabled={loading}
