@@ -18,6 +18,11 @@ const ESTADO_COLORS = {
   cliente:    { bg: '#ede9fe', color: '#5b21b6' },
 };
 
+const EMPTY_NUEVA_ORDEN = {
+  nombre_cliente: '', email_cliente: '', estado: 'confirmada',
+  usuario_id: '', items: [],
+};
+
 export default function AdminPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -28,7 +33,19 @@ export default function AdminPage() {
   const [clients, setClients] = useState([]);
   const [error, setError] = useState('');
   const [notifications, setNotifications] = useState([]);
+
+  // Pedidos - expandir detalle
   const [expandedOrder, setExpandedOrder] = useState(null);
+  // Pedidos - editar
+  const [editingOrder, setEditingOrder] = useState(null); // { id, nombre_cliente, email_cliente, estado, items[] }
+  // Nueva orden
+  const [nuevaOrden, setNuevaOrden] = useState(EMPTY_NUEVA_ORDEN);
+  const [showNuevaOrden, setShowNuevaOrden] = useState(false);
+  // Agregar producto a orden (edición o nueva)
+  const [addingProductTo, setAddingProductTo] = useState(null); // 'nueva' | orderId
+  const [productoPicker, setProductoPicker] = useState({ producto_id: '', cantidad: 1, tono: '' });
+
+  // Productos
   const [newProduct, setNewProduct] = useState({
     nombre: '', descripcion: '', descripcion_corta: '',
     precio: '', stock: '', categoria: 'cara', tipo: 'makeup', imagen_url: '',
@@ -70,16 +87,21 @@ export default function AdminPage() {
   // ── Productos ──
   async function saveProduct(product) {
     const { error } = await supabase.from('productos').update({
-      nombre: product.nombre,
-      precio: Number(product.precio),
-      stock: Number(product.stock),
-      categoria: product.categoria,
-      tipo: product.tipo,
-      imagen_url: product.imagen_url,
+      nombre: product.nombre, precio: Number(product.precio),
+      stock: Number(product.stock), categoria: product.categoria,
+      tipo: product.tipo, imagen_url: product.imagen_url,
       descripcion_corta: product.descripcion_corta,
     }).eq('id', product.id);
     if (error) { notify('Error al guardar'); return; }
     notify('Producto guardado ✓');
+  }
+
+  async function toggleProductoActivo(product) {
+    const nuevoEstado = product.activo === false ? true : false;
+    const { error } = await supabase.from('productos').update({ activo: nuevoEstado }).eq('id', product.id);
+    if (error) { notify('Error al cambiar estado'); return; }
+    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, activo: nuevoEstado } : p));
+    notify(nuevoEstado ? 'Producto activado ✓' : 'Producto desactivado');
   }
 
   async function deleteProduct(id) {
@@ -104,12 +126,109 @@ export default function AdminPage() {
     if (data) setProducts(data);
   }
 
-  // ── Pedidos ──
+  // ── Pedidos - cambiar estado rápido ──
   async function updateOrderStatus(orderId, newStatus) {
     const { error } = await supabase.from('ordenes').update({ estado: newStatus }).eq('id', orderId);
     if (error) { notify('Error al actualizar estado'); return; }
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, estado: newStatus } : o));
     notify('Estado actualizado ✓');
+  }
+
+  // ── Pedidos - abrir edición ──
+  function openEditOrder(o) {
+    setEditingOrder({
+      id: o.id,
+      nombre_cliente: o.nombre_cliente || '',
+      email_cliente: o.email_cliente || '',
+      estado: o.estado || 'pendiente',
+      items: (o.orden_items || []).map(i => ({
+        producto_id: i.producto_id,
+        nombre_producto: i.nombre_producto,
+        precio_unitario: Number(i.precio_unitario),
+        cantidad: i.cantidad,
+        tono_seleccionado: i.tono_seleccionado || '',
+      })),
+    });
+    setSection('editar-orden');
+  }
+
+  // ── Pedidos - guardar edición ──
+  async function saveEditOrder() {
+    if (!editingOrder.items.length) { notify('Agregá al menos un producto'); return; }
+    const { data, error } = await supabase.rpc('admin_actualizar_orden', {
+      p_orden_id: editingOrder.id,
+      p_nombre_cliente: editingOrder.nombre_cliente,
+      p_email_cliente: editingOrder.email_cliente,
+      p_estado: editingOrder.estado,
+      p_items: editingOrder.items,
+    });
+    if (error || !data?.[0]?.success) {
+      notify(data?.[0]?.error_msg || 'Error al guardar la orden');
+      return;
+    }
+    notify('Orden actualizada ✓');
+    const { data: refreshed } = await supabase.rpc('get_all_orders');
+    if (refreshed) setOrders(Array.isArray(refreshed) ? refreshed : []);
+    setSection('pedidos');
+    setEditingOrder(null);
+  }
+
+  // ── Nueva orden - crear ──
+  async function crearNuevaOrden() {
+    if (!nuevaOrden.items.length) { notify('Agregá al menos un producto'); return; }
+    if (!nuevaOrden.nombre_cliente && !nuevaOrden.email_cliente) {
+      notify('Ingresá nombre o email del cliente'); return;
+    }
+    const { data, error } = await supabase.rpc('admin_crear_orden', {
+      p_items: nuevaOrden.items,
+      p_nombre_cliente: nuevaOrden.nombre_cliente,
+      p_email_cliente: nuevaOrden.email_cliente,
+      p_usuario_id: nuevaOrden.usuario_id || null,
+      p_estado: nuevaOrden.estado,
+    });
+    if (error || !data?.[0]?.success) {
+      notify(data?.[0]?.error_msg || 'Error al crear la orden');
+      return;
+    }
+    notify('Orden creada ✓');
+    setNuevaOrden(EMPTY_NUEVA_ORDEN);
+    setShowNuevaOrden(false);
+    const { data: refreshed } = await supabase.rpc('get_all_orders');
+    if (refreshed) setOrders(Array.isArray(refreshed) ? refreshed : []);
+    const { data: refreshedProducts } = await supabase.rpc('get_all_products');
+    if (refreshedProducts) setProducts(refreshedProducts);
+  }
+
+  // ── Helpers para items ──
+  function addItemToEdit() {
+    const prod = products.find(p => p.id === Number(productoPicker.producto_id));
+    if (!prod) { notify('Seleccioná un producto'); return; }
+    const item = {
+      producto_id: prod.id,
+      nombre_producto: prod.nombre,
+      precio_unitario: Number(prod.precio),
+      cantidad: Number(productoPicker.cantidad) || 1,
+      tono_seleccionado: productoPicker.tono || '',
+    };
+    if (addingProductTo === 'nueva') {
+      setNuevaOrden(prev => ({ ...prev, items: [...prev.items, item] }));
+    } else {
+      setEditingOrder(prev => ({ ...prev, items: [...prev.items, item] }));
+    }
+    setProductoPicker({ producto_id: '', cantidad: 1, tono: '' });
+    setAddingProductTo(null);
+  }
+
+  function removeItem(source, idx) {
+    if (source === 'nueva') {
+      setNuevaOrden(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
+    } else {
+      setEditingOrder(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
+    }
+  }
+
+  function calcTotal(items) {
+    return items.reduce((s, i) => s + i.precio_unitario * i.cantidad, 0);
   }
 
   // ── Clientes ──
@@ -130,6 +249,8 @@ export default function AdminPage() {
   }
 
   const totalVentas = orders.reduce((s, o) => s + Number(o.total || 0), 0);
+  const selectedProduct = products.find(p => p.id === Number(productoPicker.producto_id));
+  const tonesAvailable = selectedProduct?.tonos || [];
 
   return (
     <div style={s.shell}>
@@ -146,8 +267,8 @@ export default function AdminPage() {
             { id: 'pedidos',   label: 'Pedidos',    icon: '◻' },
             { id: 'clientes',  label: 'Clientes',   icon: '○' },
           ].map(({ id, label, icon }) => (
-            <button key={id} onClick={() => setSection(id)}
-              style={{ ...s.navItem, ...(section === id ? s.navActive : {}) }}>
+            <button key={id} onClick={() => { setSection(id); setEditingOrder(null); setShowNuevaOrden(false); }}
+              style={{ ...s.navItem, ...(['dashboard','productos','pedidos','clientes'].includes(section) && section === id ? s.navActive : section === 'editar-orden' && id === 'pedidos' ? s.navActive : {}) }}>
               <span>{icon}</span>{label}
             </button>
           ))}
@@ -211,10 +332,21 @@ export default function AdminPage() {
             {error && <p style={s.errorMsg}>{error}</p>}
             <div style={s.tableWrap}>
               <table style={s.table}>
-                <thead><tr>{['Nombre','Precio','Stock','Categoría','Tipo','Acciones'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
+                <thead><tr>{['Estado','Nombre','Precio','Stock','Categoría','Tipo','Acciones'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
                 <tbody>
                   {products.map(p=>(
-                    <tr key={p.id}>
+                    <tr key={p.id} style={p.activo===false?{opacity:0.5}:{}}>
+                      <td style={s.td}>
+                        <button
+                          onClick={()=>toggleProductoActivo(p)}
+                          style={{
+                            ...p.activo!==false ? s.btnSave : s.btnDelete,
+                            fontSize:'0.75rem', padding:'4px 10px'
+                          }}
+                        >
+                          {p.activo!==false ? '✓ Activo' : '✗ Inactivo'}
+                        </button>
+                      </td>
                       <td style={s.td}><input style={s.input} value={p.nombre||''} onChange={e=>setProducts(prev=>prev.map(x=>x.id===p.id?{...x,nombre:e.target.value}:x))}/></td>
                       <td style={s.td}><input style={{...s.input,width:'80px'}} type="number" value={p.precio??''} onChange={e=>setProducts(prev=>prev.map(x=>x.id===p.id?{...x,precio:e.target.value}:x))}/></td>
                       <td style={s.td}><input style={{...s.input,width:'60px'}} type="number" value={p.stock??''} onChange={e=>setProducts(prev=>prev.map(x=>x.id===p.id?{...x,stock:e.target.value}:x))}/></td>
@@ -256,13 +388,98 @@ export default function AdminPage() {
         {/* PEDIDOS */}
         {section === 'pedidos' && (
           <div>
-            <div style={s.pageHeader}>
-              <h2 style={s.pageTitle}>Pedidos</h2>
-              <p style={s.pageSub}>{orders.length} pedidos en total</p>
+            <div style={{...s.pageHeader, display:'flex', justifyContent:'space-between', alignItems:'flex-start'}}>
+              <div>
+                <h2 style={s.pageTitle}>Pedidos</h2>
+                <p style={s.pageSub}>{orders.length} pedidos en total</p>
+              </div>
+              <button onClick={()=>setShowNuevaOrden(v=>!v)} style={s.btnPrimary}>
+                {showNuevaOrden ? '✕ Cancelar' : '+ Nueva orden'}
+              </button>
             </div>
+
+            {/* FORMULARIO NUEVA ORDEN */}
+            {showNuevaOrden && (
+              <div style={s.editPanel}>
+                <h3 style={s.editTitle}>Nueva orden</h3>
+
+                {/* Selector de cliente existente */}
+                <div style={s.formGrid}>
+                  <label style={s.formLabel}>
+                    Cliente registrado (opcional)
+                    <select style={s.select} value={nuevaOrden.usuario_id}
+                      onChange={e => {
+                        const c = clients.find(x => x.id === e.target.value);
+                        setNuevaOrden(prev => ({
+                          ...prev,
+                          usuario_id: e.target.value,
+                          nombre_cliente: c?.nombre || prev.nombre_cliente,
+                          email_cliente: c?.email || prev.email_cliente,
+                        }));
+                      }}>
+                      <option value="">— Ingresar manualmente —</option>
+                      {clients.map(c=>(
+                        <option key={c.id} value={c.id}>{c.email} {c.nombre ? `(${c.nombre})` : ''}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label style={s.formLabel}>
+                    Nombre cliente
+                    <input style={s.input} value={nuevaOrden.nombre_cliente}
+                      onChange={e=>setNuevaOrden(prev=>({...prev,nombre_cliente:e.target.value}))}/>
+                  </label>
+                  <label style={s.formLabel}>
+                    Email cliente
+                    <input style={s.input} value={nuevaOrden.email_cliente}
+                      onChange={e=>setNuevaOrden(prev=>({...prev,email_cliente:e.target.value}))}/>
+                  </label>
+                  <label style={s.formLabel}>
+                    Estado inicial
+                    <select style={s.select} value={nuevaOrden.estado}
+                      onChange={e=>setNuevaOrden(prev=>({...prev,estado:e.target.value}))}>
+                      {ESTADOS_ORDEN.map(est=><option key={est} value={est}>{est}</option>)}
+                    </select>
+                  </label>
+                </div>
+
+                {/* Items */}
+                <p style={{...s.sectionTitle, marginTop:'1rem'}}>PRODUCTOS DE LA ORDEN</p>
+                {nuevaOrden.items.map((item,idx)=>(
+                  <div key={idx} style={s.itemEditRow}>
+                    <span style={{flex:1,fontWeight:'500'}}>{item.nombre_producto}</span>
+                    {item.tono_seleccionado && <span style={s.itemTonoBadge}>{item.tono_seleccionado}</span>}
+                    <span style={s.itemCantBadge}>x{item.cantidad}</span>
+                    <span style={s.itemPrecioBadge}>${(item.precio_unitario*item.cantidad).toLocaleString('es-AR')}</span>
+                    <button onClick={()=>removeItem('nueva',idx)} style={s.btnRemoveItem}>✕</button>
+                  </div>
+                ))}
+                {nuevaOrden.items.length > 0 && (
+                  <div style={s.totalRow}>
+                    <span>Total</span>
+                    <strong>${calcTotal(nuevaOrden.items).toLocaleString('es-AR')}</strong>
+                  </div>
+                )}
+
+                <ProductPicker
+                  products={products}
+                  productoPicker={productoPicker}
+                  setProductoPicker={setProductoPicker}
+                  tonesAvailable={tonesAvailable}
+                  onAdd={()=>{ setAddingProductTo('nueva'); addItemToEdit(); }}
+                  styles={s}
+                />
+
+                <div style={{display:'flex',gap:'0.75rem',marginTop:'1rem'}}>
+                  <button onClick={crearNuevaOrden} style={s.btnPrimary}>Crear orden</button>
+                  <button onClick={()=>setShowNuevaOrden(false)} style={s.btnSecondary}>Cancelar</button>
+                </div>
+              </div>
+            )}
+
+            {/* TABLA DE PEDIDOS */}
             <div style={s.tableWrap}>
               <table style={s.table}>
-                <thead><tr>{['#','Cliente','Total','Items','Estado','Fecha','Detalle'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
+                <thead><tr>{['#','Cliente','Total','Items','Estado','Fecha','Acciones'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
                 <tbody>
                   {orders.map(o=>(
                     <OrderRow
@@ -271,11 +488,78 @@ export default function AdminPage() {
                       expanded={expandedOrder===o.id}
                       onToggle={()=>setExpandedOrder(expandedOrder===o.id?null:o.id)}
                       onStatusChange={updateOrderStatus}
+                      onEdit={()=>openEditOrder(o)}
                       styles={s}
                     />
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* EDITAR ORDEN */}
+        {section === 'editar-orden' && editingOrder && (
+          <div>
+            <div style={s.pageHeader}>
+              <button onClick={()=>{setSection('pedidos');setEditingOrder(null);}} style={{...s.backBtn,color:'#6b7280',marginBottom:'0.5rem',display:'block'}}>← Volver a pedidos</button>
+              <h2 style={s.pageTitle}>Editar orden #{editingOrder.id}</h2>
+            </div>
+
+            <div style={s.editPanel}>
+              <h3 style={s.editTitle}>Datos del cliente</h3>
+              <div style={s.formGrid}>
+                <label style={s.formLabel}>
+                  Nombre
+                  <input style={s.input} value={editingOrder.nombre_cliente}
+                    onChange={e=>setEditingOrder(prev=>({...prev,nombre_cliente:e.target.value}))}/>
+                </label>
+                <label style={s.formLabel}>
+                  Email
+                  <input style={s.input} value={editingOrder.email_cliente}
+                    onChange={e=>setEditingOrder(prev=>({...prev,email_cliente:e.target.value}))}/>
+                </label>
+                <label style={s.formLabel}>
+                  Estado
+                  <select style={s.select} value={editingOrder.estado}
+                    onChange={e=>setEditingOrder(prev=>({...prev,estado:e.target.value}))}>
+                    {ESTADOS_ORDEN.map(est=><option key={est} value={est}>{est}</option>)}
+                  </select>
+                </label>
+              </div>
+
+              <h3 style={{...s.editTitle, marginTop:'1.5rem'}}>Productos</h3>
+              {editingOrder.items.map((item,idx)=>(
+                <div key={idx} style={s.itemEditRow}>
+                  <span style={{flex:1,fontWeight:'500'}}>{item.nombre_producto}</span>
+                  {item.tono_seleccionado && <span style={s.itemTonoBadge}>{item.tono_seleccionado}</span>}
+                  <input type="number" min="1" value={item.cantidad}
+                    onChange={e=>setEditingOrder(prev=>({...prev,items:prev.items.map((x,i)=>i===idx?{...x,cantidad:Number(e.target.value)}:x)}))}
+                    style={{...s.input,width:'60px'}}/>
+                  <span style={s.itemPrecioBadge}>${(item.precio_unitario*item.cantidad).toLocaleString('es-AR')}</span>
+                  <button onClick={()=>removeItem('edit',idx)} style={s.btnRemoveItem}>✕</button>
+                </div>
+              ))}
+              {editingOrder.items.length > 0 && (
+                <div style={s.totalRow}>
+                  <span>Total estimado</span>
+                  <strong>${calcTotal(editingOrder.items).toLocaleString('es-AR')}</strong>
+                </div>
+              )}
+
+              <ProductPicker
+                products={products}
+                productoPicker={productoPicker}
+                setProductoPicker={setProductoPicker}
+                tonesAvailable={tonesAvailable}
+                onAdd={()=>{ setAddingProductTo(editingOrder.id); addItemToEdit(); }}
+                styles={s}
+              />
+
+              <div style={{display:'flex',gap:'0.75rem',marginTop:'1.5rem'}}>
+                <button onClick={saveEditOrder} style={s.btnPrimary}>Guardar cambios</button>
+                <button onClick={()=>{setSection('pedidos');setEditingOrder(null);}} style={s.btnSecondary}>Cancelar</button>
+              </div>
             </div>
           </div>
         )}
@@ -326,7 +610,45 @@ export default function AdminPage() {
   );
 }
 
-function OrderRow({ o, expanded, onToggle, onStatusChange, styles: s }) {
+// ── Componente selector de producto ──
+function ProductPicker({ products, productoPicker, setProductoPicker, tonesAvailable, onAdd, styles: s }) {
+  return (
+    <div style={{ background:'#f9fafb', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'1rem', marginTop:'0.75rem' }}>
+      <p style={{ margin:'0 0 0.75rem', fontSize:'0.8rem', fontWeight:'600', color:'#374151' }}>AGREGAR PRODUCTO</p>
+      <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap', alignItems:'flex-end' }}>
+        <label style={s.formLabel}>
+          Producto
+          <select style={s.select} value={productoPicker.producto_id}
+            onChange={e=>setProductoPicker(prev=>({...prev,producto_id:e.target.value,tono:''}))}>
+            <option value="">— Seleccionar —</option>
+            {products.map(p=>(
+              <option key={p.id} value={p.id}>{p.nombre} (${Number(p.precio).toLocaleString('es-AR')}) — Stock: {p.stock}</option>
+            ))}
+          </select>
+        </label>
+        <label style={s.formLabel}>
+          Cantidad
+          <input style={{...s.input,width:'60px'}} type="number" min="1" value={productoPicker.cantidad}
+            onChange={e=>setProductoPicker(prev=>({...prev,cantidad:Number(e.target.value)}))}/>
+        </label>
+        {tonesAvailable.length > 0 && (
+          <label style={s.formLabel}>
+            Tono
+            <select style={s.select} value={productoPicker.tono}
+              onChange={e=>setProductoPicker(prev=>({...prev,tono:e.target.value}))}>
+              <option value="">— Sin tono —</option>
+              {tonesAvailable.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </label>
+        )}
+        <button onClick={onAdd} style={s.btnSave}>+ Agregar</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Componente fila de orden ──
+function OrderRow({ o, expanded, onToggle, onStatusChange, onEdit, styles: s }) {
   return (
     <>
       <tr>
@@ -343,9 +665,8 @@ function OrderRow({ o, expanded, onToggle, onStatusChange, styles: s }) {
         </td>
         <td style={s.tdMuted}>{o.creado_en?new Date(o.creado_en).toLocaleDateString('es-AR'):'—'}</td>
         <td style={s.td}>
-          <button onClick={onToggle} style={s.btnDetail}>
-            {expanded?'▲ Ocultar':'▼ Ver items'}
-          </button>
+          <button onClick={onToggle} style={s.btnDetail}>{expanded?'▲ Ocultar':'▼ Items'}</button>
+          <button onClick={onEdit} style={{...s.btnSave,marginLeft:'6px'}}>✏️ Editar</button>
         </td>
       </tr>
       {expanded && o.orden_items?.length>0 && (
@@ -378,43 +699,52 @@ function Badge({ estado }) {
 }
 
 const s = {
-  shell:        { display:'flex', minHeight:'100vh', fontFamily:'system-ui,sans-serif', background:'#f9fafb' },
-  sidebar:      { width:'200px', background:'#2d2438', display:'flex', flexDirection:'column', padding:'1.5rem 0', flexShrink:0, position:'sticky', top:0, height:'100vh' },
-  brand:        { padding:'0 1.5rem 1.5rem', borderBottom:'1px solid rgba(255,255,255,0.1)', marginBottom:'0.5rem' },
-  brandName:    { display:'block', color:'#fff', fontWeight:'700', fontSize:'1.1rem', letterSpacing:'0.15em' },
-  brandSub:     { display:'block', color:'#a78bfa', fontSize:'0.7rem', letterSpacing:'0.2em', textTransform:'uppercase', marginTop:'2px' },
-  nav:          { flex:1, display:'flex', flexDirection:'column', gap:'2px', padding:'0.5rem 0' },
-  navItem:      { display:'flex', alignItems:'center', gap:'0.6rem', padding:'0.65rem 1.5rem', background:'none', border:'none', color:'rgba(255,255,255,0.6)', cursor:'pointer', fontSize:'0.875rem', textAlign:'left' },
-  navActive:    { background:'rgba(167,139,250,0.15)', color:'#fff' },
-  sidebarFooter:{ padding:'1rem 1.5rem', borderTop:'1px solid rgba(255,255,255,0.1)' },
-  userEmail:    { display:'block', color:'rgba(255,255,255,0.45)', fontSize:'0.7rem', marginBottom:'0.5rem', wordBreak:'break-all' },
-  backBtn:      { background:'none', border:'none', color:'rgba(255,255,255,0.45)', cursor:'pointer', fontSize:'0.75rem', padding:0 },
-  content:      { flex:1, padding:'2rem', overflowY:'auto' },
-  pageHeader:   { marginBottom:'1.5rem' },
-  pageTitle:    { fontSize:'1.75rem', fontWeight:'700', color:'#111827', margin:0 },
-  pageSub:      { color:'#6b7280', margin:'0.25rem 0 0', fontSize:'0.9rem' },
-  kpiGrid:      { display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'2rem' },
-  kpi:          { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'1.25rem 1.5rem' },
-  kpiLabel:     { display:'block', fontSize:'0.68rem', letterSpacing:'0.1em', color:'#9ca3af', fontWeight:'600' },
-  kpiValue:     { display:'block', fontSize:'1.6rem', fontWeight:'700', color:'#111827', marginTop:'0.4rem' },
-  sectionTitle: { fontSize:'0.72rem', letterSpacing:'0.1em', color:'#9ca3af', fontWeight:'600', marginBottom:'0.75rem', textTransform:'uppercase' },
-  tableWrap:    { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', overflow:'auto', marginBottom:'2rem' },
-  table:        { width:'100%', borderCollapse:'collapse' },
-  th:           { padding:'0.75rem 1rem', textAlign:'left', fontSize:'0.68rem', letterSpacing:'0.1em', color:'#9ca3af', fontWeight:'600', borderBottom:'1px solid #f3f4f6', whiteSpace:'nowrap' },
-  td:           { padding:'0.75rem 1rem', fontSize:'0.875rem', color:'#374151', borderBottom:'1px solid #f9fafb' },
-  tdMuted:      { padding:'0.75rem 1rem', fontSize:'0.875rem', color:'#9ca3af', borderBottom:'1px solid #f9fafb' },
-  input:        { border:'1px solid #e5e7eb', borderRadius:'4px', padding:'4px 8px', fontSize:'0.85rem', width:'100%', outline:'none', boxSizing:'border-box' },
-  select:       { border:'1px solid #e5e7eb', borderRadius:'4px', padding:'4px 8px', fontSize:'0.85rem', background:'#fff', cursor:'pointer' },
-  btnSave:      { background:'#2d2438', color:'#fff', border:'none', borderRadius:'4px', padding:'5px 12px', fontSize:'0.8rem', cursor:'pointer', marginRight:'6px' },
-  btnDelete:    { background:'#fee2e2', color:'#991b1b', border:'none', borderRadius:'4px', padding:'5px 12px', fontSize:'0.8rem', cursor:'pointer' },
-  btnDetail:    { background:'#f3f4f6', color:'#374151', border:'none', borderRadius:'4px', padding:'4px 10px', fontSize:'0.8rem', cursor:'pointer', whiteSpace:'nowrap' },
-  btnPrimary:   { background:'#2d2438', color:'#fff', border:'none', borderRadius:'6px', padding:'0.6rem 1.5rem', fontSize:'0.9rem', cursor:'pointer', marginTop:'0.5rem' },
-  formSection:  { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'1.5rem' },
-  formGrid:     { display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1rem', marginBottom:'1rem' },
-  formLabel:    { display:'flex', flexDirection:'column', gap:'4px', fontSize:'0.8rem', color:'#374151', fontWeight:'500' },
-  errorMsg:     { color:'#dc2626', fontSize:'0.875rem', marginBottom:'1rem' },
-  itemsBox:     { background:'#fafafa', borderTop:'1px solid #f3f4f6', padding:'0.75rem 1.5rem' },
-  itemRow:      { display:'flex', alignItems:'center', gap:'1.5rem', padding:'0.4rem 0', borderBottom:'1px solid #f3f4f6', fontSize:'0.875rem', color:'#374151' },
-  toasts:       { position:'fixed', bottom:'1.5rem', right:'1.5rem', display:'flex', flexDirection:'column', gap:'0.5rem', zIndex:9999 },
-  toast:        { background:'#2d2438', color:'#fff', padding:'0.6rem 1.2rem', borderRadius:'8px', fontSize:'0.875rem', boxShadow:'0 4px 12px rgba(0,0,0,0.15)' },
+  shell:          { display:'flex', minHeight:'100vh', fontFamily:'system-ui,sans-serif', background:'#f9fafb' },
+  sidebar:        { width:'200px', background:'#2d2438', display:'flex', flexDirection:'column', padding:'1.5rem 0', flexShrink:0, position:'sticky', top:0, height:'100vh' },
+  brand:          { padding:'0 1.5rem 1.5rem', borderBottom:'1px solid rgba(255,255,255,0.1)', marginBottom:'0.5rem' },
+  brandName:      { display:'block', color:'#fff', fontWeight:'700', fontSize:'1.1rem', letterSpacing:'0.15em' },
+  brandSub:       { display:'block', color:'#a78bfa', fontSize:'0.7rem', letterSpacing:'0.2em', textTransform:'uppercase', marginTop:'2px' },
+  nav:            { flex:1, display:'flex', flexDirection:'column', gap:'2px', padding:'0.5rem 0' },
+  navItem:        { display:'flex', alignItems:'center', gap:'0.6rem', padding:'0.65rem 1.5rem', background:'none', border:'none', color:'rgba(255,255,255,0.6)', cursor:'pointer', fontSize:'0.875rem', textAlign:'left' },
+  navActive:      { background:'rgba(167,139,250,0.15)', color:'#fff' },
+  sidebarFooter:  { padding:'1rem 1.5rem', borderTop:'1px solid rgba(255,255,255,0.1)' },
+  userEmail:      { display:'block', color:'rgba(255,255,255,0.45)', fontSize:'0.7rem', marginBottom:'0.5rem', wordBreak:'break-all' },
+  backBtn:        { background:'none', border:'none', color:'rgba(255,255,255,0.45)', cursor:'pointer', fontSize:'0.75rem', padding:0 },
+  content:        { flex:1, padding:'2rem', overflowY:'auto' },
+  pageHeader:     { marginBottom:'1.5rem' },
+  pageTitle:      { fontSize:'1.75rem', fontWeight:'700', color:'#111827', margin:0 },
+  pageSub:        { color:'#6b7280', margin:'0.25rem 0 0', fontSize:'0.9rem' },
+  kpiGrid:        { display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'2rem' },
+  kpi:            { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'1.25rem 1.5rem' },
+  kpiLabel:       { display:'block', fontSize:'0.68rem', letterSpacing:'0.1em', color:'#9ca3af', fontWeight:'600' },
+  kpiValue:       { display:'block', fontSize:'1.6rem', fontWeight:'700', color:'#111827', marginTop:'0.4rem' },
+  sectionTitle:   { fontSize:'0.72rem', letterSpacing:'0.1em', color:'#9ca3af', fontWeight:'600', marginBottom:'0.75rem', textTransform:'uppercase' },
+  tableWrap:      { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', overflow:'auto', marginBottom:'2rem' },
+  table:          { width:'100%', borderCollapse:'collapse' },
+  th:             { padding:'0.75rem 1rem', textAlign:'left', fontSize:'0.68rem', letterSpacing:'0.1em', color:'#9ca3af', fontWeight:'600', borderBottom:'1px solid #f3f4f6', whiteSpace:'nowrap' },
+  td:             { padding:'0.75rem 1rem', fontSize:'0.875rem', color:'#374151', borderBottom:'1px solid #f9fafb' },
+  tdMuted:        { padding:'0.75rem 1rem', fontSize:'0.875rem', color:'#9ca3af', borderBottom:'1px solid #f9fafb' },
+  input:          { border:'1px solid #e5e7eb', borderRadius:'4px', padding:'4px 8px', fontSize:'0.85rem', width:'100%', outline:'none', boxSizing:'border-box' },
+  select:         { border:'1px solid #e5e7eb', borderRadius:'4px', padding:'4px 8px', fontSize:'0.85rem', background:'#fff', cursor:'pointer' },
+  btnSave:        { background:'#2d2438', color:'#fff', border:'none', borderRadius:'4px', padding:'5px 12px', fontSize:'0.8rem', cursor:'pointer', marginRight:'6px' },
+  btnDelete:      { background:'#fee2e2', color:'#991b1b', border:'none', borderRadius:'4px', padding:'5px 12px', fontSize:'0.8rem', cursor:'pointer' },
+  btnDetail:      { background:'#f3f4f6', color:'#374151', border:'none', borderRadius:'4px', padding:'4px 10px', fontSize:'0.8rem', cursor:'pointer', whiteSpace:'nowrap' },
+  btnPrimary:     { background:'#2d2438', color:'#fff', border:'none', borderRadius:'6px', padding:'0.6rem 1.5rem', fontSize:'0.9rem', cursor:'pointer' },
+  btnSecondary:   { background:'#f3f4f6', color:'#374151', border:'none', borderRadius:'6px', padding:'0.6rem 1.5rem', fontSize:'0.9rem', cursor:'pointer' },
+  btnRemoveItem:  { background:'#fee2e2', color:'#991b1b', border:'none', borderRadius:'4px', padding:'4px 8px', fontSize:'0.8rem', cursor:'pointer' },
+  formSection:    { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'1.5rem' },
+  formGrid:       { display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1rem', marginBottom:'1rem' },
+  formLabel:      { display:'flex', flexDirection:'column', gap:'4px', fontSize:'0.8rem', color:'#374151', fontWeight:'500' },
+  errorMsg:       { color:'#dc2626', fontSize:'0.875rem', marginBottom:'1rem' },
+  editPanel:      { background:'#fff', border:'1px solid #e5e7eb', borderRadius:'8px', padding:'1.5rem', marginBottom:'1.5rem' },
+  editTitle:      { fontSize:'1rem', fontWeight:'600', color:'#111827', margin:'0 0 1rem' },
+  itemEditRow:    { display:'flex', alignItems:'center', gap:'1rem', padding:'0.5rem 0', borderBottom:'1px solid #f3f4f6', fontSize:'0.875rem' },
+  itemTonoBadge:  { background:'#f3f4f6', color:'#6b7280', padding:'2px 8px', borderRadius:'4px', fontSize:'0.75rem' },
+  itemCantBadge:  { color:'#6b7280', minWidth:'30px' },
+  itemPrecioBadge:{ fontWeight:'600', minWidth:'90px', textAlign:'right' },
+  totalRow:       { display:'flex', justifyContent:'space-between', padding:'0.75rem 0', borderTop:'2px solid #f3f4f6', marginTop:'0.5rem', fontWeight:'600' },
+  itemsBox:       { background:'#fafafa', borderTop:'1px solid #f3f4f6', padding:'0.75rem 1.5rem' },
+  itemRow:        { display:'flex', alignItems:'center', gap:'1.5rem', padding:'0.4rem 0', borderBottom:'1px solid #f3f4f6', fontSize:'0.875rem', color:'#374151' },
+  toasts:         { position:'fixed', bottom:'1.5rem', right:'1.5rem', display:'flex', flexDirection:'column', gap:'0.5rem', zIndex:9999 },
+  toast:          { background:'#2d2438', color:'#fff', padding:'0.6rem 1.2rem', borderRadius:'8px', fontSize:'0.875rem', boxShadow:'0 4px 12px rgba(0,0,0,0.15)' },
 };

@@ -385,6 +385,7 @@ export default function Home() {
     const { data, error } = await supabase
       .from('productos')
       .select('*')
+      .neq('activo', false)
       .order('tipo', { ascending: true })
       .order('categoria', { ascending: true })
       .order('nombre', { ascending: true });
