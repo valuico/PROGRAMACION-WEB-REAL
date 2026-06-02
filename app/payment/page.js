@@ -144,6 +144,13 @@ export default function PaymentPage() {
         setError(result.error || 'Error al procesar la orden.');
         return;
       }
+
+      // Redirigir al checkout de pago con la orden creada
+      const ordenId = result.data?.id;
+      if (ordenId) {
+        router.push(`/checkout?orden_id=${ordenId}`);
+        return;
+      }
     } catch (err) {
       setError('Error de conexión. Intentá de nuevo.');
       return;
