@@ -265,43 +265,14 @@ export default function AdminPage() {
                 <thead><tr>{['#','Cliente','Total','Items','Estado','Fecha','Detalle'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
                 <tbody>
                   {orders.map(o=>(
-                    <>
-                      <tr key={o.id}>
-                        <td style={s.tdMuted}>#{o.id}</td>
-                        <td style={s.td}>{o.email_cliente||'—'}</td>
-                        <td style={s.td}>${Number(o.total).toLocaleString('es-AR')}</td>
-                        <td style={s.tdMuted}>{o.orden_items?.length??0} items</td>
-                        <td style={s.td}>
-                          <select value={o.estado||'pendiente'} onChange={e=>updateOrderStatus(o.id,e.target.value)} style={s.select}>
-                            {ESTADOS_ORDEN.map(est=>(
-                              <option key={est} value={est}>{est.charAt(0).toUpperCase()+est.slice(1)}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td style={s.tdMuted}>{o.creado_en?new Date(o.creado_en).toLocaleDateString('es-AR'):'—'}</td>
-                        <td style={s.td}>
-                          <button onClick={()=>setExpandedOrder(expandedOrder===o.id?null:o.id)} style={s.btnDetail}>
-                            {expandedOrder===o.id?'▲ Ocultar':'▼ Ver items'}
-                          </button>
-                        </td>
-                      </tr>
-                      {expandedOrder===o.id && o.orden_items?.length>0 && (
-                        <tr key={`${o.id}-items`}>
-                          <td colSpan={7} style={{padding:0}}>
-                            <div style={s.itemsBox}>
-                              {o.orden_items.map(item=>(
-                                <div key={item.id} style={s.itemRow}>
-                                  <span style={{flex:1,fontWeight:'500'}}>{item.nombre_producto}</span>
-                                  {item.tono_seleccionado&&<span style={{color:'#9ca3af',fontSize:'0.8rem'}}>Tono: {item.tono_seleccionado}</span>}
-                                  <span style={{color:'#6b7280',minWidth:'30px'}}>x{item.cantidad}</span>
-                                  <span style={{fontWeight:'600',minWidth:'90px',textAlign:'right'}}>${Number(item.precio_unitario).toLocaleString('es-AR')}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
+                    <OrderRow
+                      key={o.id}
+                      o={o}
+                      expanded={expandedOrder===o.id}
+                      onToggle={()=>setExpandedOrder(expandedOrder===o.id?null:o.id)}
+                      onStatusChange={updateOrderStatus}
+                      styles={s}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -352,6 +323,48 @@ export default function AdminPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+function OrderRow({ o, expanded, onToggle, onStatusChange, styles: s }) {
+  return (
+    <>
+      <tr>
+        <td style={s.tdMuted}>#{o.id}</td>
+        <td style={s.td}>{o.email_cliente||'—'}</td>
+        <td style={s.td}>${Number(o.total).toLocaleString('es-AR')}</td>
+        <td style={s.tdMuted}>{o.orden_items?.length??0} items</td>
+        <td style={s.td}>
+          <select value={o.estado||'pendiente'} onChange={e=>onStatusChange(o.id,e.target.value)} style={s.select}>
+            {ESTADOS_ORDEN.map(est=>(
+              <option key={est} value={est}>{est.charAt(0).toUpperCase()+est.slice(1)}</option>
+            ))}
+          </select>
+        </td>
+        <td style={s.tdMuted}>{o.creado_en?new Date(o.creado_en).toLocaleDateString('es-AR'):'—'}</td>
+        <td style={s.td}>
+          <button onClick={onToggle} style={s.btnDetail}>
+            {expanded?'▲ Ocultar':'▼ Ver items'}
+          </button>
+        </td>
+      </tr>
+      {expanded && o.orden_items?.length>0 && (
+        <tr>
+          <td colSpan={7} style={{padding:0}}>
+            <div style={s.itemsBox}>
+              {o.orden_items.map(item=>(
+                <div key={item.id} style={s.itemRow}>
+                  <span style={{flex:1,fontWeight:'500'}}>{item.nombre_producto}</span>
+                  {item.tono_seleccionado&&<span style={{color:'#9ca3af',fontSize:'0.8rem'}}>Tono: {item.tono_seleccionado}</span>}
+                  <span style={{color:'#6b7280',minWidth:'30px'}}>x{item.cantidad}</span>
+                  <span style={{fontWeight:'600',minWidth:'90px',textAlign:'right'}}>${Number(item.precio_unitario).toLocaleString('es-AR')}</span>
+                </div>
+              ))}
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
