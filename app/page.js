@@ -138,36 +138,33 @@ function NotifyButton() {
       setNotifyMode(false);
       setSubmitted(false);
       setEmail('');
-    }, 3000);
+    }, 4000);
   };
 
   return (
     <div className="notify-container">
       {!notifyMode ? (
-        <button
-          className="notify-btn"
-          onClick={() => setNotifyMode(true)}
-        >
-          Avisame cuando salga
+        <button className="notify-btn" onClick={() => setNotifyMode(true)}>
+          ✦ Avisame cuando salga
         </button>
       ) : submitted ? (
         <div className="thank-you-msg">
-          ¡Gracias! Te avisaremos.
+          <span className="thank-you-sparkle">✦</span>
+          <p className="thank-you-title">¡Anotada!</p>
+          <p className="thank-you-sub">Vas a ser la primera en saber cuando llegue.</p>
         </div>
       ) : (
         <div className="notify-input-container">
           <input
             type="email"
-            placeholder="Tu email aquí..."
+            placeholder="tu@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className="notify-input"
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           />
-          <button
-            onClick={handleSubmit}
-            className="notify-submit"
-          >
-            ✓
+          <button onClick={handleSubmit} className="notify-submit" aria-label="Enviar">
+            →
           </button>
         </div>
       )}
@@ -221,6 +218,41 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
         </button>
       </div>
     </div>
+  );
+}
+
+function FooterNewsletter() {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return;
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="footer-newsletter-success">
+        <span className="footer-newsletter-success-icon">✦</span>
+        <p>¡Bienvenida a la comunidad!</p>
+        <span>Vas a recibir lo mejor de HAZE antes que nadie.</span>
+      </div>
+    );
+  }
+
+  return (
+    <form className="footer-form" onSubmit={handleSubmit}>
+      <input
+        type="email"
+        placeholder="tu@email.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <button type="submit">Suscribirme</button>
+    </form>
   );
 }
 
@@ -1125,12 +1157,10 @@ export default function Home() {
           </div>
 
           <div className="footer-section newsletter">
-            <h4>¡Unite a la comunidad!</h4>
-            <p>Recibí ofertas exclusivas y lanzamientos antes que nadie.</p>
-            <form className="footer-form" onSubmit={(event) => event.preventDefault()}>
-              <input type="email" placeholder="Tu email aquí..." required />
-              <button type="submit">Suscribirme</button>
-            </form>
+            <span className="footer-newsletter-kicker">Comunidad HAZE</span>
+            <h4>Sé la primera en enterarte</h4>
+            <p>Lanzamientos, rutinas y ofertas exclusivas directo a tu mail.</p>
+            <FooterNewsletter />
           </div>
         </div>
 
