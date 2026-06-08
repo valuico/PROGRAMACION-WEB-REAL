@@ -42,9 +42,8 @@ export async function POST(req) {
       return Response.json({ error: 'La orden no tiene items' }, { status: 400 });
     }
 
-    // 5. Preparar items en formato Mercado Pago
+    // 5. Crear la preferencia con el SDK
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://haze-beauty-real.vercel.app';
-
     const preferenceClient = new Preference(client);
 
     const preference = await preferenceClient.create({
@@ -57,8 +56,15 @@ export async function POST(req) {
           unit_price: Number(item.precio_unitario),
           currency_id: 'ARS',
         })),
+        // Payer con identificación completa → reduce score de fraude → evita challenge 3DS
         payer: {
+          name: 'Test',
+          surname: 'User',
           email: orden.email_cliente || user.email,
+          identification: {
+            type: 'DNI',
+            number: '12345678',
+          },
         },
         external_reference: String(orden.id),
         notification_url: `${baseUrl}/api/pagos/webhook`,
