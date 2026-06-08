@@ -1,97 +1,93 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Cliente con service role para poder actualizar sin RLS
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
   if (!url || !serviceKey) return null;
   return createClient(url, serviceKey);
 }
 
-// Mapea el status de Mercado Pago al estado interno de la orden
-function mapearEstado(mpStatus) {
+function mpEstadoToInterno(mpStatus) {
   switch (mpStatus) {
     case 'approved':   return 'pagada';
-    case 'pending':    return 'pendiente';
+    case 'pending':
     case 'in_process': return 'pendiente';
-    case 'rejected':   return 'cancelada';
-    case 'cancelled':  return 'cancelada';
+    case 'rejected':
+    case 'cancelled':
     case 'refunded':   return 'cancelada';
     default:           return null;
   }
 }
 
-export async function POST(request) {
+// MP envía POST cuando hay un evento de pago
+export async function POST(req) {
   try {
-    const body = await request.json();
+    const body = await req.json();
+    console.log('Webhook MP recibido:', JSON.stringify(body));
 
-    // MP envía distintos tipos de notificaciones
-    const topic = body.type || body.topic;
-    const resourceId = body.data?.id || body.id;
+    const tipo = body.type || body.topic;
+    const pagoId = body.data?.id || body.id;
 
-    // Solo nos interesan las notificaciones de pagos
-    if (topic !== 'payment') {
-      return Response.json({ received: true }, { status: 200 });
+    // Solo nos importan notificaciones de tipo "payment"
+    if (tipo !== 'payment') {
+      return Response.json({ ok: true, ignorado: tipo }, { status: 200 });
     }
 
-    if (!resourceId) {
-      return Response.json({ error: 'ID de pago no encontrado' }, { status: 400 });
+    if (!pagoId) {
+      return Response.json({ error: 'ID de pago no recibido' }, { status: 400 });
     }
 
-    // Consultar el pago a la API de MP para obtener datos reales
-    const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
-    if (!mpToken) {
-      console.error('MERCADOPAGO_ACCESS_TOKEN no configurado');
-      return Response.json({ error: 'Configuración incompleta' }, { status: 500 });
+    const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    if (!accessToken) {
+      return Response.json({ error: 'Token MP no configurado' }, { status: 500 });
     }
 
-    const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${resourceId}`, {
-      headers: { Authorization: `Bearer ${mpToken}` },
+    // Consultar el pago en MP para obtener el estado real
+    const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${pagoId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!mpRes.ok) {
-      console.error('Error al consultar pago en MP:', mpRes.status);
-      return Response.json({ error: 'No se pudo verificar el pago' }, { status: 502 });
+      console.error('No se pudo consultar el pago en MP:', mpRes.status);
+      return Response.json({ error: 'Error consultando pago en MP' }, { status: 502 });
     }
 
     const pago = await mpRes.json();
-    const ordenId = pago.external_reference; // lo seteamos en crear-preferencia
-    const nuevoEstado = mapearEstado(pago.status);
+    const ordenId = pago.external_reference;
+    const nuevoEstado = mpEstadoToInterno(pago.status);
 
     if (!ordenId) {
-      console.error('external_reference vacío en el pago de MP');
-      return Response.json({ error: 'external_reference no encontrado' }, { status: 400 });
+      return Response.json({ error: 'external_reference vacío' }, { status: 400 });
     }
 
     if (!nuevoEstado) {
-      // Estado desconocido, lo ignoramos pero respondemos 200 para que MP no reintente
-      return Response.json({ received: true, status: pago.status }, { status: 200 });
+      // Estado desconocido — respondemos 200 para que MP no reintente
+      return Response.json({ ok: true, status: pago.status }, { status: 200 });
     }
 
-    // Actualizar la orden en Supabase
+    // Actualizar la orden usando el cliente admin (bypasea RLS)
     const supabase = getAdminClient();
     if (!supabase) {
-      return Response.json({ error: 'Supabase no configurado' }, { status: 500 });
+      return Response.json({ error: 'Supabase admin no configurado' }, { status: 500 });
     }
 
-    const { error: updateError } = await supabase
+    const { error } = await supabase
       .from('ordenes')
       .update({
         estado: nuevoEstado,
-        mp_payment_id: String(resourceId),
+        mp_payment_id: String(pagoId),
         mp_status: pago.status,
         actualizado_en: new Date().toISOString(),
       })
       .eq('id', Number(ordenId));
 
-    if (updateError) {
-      console.error('Error actualizando orden:', updateError.message);
-      return Response.json({ error: 'Error al actualizar la orden' }, { status: 500 });
+    if (error) {
+      console.error('Error actualizando orden:', error.message);
+      return Response.json({ error: 'Error actualizando orden' }, { status: 500 });
     }
 
-    console.log(`Orden ${ordenId} actualizada a "${nuevoEstado}" (pago ${resourceId})`);
-    return Response.json({ success: true, orden_id: ordenId, estado: nuevoEstado }, { status: 200 });
+    console.log(`✓ Orden ${ordenId} → "${nuevoEstado}" (pago MP: ${pagoId})`);
+    return Response.json({ ok: true, orden_id: ordenId, estado: nuevoEstado }, { status: 200 });
 
   } catch (err) {
     console.error('Error en webhook MP:', err);
@@ -99,7 +95,7 @@ export async function POST(request) {
   }
 }
 
-// MP a veces hace GET para verificar que el endpoint existe
+// MP hace GET para verificar que el endpoint existe
 export async function GET() {
   return Response.json({ ok: true }, { status: 200 });
 }
