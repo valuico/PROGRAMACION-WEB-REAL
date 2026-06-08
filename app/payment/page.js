@@ -60,6 +60,7 @@ export default function PaymentPage() {
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [metodoPago, setMetodoPago] = useState('mercadopago');
 
   useEffect(() => {
     async function bootstrap() {
@@ -145,10 +146,16 @@ export default function PaymentPage() {
         return;
       }
 
-      // Redirigir al checkout de pago con la orden creada
+      // Redirigir según método de pago
       const ordenId = result.data?.id;
       if (ordenId) {
-        router.push(`/checkout?orden_id=${ordenId}`);
+        if (metodoPago === 'mercadopago') {
+          router.push(`/checkout?orden_id=${ordenId}`);
+        } else {
+          // Tarjeta o efectivo: mostrar confirmación
+          setSubmitted(true);
+          setCart([]);
+        }
         return;
       }
     } catch (err) {
@@ -268,32 +275,48 @@ export default function PaymentPage() {
                 placeholder="tu@email.com"
               />
 
-              <label>Número de Tarjeta</label>
-              <input type="text" placeholder="4532 1234 5678 9010" disabled value="4532 1234 5678 9010" />
-
-              <div className="checkout-grid">
-                <div>
-                  <label>Vencimiento</label>
-                  <input type="text" placeholder="12/26" disabled value="12/26" />
-                </div>
-                <div>
-                  <label>CVV</label>
-                  <input type="text" placeholder="123" disabled value="123" />
-                </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontWeight: '600', color: '#3f2c46', fontSize: '14px', letterSpacing: '0.5px' }}>
+                  Método de pago
+                </label>
+                {[
+                  { id: 'mercadopago', label: 'Mercado Pago', desc: 'Tarjeta, transferencia o dinero en cuenta', icon: '💳' },
+                  { id: 'tarjeta', label: 'Tarjeta de crédito/débito', desc: 'Visa, Mastercard y más', icon: '🏦' },
+                  { id: 'efectivo', label: 'Efectivo', desc: 'Pago contra entrega', icon: '💵' },
+                ].map((m) => (
+                  <div
+                    key={m.id}
+                    onClick={() => setMetodoPago(m.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '12px',
+                      padding: '14px 16px', borderRadius: '14px', marginBottom: '8px',
+                      cursor: 'pointer', transition: 'all 0.2s',
+                      border: metodoPago === m.id ? '2px solid #95789b' : '1px solid #ece0ee',
+                      background: metodoPago === m.id ? 'rgba(149,120,155,0.06)' : '#fff',
+                    }}
+                  >
+                    <span style={{ fontSize: '1.4rem' }}>{m.icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ color: '#3f2c46', display: 'block', fontSize: '14px' }}>{m.label}</strong>
+                      <span style={{ color: '#95789b', fontSize: '12px' }}>{m.desc}</span>
+                    </div>
+                    <div style={{
+                      width: '18px', height: '18px', borderRadius: '50%',
+                      border: metodoPago === m.id ? '5px solid #95789b' : '2px solid #ccc',
+                      flexShrink: 0,
+                    }} />
+                  </div>
+                ))}
               </div>
 
               {error ? <p className="auth-feedback auth-error">{error}</p> : null}
 
               <button type="submit" className="checkout-primary-btn">
-                GUARDAR PEDIDO
+                {metodoPago === 'mercadopago' ? 'Continuar con Mercado Pago' : 'Confirmar Pedido'}
               </button>
               <button type="button" className="checkout-secondary-btn" onClick={() => router.push('/')}>
                 Volver al Carrito
               </button>
-              <div className="payment-icons-row" aria-label="Métodos de pago">
-                <span className="payment-icon-chip">VISA</span>
-                <span className="payment-icon-chip">Mastercard</span>
-              </div>
             </form>
           </div>
         ) : null}
