@@ -83,7 +83,7 @@ export async function POST(request) {
         mp_status: pago.status,
         actualizado_en: new Date().toISOString(),
       })
-      .eq('id', ordenId);
+      .eq('id', Number(ordenId));
 
     if (updateError) {
       console.error('Error actualizando orden:', updateError.message);
