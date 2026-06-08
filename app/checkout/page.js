@@ -78,7 +78,7 @@ function CheckoutContent() {
         return;
       }
 
-      const link = json.sandbox_link || json.payment_link;
+      const link = json.sandbox_link || json.init_point;
       if (!link) {
         setError('Mercado Pago no devolvió un link de pago.');
         setProcesando(false);
