@@ -3685,7 +3685,7 @@ body {
 .mega-menu {
     position: absolute;
     left: 50%;
-    top: calc(100% + 12px);
+    top: calc(100% + 2px);
     transform: translateX(-50%);
     width: min(820px, calc(100vw - 80px));
     display: grid;

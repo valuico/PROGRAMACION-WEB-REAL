@@ -424,6 +424,20 @@ export default function Home() {
 
       if (user && supabase) {
         try {
+          // Mergear carrito local (invitado) a Supabase al iniciar sesión
+          const localCart = readLocalCart();
+          if (localCart.length > 0) {
+            for (const item of localCart) {
+              await supabase.from('carrito').upsert({
+                usuario_id: user.id,
+                producto_id: item.id,
+                tono_seleccionado: item.selectedTone || 'Único',
+                cantidad: item.cantidad || 1,
+              }, { onConflict: 'usuario_id,producto_id,tono_seleccionado' });
+            }
+            saveLocalCart([]);
+          }
+
           const data = await fetchRemoteCartItems(user.id);
           setCart(normalizeCartItems(data));
           return;
