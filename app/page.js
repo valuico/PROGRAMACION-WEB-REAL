@@ -260,6 +260,7 @@ export default function Home() {
   const router = useRouter();
   const [currentSection, setCurrentSection] = useState('hero');
   const [cart, setCart] = useState([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedTones, setSelectedTones] = useState({});
   const [filter, setFilter] = useState('all');
@@ -440,6 +441,7 @@ export default function Home() {
 
           const data = await fetchRemoteCartItems(user.id);
           setCart(normalizeCartItems(data));
+          setCartLoaded(true);
           return;
         } catch (error) {
           console.error('No se pudo cargar el carrito remoto:', error);
@@ -447,16 +449,18 @@ export default function Home() {
       }
 
       setCart(readLocalCart());
+      setCartLoaded(true);
     }
 
     loadCart();
   }, [user, authReady]);
 
   useEffect(() => {
+    if (!cartLoaded) return; // No guardar hasta que el carrito esté cargado
     if (!user) {
       saveLocalCart(cart);
     }
-  }, [cart, user]);
+  }, [cart, user, cartLoaded]);
 
 
   const addNotification = (message) => {
