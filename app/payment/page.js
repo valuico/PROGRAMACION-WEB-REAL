@@ -76,6 +76,11 @@ export default function PaymentPage() {
 
       setUser(session?.user ?? null);
 
+      if (!session?.user && isSupabaseConfigured) {
+        router.push('/login');
+        return;
+      }
+
       if (session?.user) {
         setFormData((prev) => ({
           ...prev,
