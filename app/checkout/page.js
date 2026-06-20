@@ -130,7 +130,7 @@ function CheckoutContent() {
     <div className="checkout-page">
       <div className="checkout-layout">
 
-        <div className="checkout-panel">
+        <div className="checkout-panel checkout-summary">
           <div className="checkout-eyebrow">RESUMEN DE ORDEN</div>
           <h1>Finalizar compra</h1>
 
@@ -178,12 +178,44 @@ function CheckoutContent() {
         </div>
 
         {orden.estado === 'pendiente' && (
-          <div className="checkout-panel">
+          <div className="checkout-panel checkout-payment">
             <div className="checkout-eyebrow">MÉTODO DE PAGO</div>
             <h2>Pagá con Mercado Pago</h2>
-            <p style={{ color: '#6e5d72', fontSize: '14px', lineHeight: 1.6, marginBottom: '24px' }}>
-              Serás redirigido a Mercado Pago para completar el pago de forma segura con tarjeta, transferencia o dinero en cuenta.
+            <p style={{ color: '#6e5d72', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
+              Serás redirigido a Mercado Pago para completar el pago de forma segura.
             </p>
+
+            {/* CAJA DE TESTING — para que el profesor pueda probar */}
+            <div style={{
+              background: '#fffbea', border: '1px solid #f5c842',
+              borderRadius: '14px', padding: '16px 18px', marginBottom: '20px',
+              fontSize: '13px', lineHeight: 1.7,
+            }}>
+              <p style={{ fontWeight: 700, color: '#7a5c00', marginBottom: '10px', fontSize: '13px' }}>
+                🧪 Datos de prueba — Sandbox Mercado Pago
+              </p>
+
+              <p style={{ color: '#5a4500', marginBottom: '4px', fontWeight: 600 }}>✅ Recomendado: Dinero en cuenta MP</p>
+              <div style={{ background: '#fff8d6', borderRadius: '8px', padding: '8px 12px', marginBottom: '12px', fontFamily: 'monospace', fontSize: '12px', color: '#3d2f00', lineHeight: 1.9 }}>
+                Usuario: <strong>TESTUSER8136</strong><br/>
+                Contraseña: <strong>I5IYR0uOM7</strong><br/>
+                Cód. verificación: <strong>576543</strong><br/>
+                Saldo: <strong>$10.000 ARS</strong>
+              </div>
+
+              <p style={{ color: '#5a4500', marginBottom: '4px', fontWeight: 600 }}>🃏 Tarjetas de prueba (Titular = resultado)</p>
+              <div style={{ background: '#fff8d6', borderRadius: '8px', padding: '8px 12px', marginBottom: '10px', fontFamily: 'monospace', fontSize: '11px', color: '#3d2f00', lineHeight: 2 }}>
+                Mastercard: <strong>5031 7557 3453 0604</strong> · CVV 123 · 11/30 · Titular: <strong>APRO</strong><br/>
+                Visa: <strong>4509 9535 6623 3704</strong> · CVV 123 · 11/30 · Titular: <strong>APRO</strong><br/>
+                Amex: <strong>3711 803032 57522</strong> · CVV 1234 · 11/30 · Titular: <strong>APRO</strong><br/>
+                <span style={{ color: '#7a5c00' }}>Titular <strong>OTHE</strong> = rechazado · DNI siempre: 12345678</span>
+              </div>
+
+              <p style={{ color: '#7a5c00', fontSize: '11px', marginBottom: '0' }}>
+                ⚠ Precios bajados a $800–$2.000 ARS para entrar en el límite de $10.000 de la cuenta de prueba.
+                Si la tarjeta da error 404 es un bug del sandbox de MP Argentina — usá "Dinero en cuenta".
+              </p>
+            </div>
 
             {error && (
               <p className="auth-feedback auth-error" style={{ marginBottom: '16px' }}>

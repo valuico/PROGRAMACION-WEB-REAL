@@ -173,6 +173,8 @@ function NotifyButton() {
 }
 
 function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkincare }) {
+  const [hoveredTone, setHoveredTone] = useState(null);
+
   return (
     <div className="product-card show">
       <div className="product-img">
@@ -190,20 +192,26 @@ function ProductCard({ product, selectedTone, onToneSelect, onAddToCart, isSkinc
         <p>{product.p}</p>
 
         {product.tones && product.tones.length > 0 ? (
-          <div className="tone-selector">
-            {product.tones.map((tone) => (
-              <button
-                key={tone}
-                className={`tone-circle ${selectedTone === tone ? 'active' : ''}`}
-                onClick={() => onToneSelect(tone)}
-                title={tone}
-                data-tone={tone}
-                style={{
-                  backgroundColor: getToneColor(tone),
-                  border: selectedTone === tone ? '2px solid #95789b' : '1px solid #ccc',
-                }}
-              />
-            ))}
+          <div>
+            <div className="tone-selector">
+              {product.tones.map((tone) => (
+                <button
+                  key={tone}
+                  className={`tone-circle ${selectedTone === tone ? 'active' : ''}`}
+                  onClick={() => onToneSelect(tone)}
+                  onMouseEnter={() => setHoveredTone(tone)}
+                  onMouseLeave={() => setHoveredTone(null)}
+                  data-tone={tone}
+                  style={{
+                    backgroundColor: getToneColor(tone),
+                    border: selectedTone === tone ? '2px solid #95789b' : '1px solid #ccc',
+                  }}
+                />
+              ))}
+            </div>
+            <span className="tone-label-display">
+              {hoveredTone || selectedTone || ''}
+            </span>
           </div>
         ) : (
           <div className="tone-selector tone-selector-placeholder" aria-hidden="true" />
@@ -728,7 +736,7 @@ export default function Home() {
               <div className="nav-utility">
                 {user ? (
                   <>
-                    <Link href="/ordenes" className="nav-icon-btn" title="Mis órdenes">
+                    <Link href="/perfil" className="nav-icon-btn" title="Mi perfil">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>

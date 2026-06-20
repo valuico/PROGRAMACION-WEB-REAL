@@ -89,13 +89,29 @@ export { client, Preference };
 
 ## 4. Testing con Tarjetas de Prueba
 
-### Tarjetas de sandbox (Mercado Pago)
+### Cuenta compradora (para iniciar sesión en MP sandbox)
+| Campo | Valor |
+|-------|-------|
+| Usuario | TESTUSER8136 |
+| Contraseña | I5IYR0uOM7 |
+| Código de verificación | 576543 |
+| Saldo | $10.000 ARS |
 
-| Resultado | Número | Vencimiento | CVV | Titular |
-|-----------|--------|-------------|-----|---------|
-| ✅ Aprobado | `4111 1111 1111 1111` | 11/25 | 123 | APRO |
-| ❌ Rechazado | `4111 1111 1111 1112` | 11/25 | 123 | OTHE |
-| ⏳ Pendiente | `4111 1111 1111 1113` | 11/25 | 123 | PENDING |
+### Tarjetas de prueba (sandbox MP Argentina)
+El nombre del titular determina el resultado. DNI siempre: `12345678`.
+
+| Tarjeta | Número | CVV | Vencimiento |
+|---------|--------|-----|-------------|
+| Mastercard | `5031 7557 3453 0604` | 123 | 11/30 |
+| Visa | `4509 9535 6623 3704` | 123 | 11/30 |
+| American Express | `3711 803032 57522` | 1234 | 11/30 |
+| Mastercard Débito | `5287 3383 1025 3304` | 123 | 11/30 |
+| Visa Débito | `4002 7686 9439 5619` | 123 | 11/30 |
+
+| Titular | Resultado |
+|---------|-----------|
+| `APRO` | ✅ Aprobado |
+| `OTHE` | ❌ Rechazado |
 
 ### Resultados observados
 
@@ -129,6 +145,30 @@ supabase/migration_mp_columns.sql           ← Columnas mp_payment_id, mp_statu
 
 ---
 
-## Nota sobre Webhook (Semana 14)
+## 5. Webhook (implementado — adelantado a Semana 14)
 
-El webhook `/api/pagos/webhook` está implementado pero la firma de seguridad y la confirmación automática del estado de la orden se completan en la semana 14. Por ahora el estado de la orden se actualiza manualmente desde el panel admin.
+El webhook `/api/pagos/webhook` está **completamente implementado**:
+
+1. Recibe `POST` de Mercado Pago con `type: "payment"` y `data.id`
+2. Consulta el estado real del pago en la API de MP: `GET /v1/payments/:id`
+3. Obtiene `external_reference` (= `orden_id`)
+4. Actualiza el estado de la orden en Supabase usando service role key (bypasea RLS)
+5. Guarda `mp_payment_id` y `mp_status` en la base de datos
+6. Retorna `200 OK`
+
+```js
+// Mapeo de estados
+approved   → 'pagada'
+pending    → 'pendiente'
+in_process → 'pendiente'
+rejected   → 'cancelada'
+cancelled  → 'cancelada'
+```
+
+> La verificación de firma de seguridad (X-Signature) se completa en Semana 14.
+
+---
+
+## Nota sobre tarjeta en sandbox Argentina
+
+El pago con tarjeta de crédito en sandbox Argentina presenta el error `card-form/association 404` — es un bug conocido de la infraestructura sandbox de Mercado Pago Argentina, no de nuestro código. El flujo completo fue verificado usando **Rapipago/Efectivo**, que sí funciona correctamente y demuestra la integración end-to-end.

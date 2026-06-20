@@ -61,6 +61,8 @@ export default function PaymentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [metodoPago, setMetodoPago] = useState('mercadopago');
+  const [cardData, setCardData] = useState({ numero: '', titular: '', vencimiento: '', cvv: '' });
+  const [cardFlipped, setCardFlipped] = useState(false);
 
   useEffect(() => {
     async function bootstrap() {
@@ -313,6 +315,132 @@ export default function PaymentPage() {
                   </div>
                 ))}
               </div>
+
+              {/* FORMULARIO DE TARJETA */}
+              {metodoPago === 'tarjeta' && (
+                <div style={{ marginBottom: '20px' }}>
+                  {/* Vista previa de la tarjeta */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, #3f2c46 0%, #95789b 100%)',
+                    borderRadius: '16px', padding: '24px 24px 20px',
+                    marginBottom: '20px', color: '#fff', position: 'relative',
+                    minHeight: '160px', boxShadow: '0 8px 24px rgba(63,44,70,0.25)',
+                  }}>
+                    {/* Logo chip */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                      <div style={{ width: '36px', height: '28px', background: 'rgba(255,220,100,0.85)', borderRadius: '5px' }} />
+                      <span style={{ fontSize: '13px', opacity: 0.7, letterSpacing: '0.1em' }}>
+                        {cardData.numero.startsWith('4') ? 'VISA' :
+                         cardData.numero.startsWith('5') ? 'MASTERCARD' :
+                         cardData.numero.startsWith('3') ? 'AMEX' : '● ● ●'}
+                      </span>
+                    </div>
+                    {/* Número */}
+                    <p style={{ fontSize: '20px', letterSpacing: '0.18em', marginBottom: '16px', fontFamily: 'monospace', opacity: cardData.numero ? 1 : 0.4 }}>
+                      {cardData.numero || '•••• •••• •••• ••••'}
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                      <div>
+                        <p style={{ fontSize: '10px', opacity: 0.6, marginBottom: '2px', letterSpacing: '0.08em' }}>TITULAR</p>
+                        <p style={{ fontSize: '14px', letterSpacing: '0.06em', opacity: cardData.titular ? 1 : 0.4 }}>
+                          {cardData.titular?.toUpperCase() || 'TU NOMBRE'}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: '10px', opacity: 0.6, marginBottom: '2px', letterSpacing: '0.08em' }}>VENCE</p>
+                        <p style={{ fontSize: '14px', fontFamily: 'monospace', opacity: cardData.vencimiento ? 1 : 0.4 }}>
+                          {cardData.vencimiento || 'MM/AA'}
+                        </p>
+                      </div>
+                    </div>
+                    {/* CVV overlay al dar vuelta */}
+                    {cardFlipped && (
+                      <div style={{
+                        position: 'absolute', inset: 0, borderRadius: '16px',
+                        background: 'linear-gradient(135deg, #2a1c30 0%, #6b4c74 100%)',
+                        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                      }}>
+                        <div style={{ background: '#1a1a1a', height: '40px', marginBottom: '16px' }} />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '24px', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontSize: '11px', opacity: 0.6 }}>CVV</span>
+                          <div style={{ background: '#fff', color: '#333', padding: '6px 16px', borderRadius: '4px', fontFamily: 'monospace', letterSpacing: '0.2em' }}>
+                            {cardData.cvv || '•••'}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Campos */}
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#3f2c46', marginBottom: '4px' }}>
+                    Número de tarjeta
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={19}
+                    placeholder="1234 5678 9012 3456"
+                    value={cardData.numero}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
+                      const formatted = raw.match(/.{1,4}/g)?.join(' ') || raw;
+                      setCardData(prev => ({ ...prev, numero: formatted }));
+                    }}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #ddd', marginBottom: '12px', fontSize: '16px', fontFamily: 'monospace', letterSpacing: '0.1em' }}
+                  />
+
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#3f2c46', marginBottom: '4px' }}>
+                    Nombre del titular
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Como figura en la tarjeta"
+                    value={cardData.titular}
+                    onChange={(e) => setCardData(prev => ({ ...prev, titular: e.target.value }))}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #ddd', marginBottom: '12px', fontSize: '14px' }}
+                  />
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#3f2c46', marginBottom: '4px' }}>
+                        Vencimiento
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={5}
+                        placeholder="MM/AA"
+                        value={cardData.vencimiento}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          const formatted = raw.length > 2 ? `${raw.slice(0,2)}/${raw.slice(2)}` : raw;
+                          setCardData(prev => ({ ...prev, vencimiento: formatted }));
+                        }}
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #ddd', fontSize: '14px', fontFamily: 'monospace' }}
+                      />
+                    </div>
+                    <div style={{ width: '110px' }}>
+                      <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#3f2c46', marginBottom: '4px' }}>
+                        CVV
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={4}
+                        placeholder="•••"
+                        value={cardData.cvv}
+                        onFocus={() => setCardFlipped(true)}
+                        onBlur={() => setCardFlipped(false)}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          setCardData(prev => ({ ...prev, cvv: raw }));
+                        }}
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #ddd', fontSize: '14px', fontFamily: 'monospace', letterSpacing: '0.2em' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {error ? <p className="auth-feedback auth-error">{error}</p> : null}
 

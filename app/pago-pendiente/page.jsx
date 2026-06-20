@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 function PagoPendienteContent() {
   const params = useSearchParams();
@@ -21,7 +21,7 @@ function PagoPendienteContent() {
         <span className="resultado-kicker">Pago en proceso</span>
         <h1>Tu pago está pendiente de confirmación</h1>
         <p className="resultado-desc">
-          Estamos esperando la confirmación de tu pago. Podés completarlo siguiendo las instrucciones recibidas o en la sucursal más cercana.
+          Estamos esperando la confirmación de tu pago. Podés completarlo siguiendo las instrucciones que recibiste o en la sucursal más cercana.
         </p>
         {ordenId && (
           <div className="resultado-detail">
@@ -44,9 +44,6 @@ function PagoPendienteContent() {
           </Link>
           <Link href="/">
             <button className="checkout-secondary-btn">Volver a la tienda</button>
-          </Link>
-          <Link href="/">
-            <button className="checkout-secondary-btn">← Volver al inicio</button>
           </Link>
         </div>
       </div>

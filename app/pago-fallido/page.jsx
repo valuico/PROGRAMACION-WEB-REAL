@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 function PagoFallidoContent() {
   const params = useSearchParams();
@@ -22,14 +22,12 @@ function PagoFallidoContent() {
         <p className="resultado-desc">
           El pago fue rechazado. Podés intentarlo nuevamente con otro medio de pago o verificar los datos de tu tarjeta.
         </p>
-
         {ordenId && (
           <div className="resultado-detail">
             <span>N° de orden</span>
             <strong>#{ordenId}</strong>
           </div>
         )}
-
         <div className="resultado-actions">
           {ordenId ? (
             <Link href={`/checkout?orden_id=${ordenId}&error=pago_fallido`}>
@@ -42,9 +40,6 @@ function PagoFallidoContent() {
           )}
           <Link href="/perfil">
             <button className="checkout-secondary-btn">Ver mis pedidos</button>
-          </Link>
-          <Link href="/">
-            <button className="checkout-secondary-btn">← Volver al inicio</button>
           </Link>
         </div>
       </div>

@@ -1,27 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-function PagoPendienteContent() {
+function PagoCompletadoContent() {
   const params = useSearchParams();
   const ordenId = params.get('external_reference') || params.get('orden_id');
   const paymentId = params.get('payment_id');
 
   return (
     <div className="resultado-pago-page">
-      <div className="resultado-pago-card pendiente">
-        <div className="resultado-icon pendiente">
+      <div className="resultado-pago-card exito">
+        <div className="resultado-icon exito">
           <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M8 12l3 3 5-5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
-        <span className="resultado-kicker">Pago en proceso</span>
-        <h1>Tu pago está pendiente de confirmación</h1>
+        <span className="resultado-kicker">¡Pago aprobado!</span>
+        <h1>Tu compra fue procesada con éxito</h1>
         <p className="resultado-desc">
-          Estamos esperando la confirmación de tu pago. Podés completarlo siguiendo las instrucciones recibidas o en la sucursal más cercana.
+          Gracias por tu compra en <strong>HAZE BEAUTY</strong>. Tu pedido ha sido confirmado y lo estamos preparando.
         </p>
         {ordenId && (
           <div className="resultado-detail">
@@ -35,18 +35,12 @@ function PagoPendienteContent() {
             <strong>{paymentId}</strong>
           </div>
         )}
-        <p className="resultado-nota">
-          Te avisaremos por email cuando el pago sea confirmado. Tu orden permanece reservada.
-        </p>
         <div className="resultado-actions">
           <Link href="/perfil">
             <button className="ap-btn-primary">Ver mis pedidos</button>
           </Link>
           <Link href="/">
-            <button className="checkout-secondary-btn">Volver a la tienda</button>
-          </Link>
-          <Link href="/">
-            <button className="checkout-secondary-btn">← Volver al inicio</button>
+            <button className="checkout-secondary-btn">Seguir comprando</button>
           </Link>
         </div>
       </div>
@@ -54,10 +48,10 @@ function PagoPendienteContent() {
   );
 }
 
-export default function PagoPendientePage() {
+export default function PagoCompletadoPage() {
   return (
     <Suspense>
-      <PagoPendienteContent />
+      <PagoCompletadoContent />
     </Suspense>
   );
 }
