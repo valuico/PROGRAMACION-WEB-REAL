@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { supabase } from '../../lib/supabase/client';
 
 const ESTADO_LABELS = {
@@ -22,6 +23,10 @@ function CheckoutContent() {
   const [orden, setOrden] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
+  const [metodoPago, setMetodoPago] = useState('tarjeta'); // 'tarjeta' | 'mp'
+  const [sdkReady, setSdkReady] = useState(false);
+  const [brickMontado, setBrickMontado] = useState(false);
+  const brickRef = useRef(null);
   const [error, setError] = useState(
     errorParam === 'pago_fallido' ? 'El pago no pudo procesarse. Podés intentarlo de nuevo.' : null
   );
@@ -30,6 +35,65 @@ function CheckoutContent() {
     if (!orden_id) { setError('No se especificó una orden.'); setLoading(false); return; }
     cargarOrden();
   }, [orden_id]);
+
+  // Montar el Card Payment Brick cuando el SDK esté listo y la orden cargada
+  useEffect(() => {
+    if (!sdkReady || !orden || metodoPago !== 'tarjeta' || brickMontado) return;
+
+    const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
+    if (!publicKey || !window.MercadoPago) return;
+
+    async function montarBrick() {
+      try {
+        const mp = new window.MercadoPago(publicKey, { locale: 'es-AR' });
+        const bricksBuilder = mp.bricks();
+
+        const { data: { session } } = await supabase.auth.getSession();
+        const sessionToken = session?.access_token;
+
+        await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
+          initialization: { amount: Number(orden.total) },
+          customization: {
+            paymentMethods: { maxInstallments: 1 },
+            visual: { style: { theme: 'default' } },
+          },
+          callbacks: {
+            onReady: () => {},
+            onSubmit: async (formData) => {
+              try {
+                const res = await fetch('/api/pagos/crear-pago', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${sessionToken}`,
+                  },
+                  body: JSON.stringify({ ...formData, orden_id: Number(orden_id) }),
+                });
+                const result = await res.json();
+                if (result.redirect) {
+                  window.location.href = result.redirect;
+                } else {
+                  setError(result.error || 'Error al procesar el pago.');
+                }
+              } catch {
+                setError('Error de conexión. Intentá de nuevo.');
+              }
+            },
+            onError: (err) => {
+              console.error('Brick error:', err);
+            },
+          },
+        });
+
+        brickRef.current = bricksBuilder;
+        setBrickMontado(true);
+      } catch (err) {
+        console.error('Error montando brick:', err);
+      }
+    }
+
+    montarBrick();
+  }, [sdkReady, orden, metodoPago, brickMontado, orden_id]);
 
   async function cargarOrden() {
     setLoading(true);
@@ -179,11 +243,63 @@ function CheckoutContent() {
 
         {orden.estado === 'pendiente' && (
           <div className="checkout-panel checkout-payment">
+            <Script
+              src="https://sdk.mercadopago.com/js/v2"
+              onLoad={() => setSdkReady(true)}
+            />
             <div className="checkout-eyebrow">MÉTODO DE PAGO</div>
-            <h2>Pagá con Mercado Pago</h2>
-            <p style={{ color: '#6e5d72', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
-              Serás redirigido a Mercado Pago para completar el pago de forma segura.
-            </p>
+            <h2>Elegí cómo pagar</h2>
+
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+              {[
+                { id: 'tarjeta', label: '💳 Tarjeta' },
+                { id: 'mp', label: '🔵 Otros métodos' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setMetodoPago(tab.id); setBrickMontado(false); }}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: '10px', border: 'none',
+                    cursor: 'pointer', fontWeight: 600, fontSize: '13px',
+                    background: metodoPago === tab.id ? '#27ae60' : '#f0f0f0',
+                    color: metodoPago === tab.id ? '#fff' : '#555',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* TAB: TARJETA con MP Brick */}
+            {metodoPago === 'tarjeta' && (
+              <div>
+                <div id="cardPaymentBrick_container" style={{ minHeight: '280px' }} />
+                {!sdkReady && (
+                  <p style={{ textAlign: 'center', color: '#95789b', fontSize: '14px', padding: '40px 0' }}>
+                    Cargando formulario de tarjeta…
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* TAB: Otros métodos (Checkout Pro) */}
+            {metodoPago === 'mp' && (
+              <div>
+                <p style={{ color: '#6e5d72', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
+                  Pagá con efectivo, transferencia o dinero en cuenta de Mercado Pago.
+                </p>
+                <button
+                  className="checkout-primary-btn"
+                  onClick={pagarConMP}
+                  disabled={procesando}
+                  style={{ opacity: procesando ? 0.7 : 1 }}
+                >
+                  {procesando ? 'Redirigiendo…' : '🔵 Continuar con Mercado Pago'}
+                </button>
+              </div>
+            )}
 
             {/* CAJA DE TESTING — para que el profesor pueda probar */}
             <div style={{
@@ -222,15 +338,6 @@ function CheckoutContent() {
                 ⚠ {error}
               </p>
             )}
-
-            <button
-              className="checkout-primary-btn"
-              onClick={pagarConMP}
-              disabled={procesando}
-              style={{ opacity: procesando ? 0.7 : 1 }}
-            >
-              {procesando ? 'Redirigiendo…' : '💳 Pagar con Mercado Pago'}
-            </button>
 
             <div style={{
               display: 'flex', gap: '10px', alignItems: 'flex-start',
