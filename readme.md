@@ -146,7 +146,7 @@ Cuando MP te pida iniciar sesión durante el checkout, usá esta cuenta:
 
 | Campo | Valor |
 |-------|-------|
-| Usuario | `TESTUSER8136` |
+| Usuario | `TESTUSER813683783719832950` |
 | Contraseña | `I5IYR0uOM7` |
 | Código de verificación | `576543` |
 | Saldo disponible | $10.000 ARS |
