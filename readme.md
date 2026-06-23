@@ -117,6 +117,70 @@ UPDATE public.usuarios SET role = 'admin' WHERE email = 'tu@email.com';
 
 ---
 
+## Credenciales para evaluación
+
+> Todas las credenciales de abajo son de prueba/sandbox. No ejecutan cobros reales.
+
+### 🔐 Usuario administrador (panel `/admin`)
+
+| Campo | Valor |
+|-------|-------|
+| Email | `valenicono@gmail.com` |
+| Contraseña | `Valen1234` |
+
+Desde el panel admin podés ver y gestionar órdenes, productos y clientes.
+
+### 👤 Usuario cliente de prueba
+
+Podés registrarte con cualquier email desde `/login` → "Crear cuenta".  
+O usá esta cuenta ya creada:
+
+| Campo | Valor |
+|-------|-------|
+| Email | `viconomopulos@itba.edu.ar` |
+| Contraseña | `Valen1234` |
+
+### 💳 Mercado Pago — Cuenta compradora (sandbox)
+
+Cuando MP te pida iniciar sesión durante el checkout, usá esta cuenta:
+
+| Campo | Valor |
+|-------|-------|
+| Usuario | `TESTUSER8136` |
+| Contraseña | `I5IYR0uOM7` |
+| Código de verificación | `576543` |
+| Saldo disponible | $10.000 ARS |
+
+### 🃏 Tarjetas de prueba (sandbox MP Argentina)
+
+El **nombre del titular** determina el resultado. El DNI siempre es `12345678`.
+
+| Tarjeta | Número | CVV | Vencimiento |
+|---------|--------|-----|-------------|
+| Mastercard | `5031 7557 3453 0604` | 123 | 11/30 |
+| Visa | `4509 9535 6623 3704` | 123 | 11/30 |
+| American Express | `3711 803032 57522` | 1234 | 11/30 |
+| Mastercard Débito | `5287 3383 1025 3304` | 123 | 11/30 |
+| Visa Débito | `4002 7686 9439 5619` | 123 | 11/30 |
+
+| Titular | Resultado |
+|---------|-----------|
+| `APRO` | ✅ Pago aprobado |
+| `OTHE` | ❌ Pago rechazado |
+
+### 🧪 Flujo de prueba recomendado
+
+1. Ir a [haze-beauty-real.vercel.app](https://haze-beauty-real.vercel.app)
+2. Iniciar sesión con `viconomopulos@itba.edu.ar` / `Valen1234`
+3. Agregar productos al carrito
+4. Ir a **Comprar** → completar datos → continuar
+5. En el checkout de MP, iniciar sesión con **TESTUSER8136**
+6. Elegir **tarjeta** e ingresar los datos de arriba (titular: `APRO`)
+7. El pago se aprueba y redirige a `/pago-completado` ✅
+8. Para ver el panel admin, cerrar sesión e iniciar con `valenicono@gmail.com`
+
+---
+
 ## Autor
 
 Valentina Iconomopulos — ITBA 2026
