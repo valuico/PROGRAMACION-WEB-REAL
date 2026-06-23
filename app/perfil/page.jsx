@@ -82,6 +82,13 @@ export default function PerfilPage() {
     <div className="perfil-page">
       <div className="perfil-shell">
 
+        {/* Volver arriba */}
+        <div style={{ marginBottom: '20px' }}>
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#95789b', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}>
+            ← Volver a la tienda
+          </Link>
+        </div>
+
         {/* HEADER DEL PERFIL */}
         <div className="perfil-hero">
           <div className="perfil-avatar">{initials}</div>

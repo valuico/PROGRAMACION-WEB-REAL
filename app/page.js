@@ -308,6 +308,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentSection]);
+
+  useEffect(() => {
     const handleScrollProgress = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -1069,98 +1073,104 @@ export default function Home() {
 
         {currentSection === 'faq' ? (
           <section className="faq-section">
-            <div className="faq-main reveal-on-scroll">
-              <section className="faq-hero">
-                <div className="faq-hero-copy">
-                  <span className="news-tag">Preguntas Frecuentes</span>
-                  <h2>Todo lo que necesitás saber antes de comprar en <span className="gold-text">HAZE</span></h2>
-                  <p>Respondimos las dudas más comunes sobre envíos, pagos, tonos, rutinas y experiencia de compra para que recorrer la tienda se sienta simple, segura y linda.</p>
-                  <div className="faq-cta-row">
-                    <a className="skincare-link faq-link-dark" onClick={() => setCurrentSection('makeup')}>
-                      Ver makeup →
-                    </a>
-                    <a className="faq-secondary-link" onClick={() => setCurrentSection('skincare')}>
-                      Descubrir skincare
-                    </a>
+            {/* Hero */}
+            <div className="faq-v2-hero">
+              <span className="faq-v2-tag">Preguntas Frecuentes</span>
+              <h1 className="faq-v2-title">Todo lo que necesitás saber sobre <span className="gold-text">HAZE</span></h1>
+              <p className="faq-v2-subtitle">Envíos, pagos, tonos y rutinas — respondemos lo más consultado para que comprar se sienta simple y seguro.</p>
+              <div className="faq-v2-cta-row">
+                <button className="faq-v2-cta-primary" onClick={() => setCurrentSection('makeup')}>Ver makeup →</button>
+                <button className="faq-v2-cta-secondary" onClick={() => setCurrentSection('skincare')}>Descubrir skincare</button>
+              </div>
+            </div>
+
+            {/* Chips de info */}
+            <div className="faq-v2-chips">
+              {[
+                { icon: '🚚', label: 'Envíos 2–6 días hábiles' },
+                { icon: '🔒', label: 'Pago seguro con Mercado Pago' },
+                { icon: '🌿', label: 'Fórmulas veganas y cruelty-free' },
+                { icon: '🎨', label: 'Selector de tonos interactivo' },
+              ].map((c) => (
+                <div key={c.label} className="faq-v2-chip">
+                  <span className="faq-v2-chip-icon">{c.icon}</span>
+                  <span>{c.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Acordeón */}
+            <div className="faq-v2-grid">
+              <div className="faq-v2-accordion">
+                {[
+                  {
+                    q: '¿Cuánto tarda en llegar mi pedido?',
+                    a: 'Los envíos suelen demorar entre 2 y 6 días hábiles. Cuando tu compra se despacha, recibís un correo con el número de seguimiento para ver cada paso.',
+                    icon: '🚚',
+                  },
+                  {
+                    q: '¿Puedo combinar makeup y skincare en el mismo carrito?',
+                    a: 'Sí. Podés mezclar productos de ambas categorías y finalizar todo junto en una sola compra. Si iniciás sesión, tu carrito queda guardado.',
+                    icon: '🛒',
+                  },
+                  {
+                    q: '¿Cómo sé qué tono o producto elegir?',
+                    a: 'En cada product card de makeup podés pasar el mouse sobre los círculos de color para ver el nombre del tono antes de elegir. En skincare te conviene arrancar con toner, cleanser y moisturizer.',
+                    icon: '🎨',
+                  },
+                  {
+                    q: '¿Los productos sirven para piel sensible?',
+                    a: 'Las fórmulas están pensadas para sentirse suaves y minimalistas. Si tu piel es muy reactiva, recomendamos probar primero en una zona pequeña.',
+                    icon: '🌿',
+                  },
+                  {
+                    q: '¿La compra procesa pagos reales?',
+                    a: 'El checkout está integrado con Mercado Pago sandbox. Podés probar el flujo completo con las cuentas y tarjetas de prueba que aparecen en el checkout antes de pagar.',
+                    icon: '💳',
+                  },
+                  {
+                    q: '¿Puedo ver mis pedidos anteriores?',
+                    a: 'Sí. Si iniciás sesión, en tu perfil (ícono de usuario arriba a la derecha) encontrás el historial completo de tus órdenes con estado y detalle de productos.',
+                    icon: '📦',
+                  },
+                ].map((item, i) => (
+                  <details key={i} className="faq-v2-item">
+                    <summary className="faq-v2-summary">
+                      <span className="faq-v2-q-icon">{item.icon}</span>
+                      <span className="faq-v2-q-text">{item.q}</span>
+                      <span className="faq-v2-chevron">▾</span>
+                    </summary>
+                    <div className="faq-v2-answer">{item.a}</div>
+                  </details>
+                ))}
+              </div>
+
+              {/* Panel lateral */}
+              <aside className="faq-v2-side">
+                <div className="faq-v2-side-card">
+                  <Image src="/toner-haze.png" alt="Hydrating Toner" width={90} height={110} style={{ objectFit: 'contain' }} />
+                  <div>
+                    <span className="faq-v2-tag" style={{ marginBottom: '6px', display: 'inline-block' }}>Favorito</span>
+                    <h4>Hydrating Toner</h4>
+                    <p>Refrescá e hidratá antes del serum o la crema. La base perfecta para cualquier rutina.</p>
                   </div>
                 </div>
-
-                <div className="faq-hero-visual">
-                  <div className="faq-floating-card">
-                    <Image src="/toner-haze.png" alt="Hydrating Toner HAZE" width={420} height={420} />
-                  </div>
-                  <div className="faq-floating-card alt">
-                    <Image src="/paleta-sombras.png" alt="Ultimate Glow Palette HAZE" width={360} height={360} />
+                <div className="faq-v2-side-card">
+                  <Image src="/foundation-haze.png" alt="Foundation" width={90} height={110} style={{ objectFit: 'contain' }} />
+                  <div>
+                    <span className="faq-v2-tag" style={{ marginBottom: '6px', display: 'inline-block' }}>Más vendido</span>
+                    <h4>Pro Filt&apos;r Foundation</h4>
+                    <p>Cobertura pareja y acabado soft matte que dura todo el día con look natural.</p>
                   </div>
                 </div>
-              </section>
-
-              <section className="faq-feature-strip">
-                <article>
-                  <strong>Envíos a todo el país</strong>
-                  <p>Despachamos entre 2 y 6 días hábiles y te mandamos seguimiento apenas sale tu pedido.</p>
-                </article>
-                <article>
-                  <strong>Pago simple y seguro</strong>
-                  <p>Podés recorrer un checkout claro, prolijo y pensado para que comprar se sienta fácil.</p>
-                </article>
-                <article>
-                  <strong>Rutinas y tonos guiados</strong>
-                  <p>Te ayudamos a elegir texturas, fórmulas y combinaciones sin que te pierdas entre opciones.</p>
-                </article>
-              </section>
-
-              <section className="faq-content">
-                <div className="faq-column">
-                  <div className="faq-section-head">
-                    <span className="news-tag faq-mini-tag">Dudas más consultadas</span>
-                    <h3>Respuestas claras para comprar con confianza</h3>
+                <div className="faq-v2-tip">
+                  <span className="faq-v2-tip-icon">✦</span>
+                  <div>
+                    <strong>Tip HAZE</strong>
+                    <p>Aplicá el toner con la piel apenas húmeda y sellá con crema para potenciar la hidratación y el glow natural.</p>
                   </div>
-
-                  <details className="faq-item" open>
-                    <summary>¿Cuánto tarda en llegar mi pedido?</summary>
-                    <p>Los envíos suelen demorar entre 2 y 6 días hábiles. Cuando tu compra se despacha, recibís un correo con el seguimiento para ver cada paso.</p>
-                  </details>
-                  <details className="faq-item">
-                    <summary>¿Puedo combinar makeup y skincare en el mismo carrito?</summary>
-                    <p>Sí. Podés mezclar productos de ambas categorías y finalizar todo junto. Si iniciás sesión, además tu carrito queda guardado en Supabase.</p>
-                  </details>
-                  <details className="faq-item">
-                    <summary>¿Cómo sé qué tono o producto elegir?</summary>
-                    <p>En makeup podés usar el selector de tonos para comparar opciones, y en skincare te conviene arrancar con fórmulas livianas como toner, cleanser y moisturizer según tu rutina.</p>
-                  </details>
-                  <details className="faq-item">
-                    <summary>¿Los productos sirven para piel sensible?</summary>
-                    <p>Las fórmulas están pensadas para sentirse suaves y minimalistas. Si tu piel es muy reactiva, te recomendamos probar primero en una zona pequeña.</p>
-                  </details>
-                  <details className="faq-item">
-                    <summary>¿La compra del sitio procesa pagos reales?</summary>
-                    <p>El checkout actual guarda el pedido en Supabase como simulación académica. No ejecuta un cobro real.</p>
-                  </details>
                 </div>
-
-                <aside className="faq-column faq-side-panel">
-                  <h3>Favoritos del momento</h3>
-                  <article className="faq-product-callout">
-                    <Image src="/toner-haze.png" alt="Hydrating Toner HAZE" width={110} height={140} />
-                    <div>
-                      <h4>Hydrating Toner</h4>
-                      <p>Ideal para refrescar, hidratar y preparar la piel antes del serum, la crema o el makeup.</p>
-                    </div>
-                  </article>
-                  <article className="faq-product-callout">
-                    <Image src="/foundation-haze.png" alt="Pro Filt'r Foundation HAZE" width={110} height={140} />
-                    <div>
-                      <h4>Pro Filt&apos;r Foundation</h4>
-                      <p>Acabado soft matte y cobertura pareja para un look prolijo que dura todo el día.</p>
-                    </div>
-                  </article>
-                  <div className="faq-note">
-                    <h4>Tip HAZE</h4>
-                    <p>Aplicá el toner con la piel apenas húmeda y sellá enseguida con crema para potenciar la hidratación y el glow natural.</p>
-                  </div>
-                </aside>
-              </section>
+              </aside>
             </div>
           </section>
         ) : null}
