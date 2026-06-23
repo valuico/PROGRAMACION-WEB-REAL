@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase/client';
 
@@ -22,90 +22,14 @@ function CheckoutContent() {
   const [orden, setOrden] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
-  const [metodoPago, setMetodoPago] = useState('tarjeta'); // 'tarjeta' | 'mp'
-  const [sdkReady, setSdkReady] = useState(false);
-  const [brickMontado, setBrickMontado] = useState(false);
-  const brickRef = useRef(null);
   const [error, setError] = useState(
     errorParam === 'pago_fallido' ? 'El pago no pudo procesarse. Podés intentarlo de nuevo.' : null
   );
-
-  // Cargar SDK de MP dinámicamente
-  useEffect(() => {
-    if (document.querySelector('script[src="https://sdk.mercadopago.com/js/v2"]')) {
-      setSdkReady(true);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://sdk.mercadopago.com/js/v2';
-    script.onload = () => setSdkReady(true);
-    script.onerror = () => console.error('No se pudo cargar el SDK de MP');
-    document.head.appendChild(script);
-  }, []);
 
   useEffect(() => {
     if (!orden_id) { setError('No se especificó una orden.'); setLoading(false); return; }
     cargarOrden();
   }, [orden_id]);
-
-  // Montar el Card Payment Brick cuando el SDK esté listo y la orden cargada
-  useEffect(() => {
-    if (!sdkReady || !orden || metodoPago !== 'tarjeta' || brickMontado) return;
-
-    const publicKey = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
-    if (!publicKey || !window.MercadoPago) return;
-
-    async function montarBrick() {
-      try {
-        const mp = new window.MercadoPago(publicKey, { locale: 'es-AR' });
-        const bricksBuilder = mp.bricks();
-
-        const { data: { session } } = await supabase.auth.getSession();
-        const sessionToken = session?.access_token;
-
-        await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
-          initialization: { amount: Number(orden.total) },
-          customization: {
-            paymentMethods: { maxInstallments: 1 },
-            visual: { style: { theme: 'default' } },
-          },
-          callbacks: {
-            onReady: () => {},
-            onSubmit: async (formData) => {
-              try {
-                const res = await fetch('/api/pagos/crear-pago', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${sessionToken}`,
-                  },
-                  body: JSON.stringify({ ...formData, orden_id: Number(orden_id) }),
-                });
-                const result = await res.json();
-                if (result.redirect) {
-                  window.location.href = result.redirect;
-                } else {
-                  setError(result.error || 'Error al procesar el pago.');
-                }
-              } catch {
-                setError('Error de conexión. Intentá de nuevo.');
-              }
-            },
-            onError: (err) => {
-              console.error('Brick error:', err);
-            },
-          },
-        });
-
-        brickRef.current = bricksBuilder;
-        setBrickMontado(true);
-      } catch (err) {
-        console.error('Error montando brick:', err);
-      }
-    }
-
-    montarBrick();
-  }, [sdkReady, orden, metodoPago, brickMontado, orden_id]);
 
   async function cargarOrden() {
     setLoading(true);
@@ -256,76 +180,20 @@ function CheckoutContent() {
         {orden.estado === 'pendiente' && (
           <div className="checkout-panel checkout-payment">
             <div className="checkout-eyebrow">MÉTODO DE PAGO</div>
-            <h2>Elegí cómo pagar</h2>
+            <h2>Pagar con Mercado Pago</h2>
 
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              {[
-                { id: 'tarjeta', label: '💳 Tarjeta' },
-                { id: 'mp', label: '🔵 Otros métodos' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => { setMetodoPago(tab.id); setBrickMontado(false); }}
-                  style={{
-                    flex: 1, padding: '10px', borderRadius: '10px', border: 'none',
-                    cursor: 'pointer', fontWeight: 600, fontSize: '13px',
-                    background: metodoPago === tab.id ? '#27ae60' : '#f0f0f0',
-                    color: metodoPago === tab.id ? '#fff' : '#555',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            <p style={{ color: '#6e5d72', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
+              Pagá con tarjeta, efectivo, transferencia o dinero en cuenta de Mercado Pago.
+            </p>
 
-            {/* TAB: TARJETA con MP Brick */}
-            {metodoPago === 'tarjeta' && (
-              <div>
-                {!process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY ? (
-                  <div style={{
-                    background: '#fff3cd', border: '1px solid #ffc107',
-                    borderRadius: '12px', padding: '16px', fontSize: '13px', color: '#7a5c00'
-                  }}>
-                    <strong>⚙️ Configuración pendiente</strong><br/>
-                    Falta agregar <code>NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY</code> en las variables de entorno de Vercel.<br/><br/>
-                    <strong>Pasos:</strong><br/>
-                    1. Ir a <a href="https://mercadopago.com.ar/developers/panel" target="_blank" rel="noreferrer" style={{color:'#7a5c00'}}>MP Developers</a> → tu app → <strong>Credenciales de prueba</strong><br/>
-                    2. Copiar la <strong>Public key</strong> (APP_USR-...)<br/>
-                    3. Vercel → Settings → Environment Variables → agregar <code>NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY</code><br/>
-                    4. Hacer redeploy<br/><br/>
-                    Por ahora usá <strong>"Otros métodos"</strong> → Dinero en cuenta para probar.
-                  </div>
-                ) : (
-                  <>
-                    <div id="cardPaymentBrick_container" />
-                    {!brickMontado && (
-                      <p style={{ textAlign: 'center', color: '#95789b', fontSize: '14px', padding: '40px 0' }}>
-                        Cargando formulario de tarjeta…
-                      </p>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* TAB: Otros métodos (Checkout Pro) */}
-            {metodoPago === 'mp' && (
-              <div>
-                <p style={{ color: '#6e5d72', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
-                  Pagá con efectivo, transferencia o dinero en cuenta de Mercado Pago.
-                </p>
-                <button
-                  className="checkout-primary-btn"
-                  onClick={pagarConMP}
-                  disabled={procesando}
-                  style={{ opacity: procesando ? 0.7 : 1 }}
-                >
-                  {procesando ? 'Redirigiendo…' : '🔵 Continuar con Mercado Pago'}
-                </button>
-              </div>
-            )}
+            <button
+              className="checkout-primary-btn"
+              onClick={pagarConMP}
+              disabled={procesando}
+              style={{ opacity: procesando ? 0.7 : 1, marginBottom: '20px' }}
+            >
+              {procesando ? 'Redirigiendo…' : '🔵 Pagar con Mercado Pago'}
+            </button>
 
             {/* CAJA DE TESTING — para que el profesor pueda probar */}
             <div style={{
